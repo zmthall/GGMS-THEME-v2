@@ -1,0 +1,261 @@
+{% style %}
+  {% comment %}
+    Font loading:
+    - Keep the original type_primary_font for compatibility
+    - Add brand-controlled body + heading fonts
+  {% endcomment %}
+
+  {{ settings.type_primary_font | font_face: font_display: 'swap' }}
+  {{ settings.type_primary_font | font_modify: 'weight', 'bold' | font_face: font_display: 'swap' }}
+  {{ settings.type_primary_font | font_modify: 'weight', 'bold' | font_modify: 'style', 'italic' | font_face: font_display: 'swap' }}
+  {{ settings.type_primary_font | font_modify: 'style', 'italic' | font_face: font_display: 'swap' }}
+
+  {{ settings.font_body | font_face: font_display: 'swap' }}
+  {{ settings.font_body | font_modify: 'weight', 'bold' | font_face: font_display: 'swap' }}
+  {{ settings.font_body | font_modify: 'style', 'italic' | font_face: font_display: 'swap' }}
+
+  {{ settings.font_heading | font_face: font_display: 'swap' }}
+  {{ settings.font_heading | font_modify: 'weight', 'bold' | font_face: font_display: 'swap' }}
+
+  :root {
+    /* ----------------------------
+      Legacy tokens (keep these)
+    ---------------------------- */
+    --font-primary--family: var(--font-body);
+    --font-primary--style: normal;
+    --font-primary--weight: 400;
+
+
+    --page-width: {{ settings.max_page_width }};
+    --page-margin: {{ settings.min_page_margin }}px;
+
+    --color-background: {{ settings.background_color }};
+    --color-foreground: {{ settings.foreground_color }};
+
+    --color-background-rgb: {{ settings.background_color.red }} {{ settings.background_color.green }} {{ settings.background_color.blue }};
+    --color-foreground-rgb: {{ settings.foreground_color.red }} {{ settings.foreground_color.green }} {{ settings.foreground_color.blue }};
+
+    --style-border-radius-inputs: {{ settings.input_corner_radius }}px;
+
+    /* ----------------------------
+      Brand foundation (USE THESE)
+    ---------------------------- */
+
+    /* Typography */
+    --font-body:
+      {% if settings.use_brand_typography %}
+        "Gabarito", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif
+      {% else %}
+        {{ settings.font_body.family }}, {{ settings.font_body.fallback_families }}
+      {% endif %}
+    ;
+
+    --font-heading:
+      {% if settings.use_brand_typography %}
+        "Noto Serif", ui-serif, Georgia, "Times New Roman", Times, serif
+      {% else %}
+        {{ settings.font_heading.family }}, {{ settings.font_heading.fallback_families }}
+      {% endif %}
+    ;
+
+    /* Brand colors (hex) */
+    --ggms-page-bg: {{ settings.color_page_bg }};
+    --ggms-surface: {{ settings.color_surface }};
+    --ggms-border: {{ settings.color_border }};
+    --ggms-text: {{ settings.color_text }};
+    --ggms-text-muted: {{ settings.color_text_muted }};
+    --ggms-brand-blue: {{ settings.color_brand_primary }};
+    --ggms-brand-burgundy: {{ settings.color_brand_accent }};
+    --ggms-link: var(--ggms-brand-blue);
+    --ggms-link-hover: var(--ggms-brand-burgundy);
+    --ggms-button-hover: {{ settings.color_button_hover }};
+    --ggms-base-icon: {{ settings.color_base_icon }};
+
+    /* Brand colors (rgb for Tailwind alpha support) */
+    --ggms-page-bg-rgb: {{ settings.color_page_bg.red }} {{ settings.color_page_bg.green }} {{ settings.color_page_bg.blue }};
+    --ggms-surface-rgb: {{ settings.color_surface.red }} {{ settings.color_surface.green }} {{ settings.color_surface.blue }};
+    --ggms-border-rgb: {{ settings.color_border.red }} {{ settings.color_border.green }} {{ settings.color_border.blue }};
+    --ggms-text-rgb: {{ settings.color_text.red }} {{ settings.color_text.green }} {{ settings.color_text.blue }};
+    --ggms-text-muted-rgb: {{ settings.color_text_muted.red }} {{ settings.color_text_muted.green }} {{ settings.color_text_muted.blue }};
+    --ggms-brand-blue-rgb: {{ settings.color_brand_primary.red }} {{ settings.color_brand_primary.green }} {{ settings.color_brand_primary.blue }};
+    --ggms-brand-burgundy-rgb: {{ settings.color_brand_accent.red }} {{ settings.color_brand_accent.green }} {{ settings.color_brand_accent.blue }};
+    --ggms-link-rgb: var(--ggms-brand-blue-rgb);
+    --ggms-link-hover-rgb: var(--ggms-brand-burgundy-rgb);
+    --ggms-button-hover-rgb: {{ settings.color_button_hover.red }} {{ settings.color_button_hover.green }} {{ settings.color_button_hover.blue }};
+    --ggms-base-icon-rgb: {{ settings.color_base_icon.red }} {{ settings.color_base_icon.green }} {{ settings.color_base_icon.blue }}
+
+    /* Brand radius (make this your “real” radius token) */
+    --radius-input: {{ settings.radius_input }}px;
+
+    /* Visual Elements */
+    --focus-ring-rgb: var(--ggms-brand-blue-rgb);
+    --focus-ring-width: 3px;
+
+    --shadow-sm: 0 4px 6px 2px rgb(0 0 0 / 0.2);
+    --shadow-md: 0 10px 30px rgb(0 0 0 / 0.12);
+    --shadow-interior: 0 0 3px 1px inset rgba(0, 0, 0, 0.2);
+
+    /* Z-index scale (foundation) */
+    --z-base: 0;
+    --z-header: 50;
+    --z-dropdown: 60;
+    --z-overlay: 70;
+    --z-drawer: 80;
+    --z-modal: 90;
+    --z-toast: 100;
+
+    /* ============================
+      Foundation spacing tokens
+      (useful for consistent rhythm)
+    ============================ */
+    --space-1: 0.25rem;  /* 4px  */
+    --space-2: 0.5rem;   /* 8px  */
+    --space-3: 0.75rem;  /* 12px */
+    --space-4: 1rem;     /* 16px */
+    --space-5: 1.25rem;  /* 20px */
+    --space-6: 1.5rem;   /* 24px */
+    --space-8: 2rem;     /* 32px */
+    --space-10: 2.5rem;  /* 40px */
+    --space-12: 3rem;    /* 48px */
+    --space-16: 4rem;    /* 64px */
+
+    /* Section padding (so container/section can be Tailwind-driven later) */
+    --section-py-tight: 1.5rem;  /* 24px */
+    --section-py-normal: 2.5rem; /* 40px */
+    --section-py-loose: 4rem;    /* 64px */
+
+    /* ============================
+      Foundation radii scale
+      (you already have --radius-input)
+    ============================ */
+    --radius-sm: 0.375rem;  /* 6px */
+    --radius-md: 0.5rem;    /* 8px */
+    --radius-lg: 0.75rem;   /* 12px */
+    --radius-xl: 1rem;      /* 16px */
+    --radius-2xl: 1.5rem;   /* 24px */
+
+    --radius-card: var(--radius-lg);
+    --radius-popover: var(--radius-xl);
+
+    /* ============================
+      Borders + dividers
+    ============================ */
+    --border-1: 1px;
+    --border-2: 2px;
+
+    /* Alias tokens (nice for readability) */
+    --divider-rgb: var(--ggms-border-rgb);
+
+    /* ============================
+      Overlays / scrims (drawers, modals)
+    ============================ */
+    --overlay-rgb: 0 0 0;
+    --overlay-alpha: 0.55; /* tweak for taste */
+    --backdrop-blur: 6px;
+
+    /* ============================
+      Motion (consistent easing/durations)
+    ============================ */
+    --ease-standard: cubic-bezier(0.2, 0.0, 0, 1);
+    --ease-emphasized: cubic-bezier(0.2, 0.0, 0, 1.2);
+
+    --dur-fast: 150ms;
+    --dur-normal: 250ms;
+    --dur-slow: 450ms;
+
+    /* ============================
+      Layout constants (header/drawer offsets, etc.)
+    ============================ */
+    --header-h: 4.25rem; /* 68px - adjust later */
+    --nav-h: var(--header-h);
+
+    /* ============================
+      Form / control sizes
+    ============================ */
+    --control-h-sm: 2.25rem; /* 36px */
+    --control-h: 2.75rem;    /* 44px */
+    --control-h-lg: 3.25rem; /* 52px */
+
+    /* ============================
+      Semantic status colors (for alerts, badges later)
+      (no settings yet; easy to add later if you want)
+    ============================ */
+    --success-rgb: 22 163 74;
+    --warning-rgb: 245 158 11;
+    --danger-rgb: 220 38 38;
+  }
+
+  /* ----------------------------
+    Dark Theme Overrides
+    - Controlled by theme setting
+    - Also supports system preference
+  ---------------------------- */
+
+  html[data-theme="dark"] {
+    --overlay-alpha: 0.65;
+      
+    --ggms-page-bg: {{ settings.color_page_bg_dark }};
+    --ggms-surface: {{ settings.color_surface_dark }};
+    --ggms-border: {{ settings.color_border_dark }};
+    --ggms-text: {{ settings.color_text_dark }};
+    --ggms-text-muted: {{ settings.color_text_muted_dark }};
+
+    --ggms-brand-blue: {{ settings.color_brand_primary_dark }};
+    --ggms-brand-burgundy: {{ settings.color_brand_accent_dark }};
+    --ggms-link: {{ settings.color_link_dark }};
+    --ggms-link-hover: {{ settings.color_link_hover_dark }};
+    --ggms-button-hover: {{ settings.color_button_hover_dark }};
+    --ggms-base-icon: {{ settings.color_base_icon_dark }};
+
+
+    --ggms-page-bg-rgb: {{ settings.color_page_bg_dark.red }} {{ settings.color_page_bg_dark.green }} {{ settings.color_page_bg_dark.blue }};
+    --ggms-surface-rgb: {{ settings.color_surface_dark.red }} {{ settings.color_surface_dark.green }} {{ settings.color_surface_dark.blue }};
+    --ggms-border-rgb: {{ settings.color_border_dark.red }} {{ settings.color_border_dark.green }} {{ settings.color_border_dark.blue }};
+    --ggms-text-rgb: {{ settings.color_text_dark.red }} {{ settings.color_text_dark.green }} {{ settings.color_text_dark.blue }};
+    --ggms-text-muted-rgb: {{ settings.color_text_muted_dark.red }} {{ settings.color_text_muted_dark.green }} {{ settings.color_text_muted_dark.blue }};
+
+    --ggms-brand-blue-rgb: {{ settings.color_brand_primary_dark.red }} {{ settings.color_brand_primary_dark.green }} {{ settings.color_brand_primary_dark.blue }};
+    --ggms-brand-burgundy-rgb: {{ settings.color_brand_accent_dark.red }} {{ settings.color_brand_accent_dark.green }} {{ settings.color_brand_accent_dark.blue }};
+    --ggms-link-rgb: {{ settings.color_link_dark.red }} {{ settings.color_link_dark.green }} {{ settings.color_link_dark.blue }};
+    --ggms-link-hover-rgb: {{ settings.color_link_hover_dark.red }} {{ settings.color_link_hover_dark.green }} {{ settings.color_link_hover_dark.blue }};
+    --ggms-button-hover-rgb: {{ settings.color_button_hover_dark.red }} {{ settings.color_button_hover_dark.green }} {{ settings.color_button_hover_dark.blue }};
+    --ggms-base-icon-rgb: {{ settings.color_base_icon_dark.red }} {{ settings.color_base_icon_dark.green }} {{ settings.color_base_icon_dark.blue }}
+
+    /* Optional: focus ring can track brand */
+    --focus-ring-rgb: var(--ggms-brand-blue-rgb);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    html[data-theme="system"] {
+      --overlay-alpha: 0.65;
+
+      --ggms-page-bg: {{ settings.color_page_bg_dark }};
+      --ggms-surface: {{ settings.color_surface_dark }};
+      --ggms-border: {{ settings.color_border_dark }};
+      --ggms-text: {{ settings.color_text_dark }};
+      --ggms-text-muted: {{ settings.color_text_muted_dark }};
+
+      --ggms-brand-blue: {{ settings.color_brand_primary_dark }};
+      --ggms-brand-burgundy: {{ settings.color_brand_accent_dark }};
+      --ggms-link: {{ settings.color_link_dark }};
+      --ggms-link-hover: {{ settings.color_link_hover_dark }};
+      --ggms-button-hover: {{ settings.color_button_hover_dark }};
+      --ggms-base-icon: {{ settings.color_base_icon_dark }};
+
+      --ggms-page-bg-rgb: {{ settings.color_page_bg_dark.red }} {{ settings.color_page_bg_dark.green }} {{ settings.color_page_bg_dark.blue }};
+      --ggms-surface-rgb: {{ settings.color_surface_dark.red }} {{ settings.color_surface_dark.green }} {{ settings.color_surface_dark.blue }};
+      --ggms-border-rgb: {{ settings.color_border_dark.red }} {{ settings.color_border_dark.green }} {{ settings.color_border_dark.blue }};
+      --ggms-text-rgb: {{ settings.color_text_dark.red }} {{ settings.color_text_dark.green }} {{ settings.color_text_dark.blue }};
+      --ggms-text-muted-rgb: {{ settings.color_text_muted_dark.red }} {{ settings.color_text_muted_dark.green }} {{ settings.color_text_muted_dark.blue }};
+
+      --ggms-brand-blue-rgb: {{ settings.color_brand_primary_dark.red }} {{ settings.color_brand_primary_dark.green }} {{ settings.color_brand_primary_dark.blue }};
+      --ggms-brand-burgundy-rgb: {{ settings.color_brand_accent_dark.red }} {{ settings.color_brand_accent_dark.green }} {{ settings.color_brand_accent_dark.blue }};
+      --ggms-link-rgb: {{ settings.color_link_dark.red }} {{ settings.color_link_dark.green }} {{ settings.color_link_dark.blue }};
+      --ggms-link-hover-rgb: {{ settings.color_link_hover_dark.red }} {{ settings.color_link_hover_dark.green }} {{ settings.color_link_hover_dark.blue }};
+      --ggms-button-hover-rgb: {{ settings.color_button_hover_dark.red }} {{ settings.color_button_hover_dark.green }} {{ settings.color_button_hover_dark.blue }};
+      --ggms-base-icon-rgb: {{ settings.color_base_icon_dark.red }} {{ settings.color_base_icon_dark.green }} {{ settings.color_base_icon_dark.blue }}
+
+      --focus-ring-rgb: var(--ggms-brand-blue-rgb);
+    }
+  }
+{% endstyle %}

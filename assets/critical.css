@@ -1,0 +1,50 @@
+/* critical.css — truly minimal */
+*, *::before, *::after { box-sizing: border-box; }
+
+img, svg, video, canvas {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* Icon Styling */
+
+iconify-icon {
+  display: inline-block;
+  width: 1em;
+  height: 1em;
+}
+
+.ui-icon {
+  display: inline-flex;
+  width: var(--ui-icon-size, 1em);
+  height: var(--ui-icon-size, 1em);
+  line-height: 1;
+  flex: 0 0 auto;
+}
+
+/* Local sprite SVG should fill wrapper */
+.ui-icon > svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* IMPORTANT: Iconify host must be sized (Shadow DOM SVG is 1em) */
+.ui-icon > iconify-icon {
+  width: 100%;
+  height: 100%;
+  display: block;
+  font-size: var(--ui-icon-size, 1em); /* key line */
+}
+
+/* Icon Styling End */
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

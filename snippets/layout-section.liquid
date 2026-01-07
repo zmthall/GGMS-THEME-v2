@@ -1,0 +1,35 @@
+{%- comment -%}
+  Params:
+    - content: required
+    - bg: 'page' | 'surface' | 'elevated' (default 'page')
+    - density: 'tight' | 'normal' | 'loose' (default 'normal')
+    - page_width: boolean (default true)
+    - gutters: boolean (default true)
+    - class: extra classes
+{%- endcomment -%}
+
+{%- assign bg = bg | default: 'page' -%}
+{%- assign density = density | default: 'normal' -%}
+{%- assign extra = class | default: '' -%}
+
+{%- assign use_page_width = page_width -%}
+{%- if use_page_width == nil -%}{%- assign use_page_width = true -%}{%- endif -%}
+
+{%- assign use_gutters = gutters -%}
+{%- if use_gutters == nil -%}{%- assign use_gutters = true -%}{%- endif -%}
+
+{%- case bg -%}
+  {%- when 'surface' -%}{%- assign bg_class = 'bg-surface' -%}
+  {%- when 'elevated' -%}{%- assign bg_class = 'bg-surface shadow-sm' -%}
+  {%- else -%}{%- assign bg_class = 'bg-page' -%}
+{%- endcase -%}
+
+{%- case density -%}
+  {%- when 'tight' -%}{%- assign density_class = 'gg-section--tight' -%}
+  {%- when 'loose' -%}{%- assign density_class = 'gg-section--loose' -%}
+  {%- else -%}{%- assign density_class = 'gg-section--normal' -%}
+{%- endcase -%}
+
+<section class="gg-section {{ density_class }} {{ bg_class }} {{ extra }}">
+  {% render 'layout-container', content: content, page_width: use_page_width, gutters: use_gutters %}
+</section>

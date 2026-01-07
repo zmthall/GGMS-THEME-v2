@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="{{ request.locale.iso_code }}" data-theme="{{ settings.theme_mode }}">
+  <head>
+    {% # Inlined CSS Variables %}
+    {% render 'css-custom-fonts' %}
+    {% render 'css-variables' %}
+
+    {% # Important asset loading %}
+    {% render 'theme-mode-head' %}
+
+
+    {% # load and preload critical fonts %}
+    {% if settings.use_brand_typography %}
+      <link rel="preload" href="{{ 'Gabarito-Regular.woff2' | asset_url }}" as="font" type="font/woff2" crossorigin>
+      <link rel="preload" href="{{ 'NotoSerif-Regular.woff2' | asset_url }}" as="font" type="font/woff2" crossorigin>
+    {% else %}
+      {% unless settings.font_body.system? %}
+        <link rel="preconnect" href="https://fonts.shopifycdn.com" crossorigin>
+        {{ settings.font_body | font_url | preload_tag: as: 'font', crossorigin: 'anonymous' }}
+      {% endunless %}
+    {% endif %}
+
+    {% # Load and preload the critical CSS %}
+    {{ 'critical.css' | asset_url | stylesheet_tag: preload: true }}
+
+
+    {% # Social, title, etc. %}
+    {% render 'meta-tags' %}
+
+    {{ content_for_header }}
+
+    {{ 'tailwind.css' |  asset_url |  stylesheet_tag }}
+
+    <script src="https://code.iconify.design/iconify-icon/3.0.0/iconify-icon.min.js" defer></script>
+  </head>
+
+  <body>
+    <a class="sr-only focus:not-sr-only" href="#MainContent">Skip to content</a>
+
+    {% sections 'header-group' %}
+
+    <main id="MainContent" role="main">
+      {{ content_for_layout }}
+    </main>
+
+    {% sections 'footer-group' %}
+
+    {% render 'ui-icon-sprite' %}
+  </body>
+</html>

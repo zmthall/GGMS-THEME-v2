@@ -1,0 +1,213 @@
+{%- comment -%}
+  ui-button
+
+  Args:
+    - content: HTML string (preferred "slot") OR label fallback
+    - variant: primary | secondary | cta | ghost | danger | link | icon-only (default: primary)
+    - type: button | submit | reset (default: button; only if no href)
+    - href: string (optional; renders <a>)
+    - class: optional
+    - attrs: optional raw attrs (data-*, aria-*)
+    - disabled: boolean (default false)
+    - loading: boolean (default false)
+    - aria_label: required if icon-only or no visible text
+    - cta_size: (sm | md | lg) optional used to change the sizing of a cta button
+
+    - button_icon: (any icon name from icones.js.org) required if icon-only variant 
+    - button_icon_size: (any size, sets icon height and width can be rem, px, and percentage) required if icon-only variant (default: 2rem)
+    - button_icon_color: (any color in tailwind adds to the button icon class) required if icon-only variant (default: text-black)
+    - button_icon_hover_color: (same as buton icon color but this is the color shown on hover)
+    - icon_bg_hover: boolean (default false)
+{%- endcomment -%}
+
+{%- liquid
+  assign _content = content | default: ''
+  assign _label = label | default: ''
+  assign _variant = variant | default: 'primary'
+  assign _type = type | default: 'button'
+  assign _href = href | default: ''
+  assign _class = class | default: ''
+  assign _attrs = attrs | default: ''
+  assign _disabled = disabled | default: false
+  assign _loading = loading | default: false
+  assign _aria_label = aria_label | default: ''
+
+  assign _cta_icon = cta_icon | default: 'cart'
+  assign _cta_size = cta_size | default: 'md'
+
+  assign _button_icon = button_icon | default: 'cart'
+  assign _button_icon_size = button_icon_size | default: '2rem'
+  assign _button_icon_color = button_icon_color | default: 'text-base-icon'
+  assign _button_icon_hover_color = button_icon_hover_color | default: ''
+  assign _icon_bg_hover = icon_bg_hover | default: false
+
+  if _button_icon_hover_color == blank
+    unless _icon_bg_hover
+      assign _button_icon_hover_color = 'group-hover:text-zinc-500'
+    endunless
+  endif
+
+  if _loading
+    assign _disabled = true
+  endif
+
+  if _content == blank
+    if _label != blank
+      assign _content = _label
+    else
+      assign _content = 'Button'
+    endif
+  endif
+
+  # Base button styling (Tailwind-safe, static string)
+  assign base = 'inline-flex w-fit self-start items-center justify-center gap-2 font-medium select-none cursor-pointer group transition-color focus-visible:ring-2 focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none '
+
+  # Default "size" (not an arg; just your standard control size)
+  assign sizing = 'h-control px-4 py-2 text-md '
+  assign rounded = 'rounded-md '
+
+  # Variant classes
+  assign variant_classes = ''
+  case _variant
+    when 'secondary'
+      assign variant_classes = 'bg-surface text-text border border-border hover:bg-brand-blue hover:text-white '
+    when 'ghost'
+      assign variant_classes = 'bg-transparent text-text hover:bg-button-hover '
+    when 'danger'
+      assign variant_classes = 'bg-danger text-white hover:bg-danger/90 '
+    when 'link'
+      assign variant_classes = 'bg-transparent text-link hover:text-link-hover '
+      assign sizing = 'p-0 h-auto '
+    when 'cta'
+      # Pick which brand color is your "cta" (blue vs burgundy)
+      assign rounded = 'rounded-tr-xl '
+      case _cta_size
+        when 'sm'
+            assign sizing = 'py-2 '
+            assign cta_icon_sizing = '2rem '
+            assign cta_icon_class = '-left-6 '
+            assign cta_button_class = 'pl-10 pr-2 ml-6 '
+        when 'md'
+            assign sizing = 'py-3 '
+            assign cta_icon_sizing = '3rem '
+            assign cta_icon_class = '-left-10 '
+            assign cta_button_class = 'pl-10 pr-3 ml-10 '
+        when 'lg'
+            assign sizing = 'py-5 '
+            assign cta_icon_sizing = '4rem '
+            assign cta_icon_class = '-left-16 '
+            assign cta_button_class = 'pl-10 pr-5 ml-16 text-xl font-extrabold '
+      endcase
+    
+      assign variant_classes = 'bg-brand-blue text-white hover:bg-brand-burgundy shadow-primary '
+    when 'icon-only'
+      assign variant_classes = 'bg-transparent text-text '
+      assign sizing = 'h-control w-control p-0 '
+    else
+      assign variant_classes = 'bg-brand-burgundy text-white hover:bg-brand-blue '
+  endcase
+
+  assign base = base | append: rounded
+
+  # Focus ring styling using your tokens
+  assign ring = 'focus-visible:ring-border focus-visible:ring-offset-page '
+
+  # Disabled handling for links
+  assign link_disabled = ''
+  if _href != blank and _disabled
+    assign link_disabled = 'pointer-events-none opacity-50'
+  endif
+
+  assign is_link_missing_href = false
+    if _variant == 'link' and _href == blank
+    assign is_link_missing_href = true
+  endif
+
+
+  assign classes = base | append: sizing | append: variant_classes | append: ring | append: link_disabled | append: ' ' | append: _class
+-%}
+
+{%- assign needs_aria = false -%}
+{%- if _variant == 'icon-only' -%}{%- assign needs_aria = true -%}{%- endif -%}
+
+{%- capture spinner -%}
+  <svg class="animate-spin h-4 w-4 shrink-0" viewBox="0 0 24 24" aria-hidden="true">
+    <circle class="opacity-25" cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="4"></circle>
+    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 0 1 8-8v3.5A4.5 4.5 0 0 0 7.5 12H4z"></path>
+  </svg>
+{%- endcapture -%}
+
+{%- if _href != blank -%}
+  <a
+    href="{{ _href }}"
+    class="{{ classes | strip }} underline underline-offset-4"
+    {%- if needs_aria and _aria_label != blank -%} aria-label="{{ _aria_label | escape }}"{%- endif -%}
+    {%- if _disabled -%}aria-disabled="true" tabindex="-1"{%- endif -%}
+    {%- if _loading %} aria-busy="true"{%- endif %}
+    {{ _attrs }}
+  >
+    <span class="inline-flex items-center gap-2">
+      {%- if _loading -%}
+        {{ spinner }}
+        <span class="sr-only">Loading</span>
+      {%- endif -%}
+
+      <span class="{% if _loading %}opacity-70{% endif %}">
+        {{ _content }}
+      </span>
+    </span>
+  </a>
+
+{%- elsif is_link_missing_href -%}
+  <span
+    after="Missing HREF"
+    class="{{ classes | strip }} pointer-events-none opacity-60"
+    aria-disabled="true"
+    {{ _attrs }}
+    >
+    <span class="underline underline-offset-4">
+        {{ _content }}
+    </span>
+
+    <span class="ml-2 text-muted no-underline">
+        (Missing HREF)
+    </span>
+  </span>
+
+{%- else -%}
+  <button
+    type="{{ _type }}"
+    class="{{ classes | strip }} relative {%- if variant == 'cta'%} shadow-sm {{ cta_button_class }} {%- endif -%}"
+    {%- if needs_aria and _aria_label != blank -%} aria-label="{{ _aria_label | escape }}"{%- endif -%}
+    {%- if _disabled -%}disabled{%- endif -%}
+    {%- if _loading %} aria-busy="true"{%- endif %}
+    {{ _attrs }}
+  >
+    {%- if variant == 'cta' %}
+        <div class="absolute bg-white top-1/2 rounded-full border border-black -translate-y-1/2 block flex items-center justify-center group-hover:bg-zinc-100 p-3 {{ cta_icon_class }}">
+            {% render 'ui-icon', name: _cta_icon, size: cta_icon_sizing, class: 'text-black' %}
+        </div>
+    {%- endif %}
+    <span class="inline-flex items-center gap-2">
+        {%- if _loading and variant != 'icon-only' -%}
+            {{ spinner }}
+            <span class="sr-only">Loading</span>
+        {%- endif -%}
+
+        {% if variant != 'icon-only' %}
+            <span class="{% if _loading %}opacity-70{% endif %}">
+                {{ _content }}
+            </span>
+        {% else %}
+            {%- assign icon_classes = _button_icon_color | default: '' -%}
+            {%- if _button_icon_hover_color != blank -%}
+                {%- assign icon_classes = icon_classes | append: ' ' | append: _button_icon_hover_color -%}
+            {%- endif -%}
+
+            <span class="p-3 flex rounded-full{% if _icon_bg_hover %} group-hover:bg-button-hover{% endif %}{% if _loading %} opacity-70{% endif %}">
+            {% render 'ui-icon', name: _button_icon, size: _button_icon_size, class: icon_classes %}
+            </span>
+        {% endif %}
+    </span>
+  </button>
+{%- endif -%}

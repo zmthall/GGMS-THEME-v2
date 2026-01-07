@@ -1,0 +1,144 @@
+@config "../tailwind.config.js";
+@import "tailwindcss";
+@plugin "@tailwindcss/typography";
+
+/* ----------------------------
+  Base defaults (Tailwind-first)
+---------------------------- */
+@layer base {
+  html,
+  body {
+    @apply bg-page text-text font-body;
+  }
+  body {
+    @apply text-base leading-relaxed;
+  }
+
+  p {
+    @apply text-base text-text;
+  }
+
+  p,
+  li,
+  a {
+    overflow-wrap: anywhere;
+  }
+
+  a {
+    @apply text-link hover:text-link-hover underline underline-offset-4 font-medium;
+  }
+
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply font-heading;
+  }
+
+  h1 {
+    @apply text-3xl text-brand-burgundy font-extrabold;
+  }
+
+  h2 {
+    @apply text-2xl text-brand-burgundy font-bold;
+  }
+
+  h3 {
+    @apply text-xl underline text-brand-burgundy font-semibold;
+  }
+
+  h4 {
+    @apply text-xl text-brand-blue font-semibold; 
+  }
+
+  h5 {
+    @apply text-xl text-brand-blue underline font-semibold;
+  }
+
+  h6 {
+    @apply text-xl text-black font-semibold
+  }
+
+  hr {
+    @apply border-border;
+  }
+
+  :focus-visible {
+    outline: var(--focus-ring-width) solid rgb(var(--focus-ring-rgb) / 0.85);
+    outline-offset: 2px;
+    border-radius: 0.1rem;
+  }
+
+  button,
+  input,
+  select,
+  textarea {
+    font: inherit;
+    color: inherit;
+  }
+
+  input,
+  select,
+  textarea {
+    @apply bg-surface border border-border rounded-input;
+  }
+
+  input::placeholder,
+  textarea::placeholder {
+    @apply text-muted;
+  }
+
+  /* Prose token tuning to your theme colors (optional but recommended) */
+  .prose {
+    --tw-prose-body: rgb(var(--ggms-text-rgb));
+    --tw-prose-headings: rgb(var(--ggms-text-rgb));
+    --tw-prose-links: rgb(var(--ggms-link-rgb));
+    --tw-prose-bold: rgb(var(--ggms-text-rgb));
+    --tw-prose-counters: rgb(var(--ggms-text-muted-rgb));
+    --tw-prose-bullets: rgb(var(--ggms-text-muted-rgb));
+    --tw-prose-hr: rgb(var(--ggms-border-rgb));
+    --tw-prose-quotes: rgb(var(--ggms-text-rgb));
+    --tw-prose-quote-borders: rgb(var(--ggms-border-rgb));
+    --tw-prose-captions: rgb(var(--ggms-text-muted-rgb));
+    --tw-prose-code: rgb(var(--ggms-text-rgb));
+    --tw-prose-pre-code: rgb(var(--ggms-text-rgb));
+    --tw-prose-pre-bg: rgb(var(--ggms-surface-rgb));
+    --tw-prose-th-borders: rgb(var(--ggms-border-rgb));
+    --tw-prose-td-borders: rgb(var(--ggms-border-rgb));
+  }
+}
+
+/* ----------------------------
+  Global helpers as utilities/components
+---------------------------- */
+@layer utilities {
+  /* Container / Section shells */
+  .gg-container { @apply mx-auto max-w-page px-[var(--page-margin)]; }
+  .gg-container--full { @apply max-w-none; }
+  .gg-container--no-gutters { @apply px-0; }
+
+  .gg-section { @apply w-full; }
+  .gg-section--tight { @apply py-6; }   /* 1.5rem */
+  .gg-section--normal { @apply py-10; } /* 2.5rem */
+  .gg-section--loose { @apply py-16; }  /* 4rem */
+
+  /* Stack helpers */
+  .gg-stack > * + * { margin-top: 1rem; }
+  .gg-stack-lg > * + * { margin-top: 1.5rem; }
+
+  /* Grid primitives */
+  .gg-grid { @apply grid gap-6; }
+  .gg-grid--2 { @apply md:grid-cols-2; }
+  .gg-grid--3 { @apply md:grid-cols-3; }
+  .gg-grid--4 { @apply md:grid-cols-4; }
+
+  .gg-grid--sidebar { grid-template-columns: minmax(0, 1fr) 22rem; }
+  .gg-grid--sidebar-left { grid-template-columns: 22rem minmax(0, 1fr); }
+  @media (max-width: 767px) {
+    .gg-grid--sidebar,
+    .gg-grid--sidebar-left { grid-template-columns: 1fr; }
+  }
+}

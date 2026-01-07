@@ -1,0 +1,33 @@
+<div>
+    {% capture body %}
+        <div>
+            <h1>Global UI</h1>
+            <hr class="mb-4">
+        </div>
+        <div class="space-y-2">
+            <h2>UI Primatives</h2>
+            <div class="space-y-4">
+                <h3>Buttons</h3>
+                <div class="flex flex-col items-start gap-6">
+                    {% render 'ui-button', variant: 'primary', content: 'Primary Button' %}
+                    {% render 'ui-button', variant: 'secondary', content: 'Secondary Button' %}
+                    {% render 'ui-button', variant: 'cta', cta_size: 'sm', content: 'CTA Button' %}
+                    {% render 'ui-button', variant: 'ghost', content: 'Ghost Button' %}
+                    {% render 'ui-button', variant: 'danger', content: 'Danger Button' %}
+                    {% render 'ui-button', variant: 'link', href: '#', content: 'Link Button' %}
+                    {% render 'ui-button', variant: 'icon-only', content: 'icon-only Button' %}
+                </div>
+            </div>
+            <div class="space-y-4">
+                <h3>Inline Links</h3>
+                <div class="flex flex-col items-start gap-6">
+                    <p>
+                        Lorem ipsum dolor sit amet consectetur adipisicing elit. Distinctio ipsum laboriosam recusandae cumque officiis, {% render 'ui-link', href: '#', content: 'Internal Link' %} tempore earum. Quam cum sed delectus!
+                        Lorem ipsum dolor sit amet consectetur adipisicing elit. Distinctio ipsum laboriosam recusandae cumque officiis, {% render 'ui-link', href: '#', type: 'external', content: 'External Link' %} tempore earum. Quam cum sed delectus!
+                    </p>
+                </div>
+            </div>
+        </div>
+    {% endcapture %}
+    {% render 'layout-section', bg: 'page', content: body %}
+</div>

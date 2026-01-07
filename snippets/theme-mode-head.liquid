@@ -1,0 +1,25 @@
+{%- comment -%}
+  Sets <html data-theme="..."> before CSS to prevent flicker.
+  Uses localStorage override when allowed.
+{%- endcomment -%}
+
+<script>
+(() => {
+  const DEFAULT_MODE = {{ settings.theme_mode | default: 'light' | json }};
+  const ALLOW_OVERRIDE = {{ settings.theme_mode_allow_override | json }};
+
+  const KEY = 'ggms_theme';
+
+  try {
+    if(localStorage.getItem(KEY) === null)
+        localStorage.setItem(KEY, DEFAULT_MODE)
+
+    const saved = ALLOW_OVERRIDE ? localStorage.getItem(KEY) : null;
+    
+    const mode = (saved === 'light' || saved === 'dark' || saved === 'system') ? saved : DEFAULT_MODE;
+    document.documentElement.dataset.theme = mode;
+  } catch (e) {
+    document.documentElement.dataset.theme = DEFAULT_MODE;
+  }
+})();
+</script>

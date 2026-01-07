@@ -1,0 +1,62 @@
+{%- comment -%}
+  ui-button
+
+  Args:
+    - content: HTML string (preferred "slot") OR label fallback
+    - type: (internal | external) optional (default: internal)
+    - variant: (default | muted | icon-only)
+    - href: string (required; needed for links)
+
+    - aria_label: required if icon-only or no visible text
+{% endcomment %}
+
+{%-  liquid 
+    assign _content = content | default: ''
+    assign _type = type | default: 'internal'
+    assign _variant = variant | default: 'default'
+    assign _href = href | default: ''
+
+    assign _aria_label = aria_label | default: ''
+
+    assign variant_classes = ''
+    case _variant
+        when 'default'
+            assign variant_classes = 'inline-flex justify-center items-center gap-1 no-underline'
+        when 'muted'
+            assign variant_classes = ''
+    endcase
+
+    assign ring = 'focus-visible:ring-border focus-visible:ring-offset-page '
+
+    assign base = ''
+%}
+
+{%- if _href != blank -%}
+    <a
+        href="{{ _href }}"
+        class="{{ classes | strip }}{{ variant_classes }}"
+        {%- if type == 'external ' %} {%- endif %}
+    >
+        <span class="underline">{{ _content }}</span>
+        {%- if type == 'external' -%} 
+            <span class="no-underline inline-flex">
+                {% render 'ui-icon', name: 'external', size: '1em', class: 'text-inherit' %}
+            </span>
+        {%- endif -%}
+    </a>
+{% elsif is_link_missing_href %}
+    <span
+        after="Missing HREF"
+        class="{{ classes | strip }} pointer-events-none opacity-60"
+        aria-disabled="true"
+    {{ _attrs }}
+    >
+    <span class="underline underline-offset-4">
+        {{ _content }}
+    </span>
+
+    <span class="ml-2 text-muted no-underline">
+        (Missing HREF)
+    </span>
+  </span>
+{%- endif -%}

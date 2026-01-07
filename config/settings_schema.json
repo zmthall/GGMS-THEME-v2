@@ -1,0 +1,277 @@
+[
+  {
+    "name": "theme_info",
+    "theme_name": "GGMS Theme",
+    "theme_version": "2.0.0",
+    "theme_author": "Zachary Thallas",
+    "theme_documentation_url": "https://help.shopify.com/manual/online-store/themes",
+    "theme_support_url": "https://support.shopify.com/"
+  },
+  {
+    "name": "t:general.typography",
+    "settings": [
+      {
+        "type": "header",
+        "content": "t:general.fonts"
+      },
+      {
+        "type": "font_picker",
+        "id": "type_primary_font",
+        "default": "work_sans_n4",
+        "label": "t:general.primary"
+      }
+    ]
+  },
+  {
+    "name": "t:general.layout",
+    "settings": [
+      {
+        "type": "select",
+        "id": "max_page_width",
+        "label": "t:labels.page_width",
+        "options": [
+          {
+            "value": "90rem",
+            "label": "t:options.page_width.narrow"
+          },
+          {
+            "value": "110rem",
+            "label": "t:options.page_width.wide"
+          }
+        ],
+        "default": "90rem"
+      },
+      {
+        "type": "range",
+        "id": "min_page_margin",
+        "min": 10,
+        "max": 100,
+        "step": 1,
+        "unit": "px",
+        "label": "t:labels.page_margin",
+        "default": 20
+      }
+    ]
+  },
+  {
+    "name": "t:general.colors",
+    "settings": [
+      {
+        "type": "color",
+        "id": "background_color",
+        "default": "#FFFFFF",
+        "label": "t:labels.background"
+      },
+      {
+        "type": "color",
+        "id": "foreground_color",
+        "default": "#333333",
+        "label": "t:labels.foreground"
+      },
+      {
+        "type": "range",
+        "id": "input_corner_radius",
+        "min": 0,
+        "max": 10,
+        "step": 1,
+        "unit": "px",
+        "label": "t:labels.input_corner_radius",
+        "default": 4
+      }
+    ]
+  },
+  {
+    "name": "Brand foundation",
+    "settings": [
+      { "type": "header", "content": "Typography" },
+      {
+        "type": "checkbox",
+        "id": "use_brand_typography",
+        "default": true,
+        "label": "Use brand typography (Gabarito + Noto Serif)"
+      },
+      {
+        "type": "paragraph",
+        "content": "When enabled, the Body font and Heading font selectors below are ignored."
+      },
+      {
+        "type": "font_picker",
+        "id": "font_body",
+        "default": "work_sans_n4",
+        "label": "Body font"
+      },
+      {
+        "type": "font_picker",
+        "id": "font_heading",
+        "default": "work_sans_n4",
+        "label": "Heading font"
+      },
+
+      { "type": "header", "content": "Colors" },
+
+      {
+        "type": "color",
+        "id": "color_page_bg",
+        "default": "#e8e8e8",
+        "label": "Page background"
+      },
+      {
+        "type": "color",
+        "id": "color_surface",
+        "default": "#fdfbf6",
+        "label": "Surface / cards / header"
+      },
+      {
+        "type": "color",
+        "id": "color_border",
+        "default": "#e1e1e1",
+        "label": "Border"
+      },
+
+      {
+        "type": "color",
+        "id": "color_text",
+        "default": "#1e1e1e",
+        "label": "Primary text"
+      },
+      {
+        "type": "color",
+        "id": "color_text_muted",
+        "default": "#646464",
+        "label": "Muted text"
+      },
+
+      {
+        "type": "color",
+        "id": "color_brand_primary",
+        "default": "#121B75",
+        "label": "Brand primary (blue)"
+      },
+      {
+        "type": "color",
+        "id": "color_brand_accent",
+        "default": "#A3150D",
+        "label": "Brand accent (burgundy)"
+      },
+
+      { "type": "header", "content": "Radii" },
+
+      {
+        "type": "range",
+        "id": "radius_input",
+        "min": 0,
+        "max": 16,
+        "step": 1,
+        "unit": "px",
+        "label": "Input radius",
+        "default": 4
+      }
+    ]
+  },
+  {
+    "name": "Theme mode",
+    "settings": [
+      {
+        "type": "select",
+        "id": "theme_mode",
+        "label": "Color mode",
+        "default": "system",
+        "options": [
+          { "value": "light", "label": "Light" },
+          { "value": "dark", "label": "Dark" },
+          { "value": "system", "label": "System" }
+        ]
+      },
+      {
+        "type": "checkbox",
+        "id": "theme_mode_allow_override",
+        "label": "Allow customer override (saved in browser)",
+        "default": true
+      },
+
+      { "type": "header", "content": "Dark theme colors" },
+
+      {
+        "type": "color",
+        "id": "color_page_bg_dark",
+        "default": "#212121",
+        "label": "Dark page background"
+      },
+      {
+        "type": "color",
+        "id": "color_surface_dark",
+        "default": "#2b2b2b",
+        "label": "Dark surface"
+      },
+      {
+        "type": "color",
+        "id": "color_border_dark",
+        "default": "#3a3a3a",
+        "label": "Dark border"
+      },
+      {
+        "type": "color",
+        "id": "color_text_dark",
+        "default": "#f1f1f1",
+        "label": "Dark primary text"
+      },
+      {
+        "type": "color",
+        "id": "color_text_muted_dark",
+        "default": "#b6b6b6",
+        "label": "Dark muted text"
+      },
+      {
+        "type": "color",
+        "id": "color_base_icon",
+        "default": "#FFFFFF",
+        "label": "Base icon color"
+      },
+      {
+        "type": "color",
+        "id": "color_button_hover",
+        "default": "#DCDCDC",
+        "label": "Button hover color"
+      },
+
+      { "type": "header", "content": "Dark theme brand tuning (optional)" },
+
+      {
+        "type": "color",
+        "id": "color_brand_primary_dark",
+        "default": "#2e3a95",
+        "label": "Brand blue (lighter)"
+      },
+      {
+        "type": "color",
+        "id": "color_brand_accent_dark",
+        "default": "#b63a2a",
+        "label": "Brand burgundy (lighter)"
+      },
+      {
+        "type": "color",
+        "id": "color_link_dark",
+        "default": "#5A6BFF",
+        "label": "Dark link color"
+      },
+      {
+        "type": "color",
+        "id": "color_link_hover_dark",
+        "default": "#cb5648",
+        "label": "Dark link hover color"
+      },
+      {
+        "type": "color",
+        "id": "color_button_hover_dark",
+        "default": "#3D3D3D",
+        "label": "Dark button hover color"
+      },
+      {
+        "type": "color",
+        "id": "color_base_icon_dark",
+        "default": "#000000",
+        "label": "Dark base icon color"
+      }
+    ]
+  }
+]

@@ -1,0 +1,45 @@
+{%- comment -%}
+  ui-icon
+
+  Args:
+  - name: local ("search") OR iconify ("mdi:home")
+  - size: xs|sm|md|lg|xl (default: md)
+  - class: optional (use this mostly for color: "text-white")
+  - label: optional (for meaningful icons)
+  - decorative: boolean (default true)
+{%- endcomment -%}
+
+{%- liquid
+  assign _name = name | default: ''
+  assign _size = size | default: '1.25'
+  assign _class = class | default: ''
+  assign _label = label | default: ''
+  assign _decorative = decorative | default: true
+
+  assign is_iconify = false
+  if _name contains ':'
+    assign is_iconify = true
+  endif
+
+  assign icon_size = _size
+-%}
+
+{%- if _name != blank -%}
+  <span
+    class="ui-icon {{ _class }}"
+    style="--ui-icon-size: {{ icon_size }};"
+    {%- if _decorative or _label == blank -%}
+      aria-hidden="true"
+    {%- else -%}
+      role="img" aria-label="{{ _label | escape }}"
+    {%- endif -%}
+  >
+    {%- if is_iconify -%}
+      <iconify-icon icon="{{ _name }}"></iconify-icon>
+    {%- else -%}
+      <svg xmlns="http://www.w3.org/2000/svg">
+        <use href="#icon-{{ _name | escape }}"></use>
+      </svg>
+    {%- endif -%}
+  </span>
+{%- endif -%}
