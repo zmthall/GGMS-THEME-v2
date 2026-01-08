@@ -1,0 +1,58 @@
+{%- comment -%}
+  ui-badge
+
+  Args:
+    - label: string (fallback)
+    - content: HTML string (optional)
+    - variant: default | success | warning | danger | info (default: default)
+    - size: sm | md | lg
+    - class: optional
+{%- endcomment -%}
+
+{%- liquid
+  assign _content = content | default: ''
+  assign _label = label | default: ''
+  assign _variant = variant | default: 'default'
+  assign _size = size | default: 'sm'
+  assign _class = class | default: ''
+
+  if _content == blank
+    if _label != blank
+      assign _content = _label
+    else
+      assign _content = 'Badge'
+    endif
+  endif
+
+  assign base = 'inline-flex items-center justify-center whitespace-nowrap rounded-full font-medium leading-none '
+
+  assign variant_classes = ''
+  case _variant
+    when 'success'
+      assign variant_classes = 'bg-success/15 text-success border border-success/30 '
+    when 'warning'
+      assign variant_classes = 'bg-warning/15 text-warning border border-warning/30 '
+    when 'danger'
+      assign variant_classes = 'bg-danger/15 text-danger border border-danger/30 '
+    when 'info'
+      assign variant_classes = 'bg-brand-blue text-white border border-white/20 '
+    else
+      assign variant_classes = 'bg-surface text-text border border-border '
+  endcase
+
+  assign badge_size = ''
+  case _size
+    when 'sm'
+        assign badge_size = 'w-5 h-5 text-xs '
+    when 'md'
+        assign badge_size = 'w-7.5 h-7.5 text-md '
+    when 'lg'
+        assign badge_size = 'w-10 h-10 text-lg '
+  endcase
+
+  assign classes = base | append: variant_classes | append: badge_size | append: _class
+-%}
+
+<span class="{{ classes | strip }}">
+  {{ _content }}
+</span>

@@ -22,9 +22,41 @@
                 <h3>Inline Links</h3>
                 <div class="flex flex-col items-start gap-6">
                     <p>
-                        Lorem ipsum dolor sit amet consectetur adipisicing elit. Distinctio ipsum laboriosam recusandae cumque officiis, {% render 'ui-link', href: '#', variant: 'muted', content: 'Internal Link' %} tempore earum. Quam cum sed delectus!
-                        Lorem ipsum dolor sit amet consectetur adipisicing elit. Distinctio ipsum laboriosam recusandae cumque officiis, {% render 'ui-link', href: '#', type: 'external', content: 'External Link' %} tempore earum. Quam cum sed delectus!
+                        Lorem ipsum dolor sit amet consectetur adipisicing elit. Distinctio ipsum laboriosam recusandae cumque officiis, {% render 'ui-link', href: '#', content: 'Internal Link' %} tempore earum. Quam cum sed delectus!
                     </p>
+                    <p>
+                        Lorem ipsum dolor sit amet consectetur adipisicing elit. Distinctio ipsum laboriosam recusandae cumque officiis, {% render 'ui-link', href: '#', variant: 'muted', content: 'Internal Link' %} tempore earum. Quam cum sed delectus!
+                    </p>
+                    <p>
+                        Lorem ipsum dolor sit amet consectetur adipisicing elit. Distinctio ipsum laboriosam recusandae cumque officiis, {% render 'ui-link', href: '#', type: 'external', content: 'External Link' %} tempore earum. Quam cum sed delectus!                 
+                    </p>
+                    <p>
+                        Lorem ipsum dolor sit amet consectetur adipisicing elit. Distinctio ipsum laboriosam recusandae cumque officiis, {% render 'ui-link', href: '#', variant: 'muted', type: 'external', content: 'External Link' %} tempore earum. Quam cum sed delectus!    
+                    </p>
+                </div>
+            </div>
+            <div class="space-y-4">
+                <h3>Badges</h3>
+                <div>
+                    {% render 'ui-badge', label: cart.item_count %}
+                    {% render 'ui-badge', variant: 'success', label: cart.item_count %}
+                    {% render 'ui-badge', variant: 'warning', label: cart.item_count %}
+                    {% render 'ui-badge', variant: 'danger' label: cart.item_count %}
+                    {% render 'ui-badge', variant: 'info' label: cart.item_count %}
+                </div>
+                <div>
+                    {% render 'ui-badge', size: 'md', label: cart.item_count %}
+                    {% render 'ui-badge', size: 'md', variant: 'success', label: cart.item_count %}
+                    {% render 'ui-badge', size: 'md', variant: 'warning', label: cart.item_count %}
+                    {% render 'ui-badge', size: 'md', variant: 'danger' label: cart.item_count %}
+                    {% render 'ui-badge', size: 'md', variant: 'info' label: cart.item_count %}
+                </div>
+                <div>
+                    {% render 'ui-badge', size: 'lg', label: cart.item_count %}
+                    {% render 'ui-badge', size: 'lg', variant: 'success', label: cart.item_count %}
+                    {% render 'ui-badge', size: 'lg', variant: 'warning', label: cart.item_count %}
+                    {% render 'ui-badge', size: 'lg', variant: 'danger' label: cart.item_count %}
+                    {% render 'ui-badge', size: 'lg', variant: 'info' label: cart.item_count %}
                 </div>
             </div>
         </div>
