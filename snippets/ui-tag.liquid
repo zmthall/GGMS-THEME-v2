@@ -1,0 +1,57 @@
+{%- comment -%}
+  ui-pill (removable chip)
+
+  Args:
+    - label: string (required)
+    - param: string (optional; query param key to remove)
+    - value: string (optional; query param value to remove; if blank removes entire param)
+    - remove_label: string (optional; aria-label for the remove button)
+    - class: optional
+    - attrs: optional raw attrs (data-*, aria-*)
+    - removable: boolean (default true)
+{%- endcomment -%}
+
+{%- liquid
+  assign _label = label | default: 'Tag'
+  assign _param = param | default: ''
+  assign _value = value | default: ''
+  assign _remove_label = remove_label | default: ''
+  assign _class = class | default: ''
+  assign _attrs = attrs | default: ''
+  assign _removable = removable | default: true
+
+  if _remove_label == blank
+    assign _remove_label = 'Remove ' | append: _label
+  endif
+
+  assign base = 'inline-flex items-center gap-2 rounded-full border border-border bg-surface px-3 py-1 text-sm text-text '
+  assign base = base | append: 'whitespace-nowrap '
+  assign base = base | append: 'transition '
+
+  assign btn = 'inline-flex items-center justify-center rounded-full h-7 w-7 cursor-pointer '
+  assign btn = btn | append: 'hover:bg-button-hover '
+  assign btn = btn | append: 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-border focus-visible:ring-offset-2 focus-visible:ring-offset-page '
+
+  assign classes = base | append: ' ' | append: _class
+-%}
+
+<span 
+    class="{{ classes | strip }}"
+    {{ _attrs }}
+    {%- if _removable -%} data-ui-tag-remove {% endif %}
+>
+  <span class="leading-none">{{ _label }}</span>
+
+  {%- if _removable -%}
+    <button
+      type="button"
+      class="{{ btn }}"
+      aria-label="{{ _remove_label | escape }}"
+      {%- if _param != blank -%} data-param="{{ _param | escape }}"{%- endif -%}
+      {%- if _value != blank -%} data-value="{{ _value | escape }}"{%- endif -%}
+    >
+      {%- comment -%} You can swap this to your local close icon if you want {%- endcomment -%}
+      {% render 'ui-icon', name: 'cancel', size: '1.25rem', class: 'text-inherit' %}
+    </button>
+  {%- endif -%}
+</span>

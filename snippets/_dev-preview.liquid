@@ -53,10 +53,16 @@
                 </div>
                 <div>
                     {% render 'ui-badge', size: 'lg', label: cart.item_count %}
-                    {% render 'ui-badge', size: 'lg', variant: 'success', label: cart.item_count %}
+                    {% render 'ui-badge', size: 'lg', variant: 'success', label: 99099 %}
                     {% render 'ui-badge', size: 'lg', variant: 'warning', label: cart.item_count %}
                     {% render 'ui-badge', size: 'lg', variant: 'danger' label: cart.item_count %}
                     {% render 'ui-badge', size: 'lg', variant: 'info' label: cart.item_count %}
+                </div>
+            </div>
+            <div class="space-y-4">
+                <h3>Tag</h3>
+                <div>
+                    {% render 'ui-tag', label: 'Sale', param: 'filter.v.price' %}
                 </div>
             </div>
         </div>

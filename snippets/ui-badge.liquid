@@ -24,7 +24,7 @@
     endif
   endif
 
-  assign base = 'inline-flex items-center justify-center whitespace-nowrap rounded-full font-medium leading-none '
+  assign base = 'inline-flex items-center justify-center whitespace-nowrap rounded-full font-medium leading-none p-1 '
 
   assign variant_classes = ''
   case _variant
@@ -43,11 +43,11 @@
   assign badge_size = ''
   case _size
     when 'sm'
-        assign badge_size = 'w-5 h-5 text-xs '
+        assign badge_size = 'min-w-5 h-5 text-xs '
     when 'md'
-        assign badge_size = 'w-7.5 h-7.5 text-md '
+        assign badge_size = 'min-w-7.5 h-7.5 text-md '
     when 'lg'
-        assign badge_size = 'w-10 h-10 text-lg '
+        assign badge_size = 'min-w-10 h-10 text-lg '
   endcase
 
   assign classes = base | append: variant_classes | append: badge_size | append: _class

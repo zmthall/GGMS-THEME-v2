@@ -8,7 +8,6 @@
     {% # Important asset loading %}
     {% render 'theme-mode-head' %}
 
-
     {% # load and preload critical fonts %}
     {% if settings.use_brand_typography %}
       <link rel="preload" href="{{ 'Gabarito-Regular.woff2' | asset_url }}" as="font" type="font/woff2" crossorigin>
@@ -31,7 +30,8 @@
 
     {{ 'tailwind.css' |  asset_url |  stylesheet_tag }}
 
-    <script src="https://code.iconify.design/iconify-icon/3.0.0/iconify-icon.min.js" defer></script>
+    <script src="{{ 'iconify-icon.min.js' | asset_url }}" defer></script>
+    <script src="{{ 'ui-tag.js' | asset_url }}" defer></script>
   </head>
 
   <body>

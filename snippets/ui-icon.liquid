@@ -26,7 +26,7 @@
 
 {%- if _name != blank -%}
   <span
-    class="ui-icon {{ _class }}"
+    class="ui-icon {{ _class }} pointer-events-none"
     style="--ui-icon-size: {{ icon_size }};"
     {%- if _decorative or _label == blank -%}
       aria-hidden="true"
