@@ -4,7 +4,7 @@
   Args:
     - content: HTML string (preferred "slot") OR label fallback
     - type: (internal | external) optional (default: internal)
-    - variant: (default | muted | icon-only)
+    - variant: (default | muted)
     - href: string (required; needed for links)
 
     - aria_label: required if icon-only or no visible text
@@ -20,26 +20,41 @@
 
     assign variant_classes = ''
     case _variant
-        when 'default'
-            assign variant_classes = 'inline-flex justify-center items-center gap-1 no-underline'
         when 'muted'
-            assign variant_classes = ''
+            assign variant_classes = 'text-muted hover:text-link-hover '
     endcase
 
     assign ring = 'focus-visible:ring-border focus-visible:ring-offset-page '
 
-    assign base = ''
+    assign base = 'inline-flex justify-center items-center gap-1 no-underline '
+    
+    assign needs_aria = false
+    if _variant == 'icon-only'
+        assign needs_aria = true
+    endif
+
+    assign is_link_missing_href = false
+    if _href == blank
+        assign is_link_missing_href = true
+    endif
+
+    assign classes = base | append: variant_classes | append: ring
 %}
 
 {%- if _href != blank -%}
     <a
         href="{{ _href }}"
-        class="{{ classes | strip }}{{ variant_classes }}"
-        {%- if type == 'external ' %} {%- endif %}
+        class="{{ classes | strip }}"
+        {%- if type == 'external' %}
+            rel="noopener noreferrer"
+            target="_blank"
+        {%- endif %}
+        {%- if needs_aria and _aria_label != blank -%} aria-label="{{ _aria_label | escape }}"{%- endif -%}
+    {%- if _disabled -%}aria-disabled="true" tabindex="-1"{%- endif -%}
     >
         <span class="underline">{{ _content }}</span>
         {%- if type == 'external' -%} 
-            <span class="no-underline inline-flex">
+            <span class="inline-flex no-underline">
                 {% render 'ui-icon', name: 'external', size: '1em', class: 'text-inherit' %}
             </span>
         {%- endif -%}
@@ -55,7 +70,7 @@
         {{ _content }}
     </span>
 
-    <span class="ml-2 text-muted no-underline">
+    <span class="ml-2 no-underline text-muted">
         (Missing HREF)
     </span>
   </span>
