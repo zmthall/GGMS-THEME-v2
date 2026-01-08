@@ -1,0 +1,42 @@
+{%- comment -%}
+  ui-divider
+
+  Args:
+    - variant: line | soft | dash | label (default: line)
+    - label: string (optional; used when variant = label)
+    - size: sm | md | lg (default: md)
+    - class: string (optional)
+    - attrs: string (optional) raw attrs (data-*, aria-*)
+{%- endcomment -%}
+
+{%- liquid
+  assign _variant = variant | default: 'line'
+  assign _label = label | default: blank
+  assign _size = size | default: 'md'
+  assign _class = class | default: ''
+  assign _attrs = attrs | default: ''
+
+  assign spacing = 'my-6'
+  if _size == 'sm'
+    assign spacing = 'my-3'
+  elsif _size == 'lg'
+    assign spacing = 'my-10'
+  endif
+
+  assign line = 'border-t border-brand-blue/40'
+  if _variant == 'soft'
+    assign line = 'border-t border-brand-blue/20'
+  elsif _variant == 'dash'
+    assign line = 'border-t border-dashed border-brand-blue/40'
+  endif
+-%}
+
+{%- if _variant == 'label' and _label != blank -%}
+  <div class="{{ spacing }} flex items-center gap-3 {{ _class }}" {{ _attrs }}>
+    <div class="flex-1 border-t border-brand-blue/40"></div>
+    <span class="text-xs text-text-muted whitespace-nowrap">{{ _label }}</span>
+    <div class="flex-1 border-t border-brand-blue/40"></div>
+  </div>
+{%- else -%}
+  <hr class="{{ spacing }} {{ line }} {{ _class }}" {{ _attrs }}>
+{%- endif -%}

@@ -1,0 +1,144 @@
+{%- comment -%}
+  ui-card
+
+  Args:
+    - title: string (optional)
+    - subtitle: string (optional)
+    - eyebrow: string (optional)  (small meta line above title)
+    - href: string (optional)     (if provided, card becomes a link)
+    - aria_label: string (optional)
+    - variant: default | soft | elevated | outlined | shadowed | attention (default: default)
+    - size: sm | md | lg | fit (default: md)
+    - class: string (optional)
+    - attrs: string (optional) raw attrs (data-*, aria-*)
+    - content: string (optional) (or use render content block pattern below)
+
+  Notes:
+    - For fully custom internals, you can omit title/subtitle and just pass content/children.
+{%- endcomment -%}
+
+{%- liquid
+  assign _title = title | default: blank
+  assign _subtitle = subtitle | default: blank
+  assign _eyebrow = eyebrow | default: blank
+  assign _href = href | default: blank
+  assign _aria_label = aria_label | default: blank
+  assign _variant = variant | default: 'default'
+  assign _size = size | default: 'md'
+  assign _class = class | default: ''
+  assign _attrs = attrs | default: ''
+  assign _content = content | default: blank
+
+  # Size paddings
+  assign pad = 'p-4'
+  if _size == 'sm'
+    assign pad = 'p-3'
+  elsif _size == 'lg'
+    assign pad = 'p-6'
+  endif
+
+  # Layout sizing (fit vs normal)
+  assign sizing = 'block w-full '
+  if _size == 'fit'
+    assign sizing = 'inline-block w-fit max-w-full align-top '
+  endif
+
+  # Base styles (mapped to your token utilities)
+  assign base = 'rounded-2xl border border-border bg-surface text-text '
+  assign hoverable = 'transition-shadow focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-bg '
+
+  # Text tones (so headings can switch on attention bg)
+  assign eyebrow_class = 'text-xs text-text-muted'
+  assign title_class = 'text-lg text-brand-accent'
+  assign subtitle_class = 'text-sm text-text-muted'
+  assign content_class = 'space-y-3'
+
+  if _variant == 'attention'
+    assign eyebrow_class = 'text-xs !text-white/85'
+    assign title_class = 'font-serif text-lg !text-white'
+    assign subtitle_class = 'text-sm !text-white/90'
+    assign content_class = 'space-y-3 text-md [&_p]:!text-white/90 [&_span]:!text-white/90 [&_li]:!text-white/90 [&_a]:!text-white underline underline-offset-4'
+  endif
+
+
+    # Variant tweaks
+  assign variant_classes = ''
+  if _variant == 'soft'
+    assign variant_classes = 'border-transparent bg-surface/80 '
+  elsif _variant == 'elevated'
+    assign variant_classes = 'shadow-sm hover:shadow-md '
+  elsif _variant == 'outlined'
+    assign variant_classes = 'border-border/80 '
+  elsif _variant == 'attention'
+    assign variant_classes = '!bg-brand-burgundy !border-brand-burgundy !text-white shadow-sm '
+  else
+    assign variant_classes = 'shadow-none '
+  endif
+
+
+  # Clickable behavior
+  assign clickable = ''
+  if _href != blank
+    assign clickable = 'cursor-pointer hover:shadow-md '
+  endif
+
+  assign card_class = sizing | append: base | append: hoverable | append: variant_classes | append: clickable | append: _class
+-%}
+
+
+{%- if _href != blank -%}
+  <a
+    href="{{ _href }}"
+    class="{{ card_class }}"
+    {%- if _aria_label != blank -%} aria-label="{{ _aria_label | escape }}"{%- endif -%}
+    {{ _attrs }}
+  >
+    <div class="{{ pad }}">
+      {%- if _eyebrow != blank or _title != blank or _subtitle != blank -%}
+        <header class="mb-3 space-y-1">
+          {%- if _eyebrow != blank -%}
+            <p class="{{ eyebrow_class }}">{{ _eyebrow }}</p>
+          {%- endif -%}
+          {%- if _title != blank -%}
+            <h3 class="{{ title_class }}">{{ _title }}</h3>
+          {%- endif -%}
+          {%- if _subtitle != blank -%}
+            <p class="{{ subtitle_class }}">{{ _subtitle }}</p>
+          {%- endif -%}
+        </header>
+      {%- endif -%}
+
+      {%- if _content != blank -%}
+        <div class="space-y-3">
+          {{ _content }}
+        </div>
+      {%- else -%}
+        {%- comment -%} If you prefer “block” usage, render content outside via a dedicated pattern {%- endcomment -%}
+      {%- endif -%}
+    </div>
+  </a>
+{%- else -%}
+  <section class="{{ card_class }}" {{ _attrs }}>
+    <div class="{{ pad }}">
+      {%- if _eyebrow != blank or _title != blank or _subtitle != blank -%}
+        <header class="mb-3 space-y-1">
+          {%- if _eyebrow != blank -%}
+            <p class="{{ eyebrow_class }}">{{ _eyebrow }}</p>
+          {%- endif -%}
+          {%- if _title != blank -%}
+            <h3 class="{{ title_class }}">{{ _title }}</h3>
+          {%- endif -%}
+          {%- if _subtitle != blank -%}
+            <p class="{{ subtitle_class }}">{{ _subtitle }}</p>
+          {%- endif -%}
+        </header>
+      {%- endif -%}
+
+      {%- if _content != blank -%}
+        <div class="{{ content_class }}">
+          {{ _content }}
+        </div>
+      {%- endif -%}
+    </div>
+  </section>
+{%- endif -%}

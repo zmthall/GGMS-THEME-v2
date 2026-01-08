@@ -6,18 +6,31 @@
     - class: extra classes
 {%- endcomment -%}
 
-{%- assign use_page_width = page_width -%}
-{%- if use_page_width == nil -%}{%- assign use_page_width = true -%}{%- endif -%}
+{%- liquid
+  assign use_page_width = page_width
+  if use_page_width == nil
+    assign use_page_width = true
+  endif
 
-{%- assign use_gutters = gutters -%}
-{%- if use_gutters == nil -%}{%- assign use_gutters = true -%}{%- endif -%}
+  assign use_gutters = gutters
+  if use_gutters == nil
+    assign use_gutters = true
+  endif
 
-{%- assign extra = class | default: '' -%}
+  assign extra = class | default: ''
 
-{%- assign classes = 'gg-container' -%}
-{%- unless use_page_width -%}{%- assign classes = classes | append: ' gg-container--full' -%}{%- endunless -%}
-{%- unless use_gutters -%}{%- assign classes = classes | append: ' gg-container--no-gutters' -%}{%- endunless -%}
-{%- if extra != '' -%}{%- assign classes = classes | append: ' ' | append: extra -%}{%- endif -%}
+  assign classes = 'gg-container'
+  unless use_page_width
+    assign classes = classes | append: ' gg-container--full'
+  endunless
+  unless use_gutters
+    assign classes = classes | append: ' gg-container--no-gutters'
+  endunless
+  if extra != ''
+    assign classes = classes | append: ' ' | append: extra
+  endif
+-%}
+
 
 <div class="{{ classes }}">
   {{ content }}
