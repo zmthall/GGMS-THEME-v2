@@ -1,0 +1,73 @@
+{%- comment -%}
+  form-stepper (quantity +/-)
+
+  - help: tooltip text (optional) — rendered as a tooltip next to the label
+{%- endcomment -%}
+
+{%- liquid
+  assign _name = name | default: 'quantity'
+  assign _id = id | default: _name
+  assign _id = _id | replace: '[', '_' | replace: ']', '' | replace: ' ', '_' | downcase
+
+  assign _value = value | default: 1
+  assign _min = min | default: 1
+  assign _max = max | default: 99
+  assign _step = step | default: 1
+  assign _help = help
+
+  assign _disabled = false
+  if disabled
+    assign _disabled = true
+  endif
+
+  assign _required = required | default: false
+
+  assign _readonly = false
+  if readonly
+    assign _readonly = true
+  endif
+
+  assign _class = class | default: ''
+  assign _input_class = input_class | default: ''
+  assign _button_class = button_class | default: ''
+  assign _enable_js = enable_js
+  if _enable_js == nil
+    assign _enable_js = true
+  endif
+
+  assign _wrap = 'inline-flex items-stretch rounded-md'
+  assign _btn = 'z-2 cursor-pointer inline-flex items-center justify-center size-10 select-none transition-colors duration-fast ease-standard bg-brand-burgundy text-white hover:bg-brand-blue focus-visible:outline-2 focus-visible:outline-focus focus-visible:outline-offset-2 disabled:opacity-60 disabled:cursor-not-allowed'
+  assign _input = 'w-14 text-center border-0 bg-surface text-text placeholder:text-muted text-base font-semibold focus:outline-none focus-visible:outline-2 focus-visible:outline-focus focus-visible:outline-offset-2 z-1'
+  assign _sep_left = 'border-l-2 border-border'
+  assign _sep_right = 'border-r-2 border-border'
+-%}
+
+<div class="flex flex-col {{ _class }}">
+    {%- if heading_label != blank -%}
+        {% render 'form-label', for: _id, label: heading_label, required: _required, help: _help %}
+    {%- endif -%}
+    <div class="{{ _wrap }}" data-stepper data-stepper-min="{{ _min }}" data-stepper-max="{{ _max }}" data-stepper-step="{{ _step }}">
+        <button type="button" class="{{ _btn }} rounded-l-md {{ _sep_right }} {{ _button_class }}" {% if _disabled %}disabled{% endif %}{% if _readonly %}disabled{% endif %} data-stepper-minus aria-label="Decrease quantity">
+        {% render 'ui-icon', name: 'mdi:minus', size: 'sm', class: 'text-white', decorative: true %}
+        </button>
+
+        <input id="{{ _id }}" name="{{ _name }}" type="text" inputmode="numeric" pattern="[0-9]*" value="{{ _value | escape }}" class="{{ _input }} {{ _input_class }}" {% if _disabled %}disabled{% endif %}{% if _readonly %}readonly{% endif %} data-stepper-input aria-label="Quantity">
+
+        <button type="button" class="{{ _btn }} rounded-r-md {{ _sep_left }} {{ _button_class }}" {% if _disabled %}disabled{% endif %}{% if _readonly %}disabled{% endif %} data-stepper-plus aria-label="Increase quantity">
+        {% render 'ui-icon', name: 'mdi:plus', size: 'sm', class: 'text-white', decorative: true %}
+        </button>
+    </div>
+</div>
+
+{%- if _enable_js -%}
+  <script>
+    (function () {
+      if (window.__GGMS_STEPPER_LOADED__) return;
+      window.__GGMS_STEPPER_LOADED__ = true;
+      var s = document.createElement('script');
+      s.src = "{{ 'quantity-stepper.js' | asset_url }}";
+      s.defer = true;
+      document.head.appendChild(s);
+    })();
+  </script>
+{%- endif -%}

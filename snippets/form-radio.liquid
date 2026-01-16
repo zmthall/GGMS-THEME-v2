@@ -1,0 +1,50 @@
+{%- comment -%}
+  form-radio
+
+  Args:
+  - name (required)
+  - value (required)
+  - id: defaults to "#{name}-#{value}" (sanitized)
+  - label: label text (optional)
+  - checked_value: selected value (string) OR checked: boolean
+  - disabled: boolean
+  - required: boolean
+  - class: wrapper classes
+  - label_class: extra label classes
+{%- endcomment -%}
+
+{%- liquid
+  assign _name = name
+  assign _value = value
+  assign _id = id | default: _name | append: '-' | append: _value
+  assign _id = _id | replace: '[', '_' | replace: ']', '' | replace: ' ', '_' | downcase
+
+  assign _class = class | default: ''
+  assign _label_class = label_class | default: ''
+
+  assign _disabled = false
+  if disabled
+    assign _disabled = true
+  endif
+
+  assign _checked = false
+  if checked == true or checked == 'true' or checked == 1 or checked == '1'
+    assign _checked = true
+  elsif checked_value != blank and checked_value == _value
+    assign _checked = true
+  endif
+-%}
+
+<div class="{{ _class }}">
+  <label for="{{ _id }}" class="inline-flex items-center gap-2 select-none {%- if _disabled -%} opacity-60 cursor-not-allowed{%- else -%} cursor-pointer{%- endif -%}">
+    <input id="{{ _id }}" name="{{ _name }}" type="radio" value="{{ _value | escape }}" class="sr-only peer" {%- if _checked -%} checked{%- endif -%} {%- if required -%} required{%- endif -%} {%- if _disabled -%} disabled{%- endif -%}>
+
+    <span class="relative cursor-pointer inline-flex items-center justify-center size-6 shrink-0 rounded-full border-2 bg-surface transition-colors duration-fast ease-standard border-brand-blue/50 hover:border-brand-blue hover:bg-brand-blue/5 peer-focus-visible:shadow-interior peer-focus-visible:outline-2 peer-focus-visible:outline-focus peer-focus-visible:outline-offset-2 peer-checked:border-brand-blue peer-checked:**:data-dot:opacity-100 {%- if _disabled -%} pointer-events-none{%- endif -%}" aria-hidden="true">
+      <span data-dot class="size-3.5 rounded-full bg-brand-blue opacity-0 transition-opacity duration-fast ease-standard"></span>
+    </span>
+
+    {%- if label != blank -%}
+      <span class="text-text font-semibold {{ _label_class }}">{{ label }}</span>
+    {%- endif -%}
+  </label>
+</div>

@@ -1,0 +1,31 @@
+{%- comment -%}
+  form-error
+
+  Error text under a field.
+
+  Args:
+  - id: element id for aria-describedby targeting (optional)
+  - text: error text (required)
+  - class: optional classes appended to the <p>
+  - hidden: boolean (if truthy, adds "hidden")
+  - role_alert: boolean (default true) sets role="alert"
+{%- endcomment -%}
+
+{%- liquid
+  assign _id = id
+  assign _text = text
+  assign _class = class | default: ''
+  assign _hidden = hidden
+  assign _role_alert = role_alert
+  if _role_alert == nil
+    assign _role_alert = true
+  endif
+-%}
+
+
+{%- if _text != blank -%}
+    <script>
+        console.log('{{ hidden }}')
+    </script>
+  <p{% if _id != blank %} id="{{ _id }}"{% endif %} class="mt-1 text-xs font-semibold text-danger{{ _class }}{% if _hidden %} hidden{% endif %}"{% if _role_alert %} role="alert"{% endif %}>{{ _text }}</p>
+{%- endif -%}

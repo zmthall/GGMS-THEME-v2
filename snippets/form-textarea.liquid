@@ -1,0 +1,103 @@
+{%- comment -%}
+  form-textarea (validated)
+  - Same styling as your working version
+  - Adds: no_validate (optional)
+  - Fixes: opening tag bleeding by capturing attrs inline
+{%- endcomment -%}
+
+{%- liquid
+  assign _name = name
+  assign _id = id | default: _name
+  assign _id = _id | replace: '[', '_' | replace: ']', '' | replace: ' ', '_' | downcase
+
+  assign _rows = rows | default: 4
+
+  assign _error = error
+  if _error == blank and errors != blank and error_key != blank
+    assign _error = errors[error_key]
+  endif
+
+  assign _success = success
+  assign _has_error = false
+  if _error != blank
+    assign _has_error = true
+  endif
+
+  assign _msg = ''
+  assign _msg_type = 'neutral'
+  if _has_error
+    assign _msg = _error
+    assign _msg_type = 'error'
+  elsif _success != blank
+    assign _msg = _success
+    assign _msg_type = 'success'
+  elsif message != blank
+    assign _msg = message
+    assign _msg_type = 'neutral'
+  endif
+
+  assign _wrapper_class = wrapper_class | default: ''
+  assign _extra_class = class | default: ''
+
+  assign _base = 'border-2 w-full rounded-md p-1 text-base font-semibold bg-surface text-text placeholder:text-muted transition-colors duration-fast ease-standard focus:outline-none focus:shadow-interior'
+  assign _disabled = 'disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:bg-surface'
+
+  assign _state_default = 'border-border hover:bg-brand-blue/5 hover:border-brand-blue focus:border-brand-blue'
+  assign _state_error = 'border-danger hover:bg-danger/5 hover:border-danger focus:border-danger'
+  assign _state_success = 'border-success hover:bg-success/5 hover:border-success focus:border-success'
+
+  assign _state = _state_default
+  if _has_error
+    assign _state = _state_error
+  elsif _success != blank
+    assign _state = _state_success
+  endif
+-%}
+
+{%- capture _validate_attrs -%}
+{%- unless no_validate -%}
+data-form-input="true"
+data-validate-type="text"
+data-label="{{ label | default: 'This field' | escape }}"
+data-state-default="{{ _state_default }}"
+data-state-error="{{ _state_error }}"
+data-state-success="{{ _state_success }}"
+{%- else -%}
+data-no-validate="true"
+{%- endunless -%}
+{%- endcapture -%}
+
+<div class="relative w-full {{ _wrapper_class }}" data-form-field>
+  {%- if label != blank -%}
+    {% render 'form-label', for: _id, label: label, required: required, help: help %}
+  {%- endif -%}
+
+  <textarea {{ _validate_attrs | strip }}
+    id="{{ _id }}"
+    name="{{ _name }}"
+    rows="{{ _rows }}"
+    class="{{ _base }} {{ _state }} {{ _disabled }} {{ _extra_class }}"
+    aria-describedby="{{ _id }}-msg"
+    {%- if required -%} required{%- endif -%}
+    {%- if disabled -%} disabled{%- endif -%}
+    {%- if readonly -%} readonly{%- endif -%}
+    {%- if _has_error -%} aria-invalid="true"{%- endif -%}
+    {%- if placeholder != blank -%} placeholder="{{ placeholder | escape }}"{%- endif -%}
+    {%- if autocomplete != blank -%} autocomplete="{{ autocomplete | escape }}"{%- endif -%}
+    {%- if maxlength != blank -%} maxlength="{{ maxlength }}"{%- endif -%}
+  >{{ value | escape }}</textarea>
+
+  <p
+    id="{{ _id }}-msg"
+    data-input-msg
+    class="mt-1 text-xs font-semibold
+      {%- if _msg_type == 'error' -%} text-danger
+      {%- elsif _msg_type == 'success' -%} text-success
+      {%- else -%} text-muted
+      {%- endif -%}
+      {%- if _msg == blank -%} hidden{%- endif -%}"
+    {%- if _msg_type == 'error' -%} role="alert"{%- endif -%}
+  >
+    {{ _msg }}
+  </p>
+</div>

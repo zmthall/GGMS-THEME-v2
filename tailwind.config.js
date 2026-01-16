@@ -29,6 +29,7 @@ module.exports = {
         "link-hover": "rgb(var(--ggms-link-hover-rgb) / <alpha-value>)",
         "button-hover": "rgb(var(--ggms-button-hover-rgb) / <alpha-value>)",
         "base-icon": "rgb(var(--ggms-base-icon) / <alpha-value>)",
+        focus: "rgb(var(--focus-ring-rgb) / 0.85)",
 
         // overlays + statuses
         overlay: "rgb(var(--overlay-rgb) / <alpha-value>)",
@@ -131,7 +132,7 @@ module.exports = {
         control: "var(--control-h)",
         "control-sm": "var(--control-h-sm)",
         "control-lg": "var(--control-h-lg)",
-      },
+      }
     },
   },
   plugins: [],

@@ -1,0 +1,247 @@
+{%- comment -%}
+  form-input (text-like inputs)
+
+  Supported types:
+    text | search | email | phone | password | number
+
+  Notes:
+    - "phone" maps to input type="tel"
+    - "number" maps to input type="text" (no spinners) + numeric pattern/inputmode
+
+  Args:
+    - name (required)
+    - id: defaults from name (sanitized)
+    - label: label text (optional)
+    - type: default "text"
+    - value: optional
+    - placeholder: optional
+    - autocomplete: optional
+    - required: boolean
+    - disabled: boolean
+    - readonly: boolean
+
+    Help:
+    - help: tooltip text (optional) — rendered as a tooltip next to the label
+
+    Validation / messaging:
+    - error: string (optional)
+    - success: string (optional)
+    - message: string (optional) (neutral message if no error/success)
+    - errors: Shopify form errors object (optional)
+    - error_key: key to lookup in errors (optional; ex: "email", "password", "phone")
+
+    Number helpers (optional):
+    - min, max
+
+    Styling:
+    - class: extra classes appended to input
+    - wrapper_class: extra classes appended to wrapper
+
+  Live validation:
+    - Works when inside form-container (form-validation.js binds within [data-form-container])
+    - This input outputs data attributes JS uses:
+      - data-form-input="true"
+      - data-validate-type="text|email|phone|password|number|search"
+      - data-state-default / data-state-error / data-state-success
+      - data-no-validate="true" (optional opt-out)
+
+  Opt-out:
+    - no_validate (optional)
+
+  Password toggle:
+    - If type == 'password', renders an eye button that toggles input type password/text.
+    - Loads assets/password-toggle.js once per page (only when a password input renders).
+{%- endcomment -%}
+
+{%- liquid
+  assign _name = name
+  assign _type = type | default: 'text'
+
+  assign _input_type = _type
+  if _type == 'phone'
+    assign _input_type = 'tel'
+  elsif _type == 'number'
+    assign _input_type = 'text'
+  endif
+
+  assign _id = id | default: _name
+  assign _id = _id | replace: '[', '_' | replace: ']', '' | replace: ' ', '_' | downcase
+
+  assign _error = error
+  if _error == blank and errors != blank and error_key != blank
+    assign _error = errors[error_key]
+  endif
+
+  assign _success = success
+  assign _has_error = false
+  if _error != blank
+    assign _has_error = true
+  endif
+
+  assign _msg = ''
+  assign _msg_type = 'neutral'
+  if _has_error
+    assign _msg = _error
+    assign _msg_type = 'error'
+  elsif _success != blank
+    assign _msg = _success
+    assign _msg_type = 'success'
+  elsif message != blank
+    assign _msg = message
+    assign _msg_type = 'neutral'
+  endif
+
+  assign _hidden = false
+  if _msg == blank
+    assign _hidden = true
+  endif
+
+  assign _wrapper_class = wrapper_class | default: ''
+  assign _input_extra_class = class | default: ''
+
+  comment
+    Keep original Nuxt-like shape/spacing; use token colors.
+  endcomment
+  assign _input_base = 'border-2 w-full rounded-md p-1 text-base font-semibold bg-surface text-text placeholder:text-muted transition-colors duration-fast ease-standard focus:outline-none focus:shadow-interior'
+  assign _input_disabled = 'disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:bg-surface'
+
+  comment
+    State classes (used both by Liquid initial state + JS live state switching)
+  endcomment
+  assign _state_default = 'border-border hover:bg-brand-blue/5 hover:border-brand-blue focus:border-brand-blue'
+  assign _state_error = 'border-danger hover:bg-danger/5 hover:border-danger focus:border-danger'
+  assign _state_success = 'border-success hover:bg-success/5 hover:border-success focus:border-success'
+
+  assign _input_state = _state_default
+  if _has_error
+    assign _input_state = _state_error
+  elsif _success != blank
+    assign _input_state = _state_success
+  endif
+
+  comment
+    Password needs right padding so text doesn't go under the eye button.
+  endcomment
+  assign _pw_pad = ''
+  if _type == 'password'
+    assign _pw_pad = ' pr-10'
+  endif
+-%}
+
+<div class="relative w-full {{ _wrapper_class }}" data-form-field>
+  {%- if label != blank -%}
+        {% render 'form-label',
+            for: _id,
+            text: label,
+            required: required,
+            class: _label_class,
+            help: help,
+        %}
+    {%- endif -%}
+
+  <div class="relative">
+    <input
+      data-form-input="true"
+      data-validate-type="{{ _type }}"
+      data-label="{{ label | default: 'This field' | escape }}"
+      data-state-default="{{ _state_default }}"
+      data-state-error="{{ _state_error }}"
+      data-state-success="{{ _state_success }}"
+      {%- if no_validate -%} data-no-validate="true"{%- endif -%}
+      {%- if _type == 'password' -%} data-password-field="true"{%- endif -%}
+
+      id="{{ _id }}"
+      name="{{ _name }}"
+      type="{{ _input_type }}"
+      {%- if value != blank -%} value="{{ value | escape }}"{%- endif -%}
+      {%- if placeholder != blank -%} placeholder="{{ placeholder | escape }}"{%- endif -%}
+      {%- if autocomplete != blank -%} autocomplete="{{ autocomplete | escape }}"{%- endif -%}
+      class="{{ _input_base }}{{ _pw_pad }} {{ _input_state }} {{ _input_disabled }} {{ _input_extra_class }}"
+      {% if required %} required{% endif %}
+      {% if disabled %} disabled{% endif %}
+      {% if readonly %} readonly{% endif %}
+      aria-describedby="{{ _id }}-msg"
+      {%- if _has_error -%} aria-invalid="true"{%- endif -%}
+
+      {%- if _type == 'email' -%}
+        pattern="^[^\s@]+@[^\s@]+\.[^\s@]+$"
+      {%- endif -%}
+
+      {%- if _type == 'phone' -%}
+        inputmode="tel"
+        pattern="^(\(\d{3}\)\s?|\d{3}-?)\d{3}-?\d{4}$"
+      {%- endif -%}
+
+      {%- if _type == 'number' -%}
+        inputmode="numeric"
+        pattern="[0-9]*"
+        {%- if min != blank -%} min="{{ min }}"{%- endif -%}
+        {%- if max != blank -%} max="{{ max }}"{%- endif -%}
+      {%- endif -%}
+    >
+
+    {%- if _type == 'password' -%}
+      <button
+        type="button"
+        class="absolute right-3 top-1/2 -translate-y-1/2 inline-flex items-center justify-center
+              focus:outline-none"
+        data-password-toggle="true"
+        aria-controls="{{ _id }}"
+        aria-pressed="false"
+        aria-label="Show password"
+        {%- if disabled -%} disabled{%- endif -%}
+      >
+        <span class="relative inline-flex h-5 w-5">
+          <span
+            data-eye-open
+            class="absolute inset-0 inline-flex items-center justify-center"
+            aria-hidden="false"
+          >
+            {% render 'ui-icon',
+              name: 'solar:eye-bold',
+              size: 'sm',
+              class: 'text-muted hover:text-brand-blue',
+              decorative: true
+            %}
+          </span>
+
+          <span
+            data-eye-closed
+            class="absolute inset-0 hidden items-center justify-center"
+            aria-hidden="true"
+          >
+            {% render 'ui-icon',
+              name: 'solar:eye-closed-bold',
+              size: 'sm',
+              class: 'text-muted hover:text-brand-blue',
+              decorative: true
+            %}
+          </span>
+        </span>
+
+      </button>
+
+      <script>
+        (function () {
+          if (window.__GGMS_PASSWORD_TOGGLE_LOADED__) return;
+          window.__GGMS_PASSWORD_TOGGLE_LOADED__ = true;
+
+          var s = document.createElement('script');
+          s.src = "{{ 'password-toggle.js' | asset_url }}";
+          s.defer = true;
+          document.head.appendChild(s);
+        })();
+      </script>
+    {%- endif -%}
+
+  </div>
+
+  {%- if _msg_type == 'error' -%}
+      {% render 'form-error', id: _id | append: '-msg', text: _msg, , role_alert: true %}
+  {%- else -%}
+    <p id="{{ _id }}-msg" data-input-msg class="mt-1 text-xs font-semibold {% if _msg_type == 'success' %}text-success{% else %}text-muted{% endif %}">
+      {{ _msg }}
+    </p>
+  {%- endif -%}
+
+</div>

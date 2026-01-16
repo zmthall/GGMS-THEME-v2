@@ -1,0 +1,205 @@
+{%- comment -%}
+  form-combobox (autocomplete / typeahead)
+
+  - Styled to match form-input (border-2, rounded-md, p-1, font-semibold, token colors)
+  - No live validation (by default) — this is a UI control.
+  - Submits the selected value via a hidden input with the provided `name`.
+
+  Args:
+    - name (required)           // submitted value
+    - id: defaults from name (sanitized)
+    - label: optional
+    - button_label: optional
+    - help: optional tooltip text
+    - required: boolean
+    - disabled: boolean
+    - readonly: boolean
+
+    - value: optional (selected value)
+    - placeholder: optional (default "Select…")
+
+    Options:
+    - options: array of strings OR array of "value|label" strings
+      Example:
+        {% assign opts = "ny|New York,ca|California,co|Colorado" | split: ',' %}
+        {% render 'form-combobox', name:'state', options: opts %}
+
+    Styling:
+    - class: wrapper extra classes
+    - input_class: extra classes for input
+    - button_class: extra classes for button
+
+  Notes:
+    - Display input is separate from submitted value.
+    - JS filters options as user types.
+{%- endcomment -%}
+
+{%- liquid
+  assign _name = name
+  assign _id = id | default: _name
+  assign _id = _id | replace: '[', '_' | replace: ']', '' | replace: ' ', '_' | downcase
+
+  assign _label = label
+  assign _label_class = label_class
+  assign _button_label = button_label | default: 'Toggle Options'
+  assign _help = help
+  assign _required = required
+  assign _disabled = disabled
+  assign _readonly = readonly
+
+  assign _value = value
+  assign _placeholder = placeholder | default: 'Select…'
+
+  assign _class = class | default: ''
+  assign _input_class = input_class | default: ''
+  assign _button_class = button_class | default: ''
+
+  assign _list_id = _id | append: '-listbox'
+  assign _display_id = _id | append: '__display'
+
+  comment
+    Resolve display value from options if value provided.
+    Supports:
+      - "value|label"
+      - "label" (value = label)
+  endcomment
+  assign _display_value = ''
+  if _value != blank and options != blank
+    for opt in options
+      assign _raw = opt | to_s
+      if _raw contains '|'
+        assign _parts = _raw | split: '|'
+        assign _opt_value = _parts[0] | strip
+        assign _opt_label = _parts[1] | strip
+      else
+        assign _opt_value = _raw | strip
+        assign _opt_label = _raw | strip
+      endif
+
+      if _opt_value == _value
+        assign _display_value = _opt_label
+        break
+      endif
+    endfor
+  endif
+
+  comment
+    Match input styling + tokens
+  endcomment
+  assign _input_base = 'border-2 w-full rounded-md p-1 text-base font-semibold bg-surface text-text placeholder:text-muted transition-colors duration-fast ease-standard focus:outline-none focus:shadow-interior'
+  assign _input_state = 'border-border group-hover/combobox:bg-brand-blue/5 group-hover/combobox:border-brand-blue focus:border-brand-blue'
+  assign _input_disabled = 'disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:bg-surface'
+
+  assign _btn_base = 'absolute right-1 top-1/2 -translate-y-1/2 inline-flex items-center justify-center rounded-md cursor-pointer p-1 transition-colors duration-fast ease-standard'
+  assign _btn_state = 'text-muted group-hover/combobox:text-brand-blue focus:outline-none focus:shadow-interior'
+-%}
+
+<div class="relative w-full {{ _class }} group/combobox" data-form-field>
+  {%- if label != blank -%}
+      {% render 'form-label',
+          for: _id,
+          text: label,
+          required: required,
+          class: _label_class,
+          help: _help,
+      %}
+  {%- endif -%}
+
+  <div
+    data-combobox
+    class="relative"
+    data-listbox-id="{{ _list_id }}"
+  >
+    {%- comment -%} Submitted value {%- endcomment -%}
+    <input
+      type="hidden"
+      id="{{ _id }}"
+      name="{{ _name }}"
+      value="{{ _value | escape }}"
+      {%- if _required -%} required{%- endif -%}
+    >
+
+    {%- comment -%} Display input {%- endcomment -%}
+    <input
+      id="{{ _display_id }}"
+      type="text"
+      inputmode="search"
+      autocomplete="off"
+      role="combobox"
+      aria-autocomplete="list"
+      aria-expanded="false"
+      aria-controls="{{ _list_id }}"
+      aria-haspopup="listbox"
+      placeholder="{{ _placeholder | escape }}"
+      value="{{ _display_value | escape }}"
+      class="{{ _input_base }} {{ _input_state }} {{ _input_disabled }} pr-10 {{ _input_class }}"
+      {%- if _disabled -%} disabled{%- endif -%}
+      {%- if _readonly -%} readonly{%- endif -%}
+    >
+
+    <button
+      type="button"
+      data-combobox-button
+      class="{{ _btn_base }} {{ _btn_state }} {{ _button_class }}"
+      aria-label="Toggle options"
+      {%- if _disabled -%} disabled{%- endif -%}
+    >
+      {% render 'ui-icon',
+        name: 'mdi:chevron-down',
+        size: 'sm',
+        class: 'text-muted',
+        decorative: true
+      %}
+      <span class="sr-only">{{ _button_label }}</span>
+    </button>
+
+    <div
+      id="{{ _list_id }}"
+      role="listbox"
+      data-combobox-list
+      class="absolute left-0 right-0 mt-1 hidden z-dropdown rounded-md border-2 border-border bg-surface shadow-md overflow-hidden"
+    >
+      <ul class="max-h-56 overflow-auto py-1" data-combobox-options>
+        {%- if options != blank -%}
+          {%- for opt in options -%}
+            {%- assign _raw = opt | to_s -%}
+            {%- if _raw contains '|' -%}
+              {%- assign _parts = _raw | split: '|' -%}
+              {%- assign _opt_value = _parts[0] | strip -%}
+              {%- assign _opt_label = _parts[1] | strip -%}
+            {%- else -%}
+              {%- assign _opt_value = _raw | strip -%}
+              {%- assign _opt_label = _raw | strip -%}
+            {%- endif -%}
+
+            <li
+              role="option"
+              tabindex="-1"
+              data-option
+              data-value="{{ _opt_value | escape }}"
+              data-label="{{ _opt_label | escape }}"
+              class="px-3 py-2 text-sm font-semibold text-text cursor-pointer
+                     hover:bg-brand-blue/5 focus:bg-brand-blue/5 focus:outline-none"
+            >
+              {{ _opt_label }}
+            </li>
+          {%- endfor -%}
+        {%- else -%}
+          <li class="px-3 py-2 text-sm font-semibold text-muted">No options</li>
+        {%- endif -%}
+      </ul>
+    </div>
+  </div>
+</div>
+
+<script>
+  (function () {
+    if (window.__GGMS_COMBOBOX_LOADED__) return;
+    window.__GGMS_COMBOBOX_LOADED__ = true;
+
+    var s = document.createElement('script');
+    s.src = "{{ 'form-combobox.js' | asset_url }}";
+    s.defer = true;
+    document.head.appendChild(s);
+  })();
+</script>

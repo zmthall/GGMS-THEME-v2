@@ -1,0 +1,27 @@
+{%- comment -%}
+  form-fieldset
+
+  Fieldset + legend wrapper with consistent styling.
+
+  Args:
+  - legend: legend text (optional)
+  - legend_class: optional classes appended to legend
+  - class: optional classes appended to fieldset
+  - content: captured markup string (required)
+  - disabled: boolean (optional) disables all controls inside
+{%- endcomment -%}
+
+{%- liquid
+  assign _legend = legend
+  assign _legend_class = legend_class | default: ''
+  assign _class = class | default: ''
+  assign _content = content
+  assign _disabled = disabled
+-%}
+
+<fieldset class="{{ _class }}"{% if _disabled %} disabled{% endif %}>
+  {%- if _legend != blank -%}
+    <legend class="font-extrabold text-xs text-brand-blue capitalize mb-2 {{ _legend_class }}">{{ _legend }}</legend>
+  {%- endif -%}
+  {{ _content }}
+</fieldset>

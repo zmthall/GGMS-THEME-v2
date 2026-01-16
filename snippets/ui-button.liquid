@@ -43,7 +43,7 @@
 
   if _button_icon_hover_color == blank
     unless _icon_bg_hover
-      assign _button_icon_hover_color = 'group-hover:text-zinc-500'
+      assign _button_icon_hover_color = 'group-hover/button:text-zinc-500'
     endunless
   endif
 
@@ -60,7 +60,7 @@
   endif
 
   # Base button styling (Tailwind-safe, static string)
-  assign base = 'inline-flex w-fit self-start items-center justify-center gap-2 font-medium select-none cursor-pointer group transition-color focus-visible:ring-2 focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none '
+  assign base = 'inline-flex w-fit self-start items-center justify-center gap-2 font-medium select-none cursor-pointer group/button transition-color focus-visible:ring-2 focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none '
 
   # Default "size" (not an arg; just your standard control size)
   assign sizing = 'h-control px-4 py-2 text-md '
@@ -110,7 +110,6 @@
   assign base = base | append: rounded
 
   # Focus ring styling using your tokens
-  assign ring = 'focus-visible:ring-border focus-visible:ring-offset-page '
 
   # Disabled handling for links
   assign link_disabled = ''
@@ -124,7 +123,7 @@
   endif
 
 
-  assign classes = base | append: sizing | append: variant_classes | append: ring | append: link_disabled | append: ' ' | append: _class
+  assign classes = base | append: sizing | append: variant_classes | append: link_disabled | append: ' ' | append: _class
 -%}
 
 {%- assign needs_aria = false -%}
@@ -184,7 +183,7 @@
     {{ _attrs }}
   >
     {%- if variant == 'cta' %}
-        <div class="absolute bg-white top-1/2 rounded-full border border-black -translate-y-1/2 block flex items-center justify-center group-hover:bg-zinc-100 p-3 {{ cta_icon_class }}">
+        <div class="absolute bg-white top-1/2 rounded-full border border-black -translate-y-1/2 flex items-center justify-center group-hover/button:bg-zinc-100 p-3 {{ cta_icon_class }}">
             {% render 'ui-icon', name: _cta_icon, size: cta_icon_sizing, class: 'text-black' %}
         </div>
     {%- endif %}
@@ -204,7 +203,7 @@
                 {%- assign icon_classes = icon_classes | append: ' ' | append: _button_icon_hover_color -%}
             {%- endif -%}
 
-            <span class="p-3 flex rounded-full{% if _icon_bg_hover %} group-hover:bg-button-hover{% endif %}{% if _loading %} opacity-70{% endif %}">
+            <span class="p-3 flex rounded-full{% if _icon_bg_hover %} group-hover/button:bg-button-hover{% endif %}{% if _loading %} opacity-70{% endif %}">
             {% render 'ui-icon', name: _button_icon, size: _button_icon_size, class: icon_classes %}
             </span>
         {% endif %}

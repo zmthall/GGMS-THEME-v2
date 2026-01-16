@@ -1,0 +1,33 @@
+{%- comment -%}
+  form-label
+
+  Standard label styling for form controls.
+
+  Args:
+  - for: id of the input/control (required)
+  - text/label: label text (required)
+  - required: boolean (optional)
+  - class: optional classes appended to the label
+  - help: optional tooltip text (renders ui-tooltip next to label)
+  - help_id: optional id base for tooltip (default: for)
+  - help_icon: optional iconify name (default: "mdi:help-circle-outline")
+  - help_label: optional accessible label for tooltip trigger (default: "More info")
+{%- endcomment -%}
+
+{%- liquid
+  assign _for = for
+  assign _text = text | default: label
+  assign _required = required | default: false
+  assign _class = class | default: ''
+  assign _help = help
+  assign _help_id = help_id | default: _for
+  assign _help_icon = help_icon | default: 'mdi:help-circle-outline'
+  assign _help_label = help_label | default: 'More info'
+-%}
+
+<div class="flex items-center gap-2 mb-1">
+  <label for="{{ _for }}" class="font-extrabold text-xs inline-block text-brand-blue capitalize {{ _class }}">{{ _text }}{% render 'form-required-indicator', required: _required %}</label>
+  {%- if _help != blank -%}
+    {% render 'ui-tooltip', id: _help_id, text: _help, position: 'top', icon: _help_icon, label: _help_label %}
+  {%- endif -%}
+</div>

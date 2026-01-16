@@ -1,0 +1,166 @@
+{%- comment -%}
+  form-select
+
+  Matches form-input styling (shape, spacing, token colors) + supports live validation
+  using the same assets/form-validation.js (no changes) because it outputs:
+    - data-form-input="true"
+    - data-validate-type="text" (default)
+    - data-state-default / data-state-error / data-state-success
+    - data-input-msg for messages
+    - data-no-validate="true" when no_validate is true
+
+  Args:
+    - name (required)
+    - id: defaults from name (sanitized)
+    - label: label text (optional)
+    - value: selected value (optional)
+    - required: boolean
+    - disabled: boolean
+    - readonly: boolean (note: select doesn't truly support readonly; we map to disabled)
+
+    Options:
+    - options: string of <option>...</option> markup (required)
+      (Use capture to build your options cleanly.)
+
+    Placeholder (optional):
+    - placeholder: string (if provided, inserts a first <option value="">placeholder</option>)
+
+    Help:
+    - help: tooltip text (optional)
+
+    Validation / messaging:
+    - error: string (optional)
+    - success: string (optional)
+    - message: string (optional)
+    - errors: Shopify form errors object (optional)
+    - error_key: key to lookup in errors (optional)
+
+    Live validation opt-out:
+    - no_validate: boolean (optional)
+
+    Styling:
+    - class: extra classes appended to select
+    - wrapper_class: extra classes appended to wrapper
+{%- endcomment -%}
+
+{%- liquid
+  assign _name = name
+  assign _id = id | default: _name
+  assign _id = _id | replace: '[', '_' | replace: ']', '' | replace: ' ', '_' | downcase
+
+  assign _error = error
+  if _error == blank and errors != blank and error_key != blank
+    assign _error = errors[error_key]
+  endif
+
+  assign _success = success
+  assign _has_error = false
+  if _error != blank
+    assign _has_error = true
+  endif
+
+  assign _msg = ''
+  assign _msg_type = 'neutral'
+  if _has_error
+    assign _msg = _error
+    assign _msg_type = 'error'
+  elsif _success != blank
+    assign _msg = _success
+    assign _msg_type = 'success'
+  elsif message != blank
+    assign _msg = message
+    assign _msg_type = 'neutral'
+  endif
+
+  assign _wrapper_class = wrapper_class | default: ''
+  assign _extra_class = class | default: ''
+
+  comment
+    Match input styling:
+      - border-2
+      - rounded-md
+      - p-1
+      - text-base
+      - font-semibold
+      - focus:shadow-interior
+    Add:
+      - appearance-none for consistent custom caret
+      - pr-10 to make room for caret icon
+  endcomment
+
+  assign _base = 'border-2 w-full rounded-md p-1 pr-10 text-base font-semibold bg-surface text-text transition-colors duration-fast ease-standard focus:outline-none focus:shadow-interior appearance-none'
+  assign _disabled = 'disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:bg-surface'
+
+  assign _state_default = 'border-border hover:bg-brand-blue/5 hover:border-brand-blue focus:border-brand-blue'
+  assign _state_error = 'border-danger hover:bg-danger/5 hover:border-danger focus:border-danger'
+  assign _state_success = 'border-success hover:bg-success/5 hover:border-success focus:border-success'
+
+  assign _state = _state_default
+  if _has_error
+    assign _state = _state_error
+  elsif _success != blank
+    assign _state = _state_success
+  endif
+
+  assign _disabled_attr = false
+  if disabled or readonly
+    assign _disabled_attr = true
+  endif
+-%}
+
+<div class="relative w-full {{ _wrapper_class }}" data-form-field>
+  {%- if label != blank -%}
+    {% render 'form-label', for: _id, label: label, required: required, help: help %}
+  {%- endif -%}
+
+  <div class="relative">
+    <select
+      data-form-input="true"
+      data-validate-type="text"
+      data-label="{{ label | default: 'This field' | escape }}"
+      data-state-default="{{ _state_default }}"
+      data-state-error="{{ _state_error }}"
+      data-state-success="{{ _state_success }}"
+      {%- if no_validate -%} data-no-validate="true"{%- endif -%}
+
+      id="{{ _id }}"
+      name="{{ _name }}"
+      class="{{ _base }} {{ _state }} {{ _disabled }} {{ _extra_class }}"
+      aria-describedby="{{ _id }}-msg"
+      {%- if required -%} required{%- endif -%}
+      {%- if _disabled_attr -%} disabled{%- endif -%}
+      {%- if _has_error -%} aria-invalid="true"{%- endif -%}
+    >
+      {%- if placeholder != blank -%}
+        <option value="" {%- if value == blank -%} selected{%- endif -%} disabled>
+          {{ placeholder }}
+        </option>
+      {%- endif -%}
+
+      {{ options }}
+    </select>
+
+    <span class="pointer-events-none absolute flex right-3 top-1/2 -translate-y-1/2">
+      {% render 'ui-icon',
+        name: 'mdi:chevron-down',
+        size: 'sm',
+        class: 'text-muted',
+        decorative: true
+      %}
+    </span>
+  </div>
+
+  <p
+    id="{{ _id }}-msg"
+    data-input-msg
+    class="mt-1 text-xs font-semibold
+      {%- if _msg_type == 'error' -%} text-danger
+      {%- elsif _msg_type == 'success' -%} text-success
+      {%- else -%} text-muted
+      {%- endif -%}
+      {%- if _msg == blank -%} hidden{%- endif -%}"
+    {%- if _msg_type == 'error' -%} role="alert"{%- endif -%}
+  >
+    {{ _msg }}
+  </p>
+</div>

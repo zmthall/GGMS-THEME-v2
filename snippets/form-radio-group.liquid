@@ -1,0 +1,112 @@
+{%- comment -%}
+  form-radio-group
+
+  Description:
+  - Container for multiple `form-radio` renders.
+  - Provides group label + help tooltip + required indicator + helper/error/success messaging.
+  - Handles layout (stack/inline/grid) for the radio items.
+  - Does NOT do live validation (radios can still be required via HTML on each radio if you want).
+
+  Args:
+  - name: radio name (required; used for legend + ids + aria)
+  - id: base id for the group (optional; defaults from name, sanitized)
+  - label: group label shown as legend (optional)
+  - help: tooltip text shown next to the legend (optional)
+  - required: boolean (optional; shows required indicator)
+  - disabled: boolean (optional; dims the group UI; does not force-disable children automatically)
+  - content: captured markup containing multiple `{% render 'form-radio', ... %}` (required)
+
+  Messaging:
+  - message: neutral helper text (optional)
+  - error: error message string (optional)
+  - success: success message string (optional)
+  - errors: Shopify form errors object (optional)
+  - error_key: key to lookup inside errors (optional; ex: "contact[reason]")
+
+  Layout:
+  - layout: stack | inline | grid (optional, default: stack)
+  - cols: number of columns for grid layout (optional, default: 2)
+  - gap: tailwind gap class (optional, default: "gap-3")
+  - class: wrapper classes for the fieldset (optional)
+  - items_class: extra classes appended to the items wrapper (optional)
+  - label_class: extra classes for the legend text (optional)
+{%- endcomment -%}
+
+{%- liquid
+  assign _name = name
+  assign _id = id | default: _name
+  assign _id = _id | replace: '[', '_' | replace: ']', '' | replace: ' ', '_' | downcase
+
+  assign _class = class | default: ''
+  assign _items_class = items_class | default: ''
+  assign _label_class = label_class | default: ''
+  assign _layout = layout | default: 'stack'
+  assign _cols = cols | default: 2
+  assign _gap = gap | default: 'gap-3'
+
+  assign _disabled = false
+  if disabled
+    assign _disabled = true
+  endif
+
+  assign _error = error
+  if _error == blank and errors != blank and error_key != blank
+    assign _error = errors[error_key]
+  endif
+
+  assign _msg = ''
+  assign _msg_type = 'neutral'
+  if _error != blank
+    assign _msg = _error
+    assign _msg_type = 'error'
+  elsif success != blank
+    assign _msg = success
+    assign _msg_type = 'success'
+  elsif message != blank
+    assign _msg = message
+    assign _msg_type = 'neutral'
+  endif
+
+  assign _items_layout = 'flex flex-col'
+  if _layout == 'inline'
+    assign _items_layout = 'flex flex-wrap items-center'
+  elsif _layout == 'grid'
+    assign _items_layout = 'grid'
+  endif
+
+  assign _grid_cols = ''
+  if _layout == 'grid'
+    case _cols
+      when 1
+        assign _grid_cols = 'grid-cols-1'
+      when 2
+        assign _grid_cols = 'grid-cols-2'
+      when 3
+        assign _grid_cols = 'grid-cols-3'
+      when 4
+        assign _grid_cols = 'grid-cols-4'
+      else
+        assign _grid_cols = 'grid-cols-2'
+    endcase
+  endif
+-%}
+
+<fieldset class="w-full {{ _class }}{% if _disabled %} opacity-60{% endif %}" data-form-field{% if _disabled %} aria-disabled="true"{% endif %}>
+    {%- if label != blank -%}
+        {% render 'form-label',
+            for: _id,
+            text: label,
+            required: required,
+            class: _label_class,
+            help: help,
+        %}
+    {%- endif -%}
+
+    <div class="{{ _items_layout }} {{ _grid_cols }} {{ _gap }} {{ _items_class }}" role="radiogroup" aria-describedby="{{ _id }}-msg">
+        {{ content }}
+    </div>
+
+    <p id="{{ _id }}-msg" data-input-msg class="mt-1 text-xs font-semibold{% if _msg_type == 'error' %} text-danger{% elsif _msg_type == 'success' %} text-success{% else %} text-muted{% endif %}{% if _msg == blank %} hidden{% endif %}"{% if _msg_type == 'error' %} role="alert"{% endif %}>
+        {{ _msg }}
+    </p>
+</fieldset>

@@ -1,0 +1,56 @@
+{%- comment -%}
+  form-checkbox
+
+  Args:
+  - name (required)
+  - id: defaults from name (sanitized)
+  - label: label text (optional)
+  - checked: boolean (optional)
+  - value: optional (default "1")
+  - disabled: boolean
+  - required: boolean
+  - class: wrapper classes
+  - box_class: extra classes for the box
+  - label_class: extra classes for label text
+{%- endcomment -%}
+
+{%- liquid
+  assign _name = name
+  assign _id = id | default: _name
+  assign _id = _id | replace: '[', '_' | replace: ']', '' | replace: ' ', '_' | downcase
+  assign _value = value | default: '1'
+  assign _class = class | default: ''
+  assign _box_class = box_class | default: ''
+  assign _label_class = label_class | default: ''
+  assign _disabled = false
+  if disabled
+    assign _disabled = true
+  endif
+  assign _checked = false
+  if checked == true or checked == 'true' or checked == 1 or checked == '1'
+    assign _checked = true
+  endif
+-%}
+
+<div class="w-full {{ _class }}">
+  {%- if label != blank -%}
+      {% render 'form-label',
+          for: _id,
+          text: heading_label,
+          required: required,
+          class: _label_class,
+          help: help,
+      %}
+  {%- endif -%}
+  <label for="{{ _id }}" class="inline-flex items-center gap-2 select-none {% if _disabled %}opacity-60 cursor-not-allowed{% else %}cursor-pointer{% endif %}">
+    <input id="{{ _id }}" name="{{ _name }}" type="checkbox" value="{{ _value | escape }}" class="sr-only peer" {% if _checked %}checked{% endif %} {% if required %}required{% endif %} {% if _disabled %}disabled{% endif %}>
+
+    <span data-box class="relative flex items-center justify-center size-8 shrink-0 border-2 rounded-md bg-surface transition-colors duration-fast ease-standard border-brand-blue/50 hover:border-brand-blue hover:bg-brand-blue/5 peer-focus-visible:shadow-interior peer-checked:bg-brand-blue peer-checked:border-brand-blue peer-focus-visible:outline-2 peer-focus-visible:outline-focus peer-focus-visible:outline-offset-2 {% if _disabled %}pointer-events-none{% endif %} {{ _box_class }}" aria-hidden="true">
+      {% render 'ui-icon', name: 'check', size: '1.5rem', class: 'text-white', decorative: true %}
+    </span>
+
+    {% if label != blank %}
+      <span class="text-text font-semibold {{ _label_class }}">{{ label }}</span>
+    {% endif %}
+  </label>
+</div>

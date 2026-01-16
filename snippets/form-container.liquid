@@ -1,0 +1,87 @@
+{%- comment -%}
+  form-container
+  Wraps form markup AND conditionally loads live validation JS.
+
+  Args:
+  - content: captured markup (required)
+  - class: wrapper classes (optional)
+  - enable_live_validation: boolean (preferred)
+  - enable_validation: boolean (legacy / fallback)
+
+  Layout:
+  - layout: stack | inline | grid | none (default: stack)
+  - layout_class: optional classes appended to the layout wrapper
+  - gap: optional gap classes (default: "gap-4")
+  - grid_cols: optional grid cols classes (default: "grid-cols-1 md:grid-cols-2")
+
+  Behavior:
+  - Injects assets/form-validation.js exactly once per page (guarded).
+  - JS scopes itself to this container via [data-form-container].
+{%- endcomment -%}
+
+{%- liquid
+  assign _class = class | default: ''
+
+  assign _enable = enable_live_validation
+  if _enable == nil
+    assign _enable = enable_validation
+  endif
+  if _enable == nil
+    assign _enable = true
+  endif
+
+  assign _layout = layout | default: 'stack'
+  assign _layout_class = layout_class | default: ''
+  assign _gap = gap | default: 'gap-4'
+  assign _grid_cols = grid_cols | default: 'grid-cols-1 md:grid-cols-2'
+
+  assign _layout_wrap = ''
+  case _layout
+    when 'inline'
+      assign _layout_wrap = 'flex flex-wrap items-end'
+    when 'grid'
+      assign _layout_wrap = 'grid'
+    when 'none'
+      assign _layout_wrap = ''
+    else
+      assign _layout_wrap = 'flex flex-col'
+  endcase
+
+  if _layout_wrap != ''
+    assign _layout_wrap = _layout_wrap | append: ' ' | append: _gap
+  endif
+
+  if _layout == 'grid'
+    assign _layout_wrap = _layout_wrap | append: ' ' | append: _grid_cols
+  endif
+
+  if _layout_class != ''
+    if _layout_wrap == ''
+      assign _layout_wrap = _layout_class
+    else
+      assign _layout_wrap = _layout_wrap | append: ' ' | append: _layout_class
+    endif
+  endif
+-%}
+
+<div class="{{ _class }}" data-form-container>
+  {%- if _layout == 'none' -%}
+    {{ content }}
+  {%- else -%}
+    <div class="{{ _layout_wrap }}">
+      {{ content }}
+    </div>
+  {%- endif -%}
+</div>
+
+{%- if _enable -%}
+  <script>
+    (function () {
+      if (window.__GGMS_FORM_VALIDATION_LOADED__) return;
+      window.__GGMS_FORM_VALIDATION_LOADED__ = true;
+      var s = document.createElement('script');
+      s.src = "{{ 'form-validation.js' | asset_url }}";
+      document.head.appendChild(s);
+    })();
+  </script>
+{%- endif -%}

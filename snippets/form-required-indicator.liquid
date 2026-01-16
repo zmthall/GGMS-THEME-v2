@@ -1,0 +1,21 @@
+{%- comment -%}
+  form-required-indicator
+
+  Use inside labels to show required marker.
+
+  Args:
+  - required: boolean (if truthy, renders indicator)
+  - class: optional classes for the asterisk
+  - text: optional screen-reader text (default: "Required")
+{%- endcomment -%}
+
+{%- liquid
+  assign _required = required
+  assign _class = class | default: 'text-danger ml-0.25'
+  assign _text = text | default: 'Required'
+-%}
+
+{%- if _required -%}
+  <span class="{{ _class }}" aria-hidden="true">*</span>
+  <span class="sr-only">{{ _text }}</span>
+{%- endif -%}

@@ -1,0 +1,75 @@
+{%- comment -%}
+  form-search (compound search input + button)
+
+  - Uses the SAME token colors as form-input (border-border, brand-blue, bg-surface, etc.)
+  - Distinct keyboard focus:
+      * input focus: wrapper shows the "input focus" look (brand-blue border + shadow-interior)
+      * button focus: button shows its own focus-visible outline (brand-blue) so you can tab to it
+  - NO live validation (does not output data-form-input)
+{%- endcomment -%}
+
+{%- liquid
+  assign _name = name | default: 'q'
+
+  assign _id = id | default: _name
+  assign _id = _id | replace: '[', '_' | replace: ']', '' | replace: ' ', '_' | downcase
+
+  assign _action = action | default: routes.search_url
+  assign _method = method | default: 'get'
+
+  assign _placeholder = placeholder | default: 'Search'
+  assign _autocomplete = autocomplete | default: 'off'
+
+  assign _button_label = button_label | default: 'Search'
+  assign _icon = icon | default: 'mdi:magnify'
+
+  assign _class = class | default: ''
+  assign _input_class = input_class | default: ''
+  assign _button_class = button_class | default: ''
+-%}
+
+<form action="{{ _action }}" method="{{ _method }}" role="search" class="{{ _class }}" data-search-form>
+  <style>
+    #{{ _id }}::-webkit-search-cancel-button { -webkit-appearance: none; appearance: none; display: none; }
+  </style>
+
+  <div class="flex w-full overflow-hidden rounded-md border-2 border-border bg-surface transition-colors duration-fast ease-standard hover:bg-brand-blue/5 hover:border-brand-blue focus-within:border-brand-blue focus-within:shadow-interior{% if disabled %} opacity-60 cursor-not-allowed{% endif %}">
+    <input id="{{ _id }}" name="{{ _name }}" type="search"{% if value != blank %} value="{{ value | escape }}"{% endif %} placeholder="{{ _placeholder | escape }}" autocomplete="{{ _autocomplete | escape }}" class="flex-1 min-w-0 border-0 rounded-none bg-transparent text-text placeholder:text-muted p-1 text-base font-semibold transition-colors duration-fast ease-standard focus:outline-none{% if disabled %} cursor-not-allowed{% endif %} {{ _input_class }}"{% if disabled %} disabled{% endif %}{% if readonly %} readonly{% endif %} data-search-input>
+
+    <button type="button" class="group cursor-pointer shrink-0 items-center justify-center bg-transparent transition-colors duration-fast ease-standard focus:outline-none disabled:opacity-60 disabled:pointer-events-none flex mr-2" aria-label="Clear search" title="Clear search" data-search-clear{% if disabled %} disabled{% endif %}>
+            {% render 'ui-icon', name: 'cancel', size: '1.25rem', class: 'text-brand-blue group-hover:text-brand-burgundy', decorative: true %}
+        <span class="sr-only">Clear</span>
+    </button>
+
+    <button type="submit" class="shrink-0 inline-flex items-center justify-center px-4 bg-transparent text-text border-l-2 border-border transition-colors duration-fast ease-standard hover:bg-brand-blue/5 focus:outline-none focus-visible:shadow-interior focus-visible:border-brand-blue focus-visible:bg-brand-blue/5{% if disabled %} cursor-not-allowed{% endif %} {{ _button_class }}"{% if disabled %} disabled{% endif %} aria-label="{{ _button_label | escape }}" title="{{ _button_label | escape }}">
+      {% render 'ui-icon', name: _icon, size: '1rem', class: 'text-base-icon', decorative: true %}
+      <span class="sr-only">{{ _button_label }}</span>
+    </button>
+  </div>
+
+  <script>
+    (function () {
+      var form = document.currentScript && document.currentScript.closest('[data-search-form]');
+      if (!form) return;
+
+      var input = form.querySelector('[data-search-input]');
+      var clearBtn = form.querySelector('[data-search-clear]');
+      if (!input || !clearBtn) return;
+
+      function sync() {
+        if (input.value && input.value.length) clearBtn.classList.remove('hidden');
+        else clearBtn.classList.add('hidden');
+      }
+
+      clearBtn.addEventListener('click', function () {
+        input.value = '';
+        input.dispatchEvent(new Event('input', { bubbles: true }));
+        sync();
+        input.focus();
+      });
+
+      input.addEventListener('input', sync);
+      sync();
+    })();
+  </script>
+</form>

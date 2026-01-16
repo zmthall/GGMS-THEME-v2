@@ -4,7 +4,7 @@
             <h1>Global UI</h1>
             <hr class="mb-4">
         </div>
-        <div class="space-y-12">
+        <div class="space-y-6">
             <h2>UI Primatives</h2>
             <div class="space-y-4">
                 <h3>Buttons</h3>
@@ -132,52 +132,220 @@
             </div>
         </div>
 
-        <div class="space-y-12">
+        <div class="space-y-6">
             <h2>Form Systems</h2>
             <div class="space-y-4">
-                <h3>Text/Number Input</h3>
+                <h3>Inputs</h3>
+                <div class="space-y-6">
+                    <div>
+                        <h4>Stacked Fields</h4>
+                        <div>
+                            {% form 'contact' %}
+                                {% capture form_markup %}
+                                    <div>
+                                        {% render 'form-input', type: 'text', name: 'text-input', required: true, placeholder: 'Text Input', label: 'Text Input', no_validate: true %}
+                                    </div>
+    
+                                    <div>
+                                        {% render 'form-input', type: 'email', name: 'contact[email]', help: 'Enter an email', required: true, placeholder: 'example@email.com', label: 'Email Input', autocomplete: 'email' %}
+                                    </div>
+    
+                                    <div>
+                                        {% render 'form-input', type: 'phone', name: 'contact[phone]', placeholder: 'Phone Input', label: 'Phone Input', autocomplete: 'tel' %}
+                                    </div>
+    
+                                    <div>
+                                        {% render 'form-input', type: 'number', name: 'contact[number]', placeholder: 'Number Input', label: 'Number Input' %}
+                                    </div>
+    
+                                    <div>
+                                        {% render 'form-input', type: 'password', name: 'contact[password]', required: true, no_validate: true, placeholder: 'Password Input', label: 'Password Input' %}
+                                    </div>
+                                {% endcapture %}
+    
+                                {% render 'form-container',
+                                    enable_live_validation: true,
+                                    layout: 'stack',
+                                    content: form_markup,
+                                    class: 'w-1/2'
+                                %}
+                            {% endform %}
+                        </div>
+                    </div>
+                    <div>
+                        <h4>Inline Fields</h4>
+                        <div>
+                            {% form 'contact' %}
+                                {% capture form_markup %}
+                                    <div class="w-1/4">
+                                        {% render 'form-input', type: 'text', name: 'text-input', required: true, placeholder: 'Text Input', label: 'Text Input', no_validate: true %}
+                                    </div>
+    
+                                    <div>
+                                        {% render 'form-input', type: 'email', name: 'contact[email]', help: 'Enter an email', required: true, placeholder: 'example@email.com', label: 'Email Input', autocomplete: 'email' %}
+                                    </div>
+    
+                                    <div>
+                                        {% render 'form-input', type: 'phone', name: 'contact[phone]', placeholder: 'Phone Input', label: 'Phone Input', autocomplete: 'tel' %}
+                                    </div>
+    
+                                    <div>
+                                        {% render 'form-input', type: 'number', name: 'contact[number]', placeholder: 'Number Input', label: 'Number Input' %}
+                                    </div>
+    
+                                    <div>
+                                        {% render 'form-input', type: 'password', name: 'contact[password]', required: true, no_validate: true, placeholder: 'Password Input', label: 'Password Input' %}
+                                    </div>
+                                {% endcapture %}
+    
+                                {% render 'form-container',
+                                    enable_live_validation: true,
+                                    layout: 'inline',
+                                    content: form_markup,
+                                %}
+                            {% endform %}
+                        </div>
+                    </div>
+
+    
+                    <div class="w-1/2">
+                        <label for="{{ _id }}" class="font-extrabold text-xs inline-block text-brand-blue capitalize">Search Bar</label>
+                        {% render 'form-search', placeholder: 'Search…' %}
+                    </div>
+                </div>
             </div>
             <div class="space-y-4">
                 <h3>Textarea</h3>
+                {% capture form_markup_textarea %}
+                    {% form 'contact' %}
+                        <div class="w-1/2">
+                            {% render 'form-textarea', label: 'Text Area', placeholder: 'Extra text', help: 'Textarea helper example', required: true %}
+                        </div>
+                    {% endform %}
+                {% endcapture %}
+
+                {% render 'form-container',
+                    enable_live_validation: true,
+                    content: form_markup_textarea
+                %}
             </div>
             <div class="space-y-4">
                 <h3>Select</h3>
+                {% capture form_markup_select %}
+                    {% form 'contact' %}
+                        <div class="w-1/2">
+                            {% render 'form-select', name: 'select-input', placeholder: 'Select an Option', options: '<option>Option 1</option><option>Option 2</option>', label: 'Option Select' %}
+                        </div>
+                    {% endform %}
+                {% endcapture %}
+
+                {% render 'form-container',
+                    enable_live_validation: true,
+                    content: form_markup_select
+                %}
             </div>
             <div class="space-y-4">
                 <h3>Combobox</h3>
+                <div class="w-1/2">
+                    {% assign states = "co|Colorado,wy|Wyoming,ut|Utah" | split: ',' %}
+
+                    {% render 'form-combobox',
+                        name: 'state',
+                        label: 'State',
+                        help: 'Start typing to filter.',
+                        placeholder: 'Select a state…',
+                        options: states,
+                        value: 'co'
+                    %}
+                </div>
             </div>
             <div class="space-y-4">
                 <h3>Checkbox</h3>
+                <div>
+                    {% render 'form-checkbox', name: 'agree', heading_label: 'Attestation', required: true, label: 'I agree to the terms', checked: true %}
+                </div>
             </div>
             <div class="space-y-4">
                 <h3>Radio</h3>
+                <div>
+                    {% capture radios %}
+                        {% render 'form-radio', name: 'contact[reason]', value: 'billing', label: 'Billing', checked_value: form.reason, checked: true %}
+                        {% render 'form-radio', name: 'contact[reason]', value: 'order', label: 'Order status', checked_value: form.reason %}
+                        {% render 'form-radio', name: 'contact[reason]', value: 'other', label: 'Other', checked_value: form.reason %}
+                    {% endcapture %}
+
+                    {% render 'form-radio-group',
+                        name: 'contact[reason]',
+                        label: 'Reason for contact',
+                        help: 'Pick the option that best fits your request.',
+                        required: true,
+                        layout: 'stack',
+                        content: radios
+                    %}
+                </div>
             </div>
             <div class="space-y-4">
                 <h3>Toggle/switch</h3>
+                <div>
+                    {% render 'form-toggle', name: 'subscribe', heading_label: 'Marketing', label: 'Subscribe to emails', required: true, checked: false %}
+                </div>
             </div>
             <div class="space-y-4">
                 <h3>Stepper</h3>
-            </div>
-            <div class="space-y-4">
-                <h3>Label</h3>
+                <div class="w-1/8">
+                    {% render 'form-stepper', name: 'quantity', heading_label: 'Quantity Stepper', label: 'Quantity', value: 1, min: 1, max: 20, step: 1 %}
+                </div>
             </div>
             <div class="space-y-4">
                 <h3>Helper Text</h3>
+                <div>
+                    {% render 'form-helper', text: 'Lorem ipsum dolor sit amet consectetur adipisicing elit. Id eum neque aliquid sapiente. Minima, perferendis.' %}
+                </div>
             </div>
             <div class="space-y-4">
                 <h3>Error Text</h3>
-            </div>
-            <div class="space-y-4">
-                <h3>Required Indicator</h3>
+                <div>
+                    {% render 'form-error', text: 'Lorem ipsum dolor sit amet consectetur adipisicing elit. Id eum neque aliquid sapiente. Minima, perferendis.' %}
+                </div>
             </div>
             <div class="space-y-4">
                 <h3>Fieldset + Legend</h3>
-            </div>
-            <div class="space-y-4">
-                <h3>For Layout Utilities</h3>
+                <div>
+                    {% form 'contact' %}
+                        {% capture form_markups %}
+                            {% capture radios %}
+                                <div>
+                                    {% render 'form-radio', name: 'contact[preference]', value: 'email', label: 'Email' %}
+                                    {% render 'form-radio', name: 'contact[preference]', value: 'phone', label: 'Phone' %}
+                                </div>
+                            {% endcapture %}
+                            {% render 'form-fieldset', legend: 'Preferred contact', content: radios %}
+                            <div class="mt-4 w-1/2">
+                                {% render 'form-input', type: 'password', name: 'contact[password]', required: true, no_validate: true, placeholder: 'Password Input', label: 'Password Input' %}
+                            </div>
+
+                        {% endcapture %}
+
+                        {% render 'form-container', layout: 'stack', content: form_markups %}
+                    {% endform %}
+                </div>
             </div>
             <div class="space-y-4">
                 <h3>Validation States</h3>
+                <div>
+                    {% form 'contact' %}
+                        {% capture validation_states %}
+
+                                {% render 'form-input', name: 'validation_default', type: 'text', label: 'Default State' %}
+                                {% render 'form-input', name: 'validation_error', type: 'text', label: 'Error State', error: 'Error state trigger' %}
+                                {% render 'form-input', name: 'validation_success', type: 'text', label: 'Success State', success: 'Success state trigger' %}
+                                {% render 'form-input', name: 'validation_focus', type: 'text', label: 'Focus State', class: 'border-2 border-brand-blue shadow-interior' %}
+                                {% render 'form-input', name: 'validation_disabled', type: 'text', label: 'Disabled State', disabled: true %}
+                        {% endcapture %}
+
+                        {%  render 'form-container', layout: 'stack',  content: validation_states, class: 'w-1/2' %}
+                    {% endform %}
+                </div>
             </div>
         </div>
 
