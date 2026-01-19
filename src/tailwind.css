@@ -116,7 +116,7 @@
 ---------------------------- */
 @layer utilities {
   /* Container / Section shells */
-  .gg-container { @apply mx-auto max-w-page px-[var(--page-margin)]; }
+  .gg-container { @apply mx-auto max-w-page px-(--page-margin); }
   .gg-container--full { @apply max-w-none; }
   .gg-container--no-gutters { @apply px-0; }
 

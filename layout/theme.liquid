@@ -26,6 +26,28 @@
     {% # Social, title, etc. %}
     {% render 'meta-tags' %}
 
+    {% # Loading Favicon items %}
+    {%- comment -%}
+      Favicons (Theme settings)
+      - favicon_32 (32x32 png)
+      - favicon_16 (16x16 png)
+      - apple_touch_icon_180 (180x180 png)
+      - favicon_ico (optional, may not be supported by image_picker in some themes)
+    {%- endcomment -%}
+    <link rel="icon" href="{% if settings.favicon_ico != blank %}{{ settings.favicon_ico | file_url }}{% else %}{{ 'favicon.ico' | asset_url }}{% endif %}">
+
+    {% if settings.favicon_32 != blank %}
+      <link rel="icon" type="image/png" sizes="32x32" href="{{ settings.favicon_32 | image_url: width: 32, height: 32 }}">
+    {% endif %}
+
+    {% if settings.favicon_16 != blank %}
+      <link rel="icon" type="image/png" sizes="16x16" href="{{ settings.favicon_16 | image_url: width: 16, height: 16 }}">
+    {% endif %}
+
+    {% if settings.apple_touch_icon_180 != blank %}
+      <link rel="apple-touch-icon" sizes="180x180" href="{{ settings.apple_touch_icon_180 | image_url: width: 180, height: 180 }}">
+    {% endif %}
+
     {{ content_for_header }}
 
     {{ 'tailwind.css' |  asset_url |  stylesheet_tag }}

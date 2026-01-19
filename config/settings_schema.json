@@ -23,6 +23,237 @@
     ]
   },
   {
+    "name": "Favicon Settings",
+    "settings": [
+      {
+        "type": "image_picker",
+        "id": "favicon_32",
+        "label": "Favicon 32x32"
+      },
+      {
+        "type": "image_picker",
+        "id": "favicon_16",
+        "label": "Favicon 16x16"
+      },
+      {
+        "type": "image_picker",
+        "id": "apple_touch_icon_180",
+        "label": "Apple touch icon 180x180"
+      },
+      {
+        "type": "image_picker",
+        "id": "favicon_ico",
+        "label": "Favicon .ico (optional)"
+      }
+    ]
+  },
+  {
+    "name": "Company settings",
+    "settings": [
+      { "type": "header", "content": "Company identity" },
+      {
+        "type": "text",
+        "id": "company_name",
+        "label": "Company name",
+        "default": "Golden Gate Medical Supply"
+      },
+      {
+        "type": "text",
+        "id": "company_legal_name",
+        "label": "Legal name (optional)",
+        "default": "Golden Gate Manor Inc"
+      },
+
+      { "type": "header", "content": "Contact" },
+      {
+        "type": "text",
+        "id": "company_phone_display",
+        "label": "Primary phone (display)",
+        "default": "(719) 569-7361"
+      },
+      {
+        "type": "text",
+        "id": "company_phone_tel",
+        "label": "Primary phone (tel link)",
+        "info": "Example: +18445551234",
+        "default": "+17195697361"
+      },
+      {
+        "type": "text",
+        "id": "company_phone2_display",
+        "label": "Secondary phone (display) (optional)"
+      },
+      {
+        "type": "text",
+        "id": "company_phone2_tel",
+        "label": "Secondary phone (tel link) (optional)",
+        "info": "Example: +18445551234"
+      },
+      {
+        "type": "text",
+        "id": "company_fax_display",
+        "label": "Fax number (display)",
+        "default": "(719) 696-8548"
+      },
+      {
+        "type": "text",
+        "id": "company_fax_tel",
+        "label": "Fax number (tel link) (optional)",
+        "info": "Example: +17195551234",
+        "default": "+17196968548"
+      },
+      {
+        "type": "text",
+        "id": "company_support_email",
+        "label": "Customer support email",
+        "default": "support@goldengatemedicalsupply.com"
+      },
+
+      { "type": "header", "content": "Primary location" },
+      {
+        "type": "text",
+        "id": "company_address_line1",
+        "label": "Address line 1",
+        "default": "612 S. Union Ave."
+      },
+      {
+        "type": "text",
+        "id": "company_address_line2",
+        "label": "Address line 2 (optional)"
+      },
+      {
+        "type": "text",
+        "id": "company_city",
+        "label": "City",
+        "default": "Pueblo"
+      },
+      {
+        "type": "text",
+        "id": "company_state",
+        "label": "State",
+        "default": "Colorado"
+      },
+      {
+        "type": "text",
+        "id": "company_postal_code",
+        "label": "ZIP / Postal code",
+        "default": "81004"
+      },
+      {
+        "type": "text",
+        "id": "company_country",
+        "label": "Country",
+        "default": "US"
+      },
+
+      { "type": "header", "content": "Secondary location (optional)" },
+      {
+        "type": "checkbox",
+        "id": "company_has_location2",
+        "label": "Enable secondary location",
+        "default": false
+      },
+      {
+        "type": "text",
+        "id": "company2_address_line1",
+        "label": "Address line 1"
+      },
+      {
+        "type": "text",
+        "id": "company2_address_line2",
+        "label": "Address line 2 (optional)"
+      },
+      {
+        "type": "text",
+        "id": "company2_city",
+        "label": "City"
+      },
+      {
+        "type": "text",
+        "id": "company2_state",
+        "label": "State"
+      },
+      {
+        "type": "text",
+        "id": "company2_postal_code",
+        "label": "ZIP / Postal code"
+      },
+      {
+        "type": "text",
+        "id": "company2_country",
+        "label": "Country",
+        "default": "US"
+      },
+
+      { "type": "header", "content": "Business details (optional)" },
+      {
+        "type": "text",
+        "id": "company_hours_short",
+        "label": "Hours (short display)",
+        "info": "Example: Mon-Fri 9-5",
+        "default": "M-F (8AM-4PM)"
+      },
+      {
+        "type": "textarea",
+        "id": "company_hours_full",
+        "label": "Hours (full text)",
+        "info": "Example: Mon-Fri: 9am-5pm\nSat: 10am-2pm\nSun: Closed",
+        "default": "Mon-Fri: 8:00AM-4:00PM"
+      },
+      {
+        "type": "url",
+        "id": "company_google_maps_url",
+        "label": "Google Maps URL (optional)"
+      },
+      {
+        "type": "text",
+        "id": "company_tax_id",
+        "label": "Tax ID / EIN (optional)",
+        "default": "27-1074324"
+      }
+    ]
+  },
+  {
+    "name": "Company logos",
+    "settings": [
+      { "type": "header", "content": "Logos" },
+
+      {
+        "type": "image_picker",
+        "id": "company_logo_primary",
+        "label": "Primary logo (large)"
+      },
+      {
+        "type": "image_picker",
+        "id": "company_logo_secondary",
+        "label": "Secondary logo (small / text)"
+      },
+
+      { "type": "header", "content": "Logo display (optional)" },
+
+      {
+        "type": "range",
+        "id": "company_logo_primary_max_width",
+        "label": "Primary logo max width",
+        "min": 80,
+        "max": 420,
+        "step": 10,
+        "unit": "px",
+        "default": 220
+      },
+      {
+        "type": "range",
+        "id": "company_logo_secondary_max_width",
+        "label": "Secondary logo max width",
+        "min": 80,
+        "max": 420,
+        "step": 10,
+        "unit": "px",
+        "default": 180
+      }
+    ]
+  },
+  {
     "name": "t:general.layout",
     "settings": [
       {
