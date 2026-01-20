@@ -1,0 +1,16 @@
+{% comment %}
+  UI: Logo 3D Letter Assets
+
+  Loads only Cinzel weight 900 and scoped CSS for .gg-letter-3d.
+  Render this once near the logo usage (not globally).
+{% endcomment %}
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Alfa+Slab+One&display=swap" rel="stylesheet">
+
+<style>
+  .gg-letter-3d { position: relative; display: inline-block; line-height: 1; font-family: "Alfa Slab One", var(--font-heading, serif); font-weight: 900; }
+  .gg-letter-3d__depth { position: absolute; inset: 0; transform: translate(var(--ggl-dx, 2px), var(--ggl-dy, 3px)); color: var(--ggl-depth, rgba(0,0,0,0.65)); white-space: pre; }
+  .gg-letter-3d__face { position: relative; color: var(--ggl-face, currentColor); white-space: pre; -webkit-text-stroke: var(--ggl-stroke, 0px) var(--ggl-edge, transparent); }
+</style>

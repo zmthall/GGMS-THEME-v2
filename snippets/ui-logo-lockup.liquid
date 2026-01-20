@@ -1,0 +1,64 @@
+{% comment %}
+  UI: Logo Lockup (Dual State)
+
+  Purpose:
+  - Renders BOTH the full logo (default) and compact SVG wordmark (scrolled)
+  - Visibility/animation is controlled by a single global class on <html>:
+    html.is-nav-compact
+
+  Behavior:
+  - Default logo shows when NOT compact
+  - Wordmark shows when compact
+  - Both remain in DOM to allow smooth transitions
+
+  Args:
+  - class: outer wrapper classes
+  - default_class: extra classes for default logo wrapper
+  - compact_class: extra classes for compact wordmark wrapper
+  - href: link destination (defaults routes.root_url)
+  - primary_max_width / secondary_max_width: used by default image logo mode
+{% endcomment %}
+
+{% assign link = href %}
+{% if link == blank %}{% assign link = routes.root_url %}{% endif %}
+
+{% assign extra = class | default: '' %}
+{% assign default_extra = default_class | default: '' %}
+{% assign compact_extra = compact_class | default: '' %}
+
+{% assign lp = settings.company_logo_primary %}
+{% assign ls = settings.company_logo_secondary %}
+
+{% assign pmax = primary_max_width %}
+{% if pmax == blank %}{% assign pmax = settings.company_logo_primary_max_width | default: 220 %}{% endif %}
+
+{% assign smax = secondary_max_width %}
+{% if smax == blank %}{% assign smax = settings.company_logo_secondary_max_width | default: 180 %}{% endif %}
+
+<a href="{{ link }}" class="gg-logo-lockup inline-flex items-center {{ extra }}" aria-label="{{ shop.name }} home">
+  <span class="gg-logo-lockup__default inline-flex items-center {{ default_extra }}">
+    {% if lp != blank %}
+      <span class="block" style="padding: 8px;">
+        {{ lp | image_url: width: 800 | image_tag: alt: shop.name, loading: 'lazy', class: "block w-auto h-auto" }}
+      </span>
+      <style>
+        .gg-logo-lockup__default span img { max-width: {{ pmax }}px; }
+      </style>
+    {% else %}
+      <span class="font-heading text-text leading-none" style="padding: 8px;">{{ shop.name }}</span>
+    {% endif %}
+
+    {% if ls != blank %}
+      <span class="block" style="padding: 8px;">
+        {{ ls | image_url: width: 600 | image_tag: alt: shop.name, loading: 'lazy', class: "block w-auto h-auto" }}
+      </span>
+      <style>
+        .gg-logo-lockup__default span:last-child img { max-width: {{ smax }}px; }
+      </style>
+    {% endif %}
+  </span>
+
+  <span class="gg-logo-lockup__compact inline-flex items-center {{ compact_extra }}">
+    {% render 'ui-logo-wordmark', class: 'inline-flex flex-col', top_class: 'inline-flex items-center', bottom_class: 'inline-flex items-center', letter_class: 'block w-auto h-auto', size_top: 28, size_bottom: 16 %}
+  </span>
+</a>
