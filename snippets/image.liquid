@@ -2,12 +2,14 @@
   Renders a responsive image that might be wrapped in a link.
 
   When `width`, `height` and `crop` are provided, the image will be rendered
-  with a fixed aspect ratio.
+  with a fixed aspect ratio (only applies when using an `image` object).
 
   Serves as an example of how to use the `image_url` filter and `image_tag` filter
   as well as how you can use LiquidDoc to document your code.
 
-  @param {image} image - The image to be rendered
+  @param {image} [image] - The image object to be rendered
+  @param {string} [src] - A raw image URL (asset_url/external) to render when no image object is provided
+  @param {string} [alt] - Alt text used when rendering via `src` (and as a fallback for `image`)
   @param {string} [url] - An optional destination URL for the image
   @param {string} [class] - Optional class to be added to the image wrapper
   @param {number} [width] - The highest resolution width of the image to be rendered
@@ -17,6 +19,7 @@
   @example
   {% render 'image', image: product.featured_image %}
   {% render 'image', image: product.featured_image, url: product.url %}
+  {% render 'image', src: 'medical-supplies-logo.png' | asset_url, alt: 'Logo' %}
   {% render 'image',
     class: 'product__image',
     image: product.featured_image,
@@ -28,24 +31,45 @@
 {% enddoc %}
 
 {% liquid
-  unless height
-    assign width = width | default: image.width
-  endunless
+  assign wrapper_class = 'image'
+  if class != blank
+    assign wrapper_class = wrapper_class | append: ' ' | append: class
+  endif
 
-  if url
+  if url != blank
     assign wrapper = 'a'
   else
     assign wrapper = 'div'
   endif
+
+  assign has_image = false
+  if image != blank
+    assign has_image = true
+  endif
+
+  assign has_src = false
+  if src != blank
+    assign has_src = true
+  endif
+
+  if has_image
+    unless height
+      assign width = width | default: image.width
+    endunless
+  endif
+
+  assign alt_text = alt | default: ''
+  if has_image and alt_text == ''
+    assign alt_text = image.alt | default: ''
+  endif
 %}
 
-<{{ wrapper }}
-  class="image {{ class }}"
-  {% if url %}
-    href="{{ url }}"
+<{{ wrapper }} class="{{ wrapper_class }}"{% if url != blank %} href="{{ url }}"{% endif %}>
+  {% if has_image %}
+    {{ image | image_url: width: width, height: height, crop: crop | image_tag: alt: alt_text }}
+  {% elsif has_src %}
+    <img src="{{ src }}" alt="{{ alt_text | escape }}"{% if width %} width="{{ width }}"{% endif %}{% if height %} height="{{ height }}"{% endif %}>
   {% endif %}
->
-  {{ image | image_url: width: width, height: height, crop: crop | image_tag }}
 </{{ wrapper }}>
 
 {% stylesheet %}

@@ -8,46 +8,6 @@
     "theme_support_url": "https://support.shopify.com/"
   },
   {
-    "name": "t:general.typography",
-    "settings": [
-      {
-        "type": "header",
-        "content": "t:general.fonts"
-      },
-      {
-        "type": "font_picker",
-        "id": "type_primary_font",
-        "default": "work_sans_n4",
-        "label": "t:general.primary"
-      }
-    ]
-  },
-  {
-    "name": "Favicon Settings",
-    "settings": [
-      {
-        "type": "image_picker",
-        "id": "favicon_32",
-        "label": "Favicon 32x32"
-      },
-      {
-        "type": "image_picker",
-        "id": "favicon_16",
-        "label": "Favicon 16x16"
-      },
-      {
-        "type": "image_picker",
-        "id": "apple_touch_icon_180",
-        "label": "Apple touch icon 180x180"
-      },
-      {
-        "type": "image_picker",
-        "id": "favicon_ico",
-        "label": "Favicon .ico (optional)"
-      }
-    ]
-  },
-  {
     "name": "Company settings",
     "settings": [
       { "type": "header", "content": "Company identity" },
@@ -250,6 +210,46 @@
         "step": 10,
         "unit": "px",
         "default": 180
+      }
+    ]
+  },
+  {
+    "name": "t:general.typography",
+    "settings": [
+      {
+        "type": "header",
+        "content": "t:general.fonts"
+      },
+      {
+        "type": "font_picker",
+        "id": "type_primary_font",
+        "default": "work_sans_n4",
+        "label": "t:general.primary"
+      }
+    ]
+  },
+  {
+    "name": "Favicon Settings",
+    "settings": [
+      {
+        "type": "image_picker",
+        "id": "favicon_32",
+        "label": "Favicon 32x32"
+      },
+      {
+        "type": "image_picker",
+        "id": "favicon_16",
+        "label": "Favicon 16x16"
+      },
+      {
+        "type": "image_picker",
+        "id": "apple_touch_icon_180",
+        "label": "Apple touch icon 180x180"
+      },
+      {
+        "type": "image_picker",
+        "id": "favicon_ico",
+        "label": "Favicon .ico (optional)"
       }
     ]
   },

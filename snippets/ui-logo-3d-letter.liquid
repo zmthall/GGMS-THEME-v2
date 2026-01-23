@@ -20,6 +20,7 @@
 
 {% assign _letter = letter | default: '' %}
 {% assign _class = class | default: '' %}
+{% assign _div_class = div_class | default: '' %}
 {% assign _size = size | default: 22 %}
 {% assign _weight = weight | default: 900 %}
 {% assign _face = face | default: 'rgb(var(--ggms-brand-blue-rgb) / 1)' %}
@@ -27,14 +28,16 @@
 {% assign _edge = edge | default: 'transparent' %}
 {% assign _stroke = stroke | default: 0 %}
 {% assign _dx = dx | default: 1 %}
-{% assign _dy = dy | default: 1 %}
+{% assign _dy = dy | default: 3 %}
 
 {% assign _aria_hidden = aria_hidden %}
 {% if _aria_hidden == blank %}{% assign _aria_hidden = true %}{% endif %}
 
 {% if _letter != '' %}
-  <span class="gg-letter-3d {{ _class }}" style="--ggl-face: {{ _face }}; --ggl-depth: {{ _depth }}; --ggl-edge: {{ _edge }}; --ggl-stroke: {{ _stroke }}px; --ggl-dx: {{ _dx }}px; --ggl-dy: {{ _dy }}px;{% if _size != '' %} font-size: {{ _size }}px;{% endif %} font-weight: {{ _weight }};"{% if _aria_hidden %} aria-hidden="true"{% endif %}>
-    <span class="gg-letter-3d__depth">{{ _letter }}</span>
-    <span class="gg-letter-3d__face">{{ _letter }}</span>
-  </span>
+  <div class="{{ _div_class }} user-select-none" data-3d-letter="{{letter}}">
+    <span class="gg-letter-3d {{ _class }}" style="--ggl-face: {{ _face }}; --ggl-depth: {{ _depth }}; --ggl-edge: {{ _edge }}; --ggl-stroke: {{ _stroke }}px; --ggl-dx: {{ _dx }}px; --ggl-dy: {{ _dy }}px;{% if _size != '' %} font-size: {{ _size }}px;{% endif %} font-weight: {{ _weight }};"{% if _aria_hidden %} aria-hidden="true"{% endif %}>
+      <span class="gg-letter-3d__depth">{{ _letter }}</span>
+      <span class="gg-letter-3d__face">{{ _letter }}</span>
+    </span>
+  </div>
 {% endif %}

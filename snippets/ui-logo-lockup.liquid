@@ -30,35 +30,44 @@
 {% assign ls = settings.company_logo_secondary %}
 
 {% assign pmax = primary_max_width %}
-{% if pmax == blank %}{% assign pmax = settings.company_logo_primary_max_width | default: 220 %}{% endif %}
+{% if pmax == blank %}{% assign pmax = settings.company_logo_primary_max_width | default: 250 %}{% endif %}
 
 {% assign smax = secondary_max_width %}
 {% if smax == blank %}{% assign smax = settings.company_logo_secondary_max_width | default: 180 %}{% endif %}
 
-<a href="{{ link }}" class="gg-logo-lockup inline-flex items-center {{ extra }}" aria-label="{{ shop.name }} home">
-  <span class="gg-logo-lockup__default inline-flex items-center {{ default_extra }}">
+<a href="{{ link }}" class="inline-block no-underline" style="max-width: {{ pmax }}px; width: 100%;" aria-label="{{ shop.name }} home">
     {% if lp != blank %}
-      <span class="block" style="padding: 8px;">
-        {{ lp | image_url: width: 800 | image_tag: alt: shop.name, loading: 'lazy', class: "block w-auto h-auto" }}
-      </span>
-      <style>
-        .gg-logo-lockup__default span img { max-width: {{ pmax }}px; }
-      </style>
-    {% else %}
-      <span class="font-heading text-text leading-none" style="padding: 8px;">{{ shop.name }}</span>
-    {% endif %}
 
-    {% if ls != blank %}
-      <span class="block" style="padding: 8px;">
-        {{ ls | image_url: width: 600 | image_tag: alt: shop.name, loading: 'lazy', class: "block w-auto h-auto" }}
-      </span>
-      <style>
-        .gg-logo-lockup__default span:last-child img { max-width: {{ smax }}px; }
-      </style>
-    {% endif %}
-  </span>
+    {% elsif ls != blank %}
 
-  <span class="gg-logo-lockup__compact inline-flex items-center {{ compact_extra }}">
-    {% render 'ui-logo-wordmark', class: 'inline-flex flex-col', top_class: 'inline-flex items-center', bottom_class: 'inline-flex items-center', letter_class: 'block w-auto h-auto', size_top: 28, size_bottom: 16 %}
-  </span>
+    {% else %} 
+      <div class="flex flex-col justify-center items-center relative pt-11">
+        {% render 'ui-logo-3d-letter-assets' %}
+
+        {%comment%} Left side - GOLDEN {%endcomment%}
+        {% render 'ui-logo-3d-letter', letter: 'G', div_class: 'absolute left-1/2 -translate-x-[calc(50%+6.35rem-1.5rem)] bottom-[2.4rem] rotate-[-86deg]' %}
+        {% render 'ui-logo-3d-letter', letter: 'O', div_class: 'absolute left-1/2 -translate-x-[calc(50%+5.8rem-1.25rem)] bottom-[3.8rem] rotate-[-63deg]' %}
+        {% render 'ui-logo-3d-letter', letter: 'L', div_class: 'absolute left-1/2 -translate-x-[calc(50%+4.85rem-0.95rem)] bottom-[5.25rem] rotate-[-47deg]' %}
+        {% render 'ui-logo-3d-letter', letter: 'D', div_class: 'absolute left-1/2 -translate-x-[calc(50%+3.6rem-0.85rem)] bottom-[6.3rem] rotate-[-30deg]' %}
+        {% render 'ui-logo-3d-letter', letter: 'E', div_class: 'absolute left-1/2 -translate-x-[calc(50%+2.1rem-0.75rem)] bottom-[6.9rem] rotate-[-12.5deg]' %}
+        
+        {%comment%} Center - N {%endcomment%}
+        {% render 'ui-logo-3d-letter', letter: 'N', div_class: 'absolute left-1/2 -translate-x-[calc(50%-0.25rem)] bottom-28 rotate-[4.25deg]' %}
+        
+        {%comment%} Right side - GATE {%endcomment%}
+        {% render 'ui-logo-3d-letter', letter: 'G', div_class: 'absolute left-1/2 translate-x-[calc(50%+1.95rem-0.4rem)] bottom-[6.3rem] rotate-[29deg]' %}
+        {% render 'ui-logo-3d-letter', letter: 'A', div_class: 'absolute left-1/2 translate-x-[calc(50%+3.2rem-0.5rem)] bottom-[5.2rem] rotate-[49deg]' %}
+        {% render 'ui-logo-3d-letter', letter: 'T', div_class: 'absolute left-1/2 translate-x-[calc(50%+4.1rem-0.7rem)] bottom-[3.9rem] rotate-[66deg]' %}
+        {% render 'ui-logo-3d-letter', letter: 'E', div_class: 'absolute left-1/2 translate-x-[calc(50%+4.45rem-0.7rem)] bottom-[2.6rem] rotate-[83deg]' %}
+
+        <span class="block w-2/5 mb-1.5 ml-1">
+          {% assign bridge_logo_src = 'bridge-ggms.png' | asset_url %}
+          {% render 'image', src: bridge_logo_src, alt: settings.company_name %}
+        </span>
+        <span>
+          {% assign bottom_logo_src = 'medical-supplies-logo.png' | asset_url %}
+          {% render 'image', src: bottom_logo_src, alt: settings.company_name %}
+        </span>
+      </div>
+    {% endif %}
 </a>
