@@ -1,0 +1,63 @@
+{%- comment -%}
+  ui-accordion-item
+
+  Reusable <details>/<summary> accordion item.
+
+  Args:
+  - title: string (used if trigger not provided)
+  - trigger: optional HTML string (use capture)
+  - panel: required HTML string (use capture)
+  - open: boolean (default false)
+  - active: boolean (default false)
+  - details_class: optional (default: group/nav)
+  - summary_class: optional
+  - panel_class: optional
+  - show_chevron: boolean (default true)
+  - chevron_icon: string (default: chevron-down)
+  - chevron_size: string (default: 1rem)
+{%- endcomment -%}
+
+{%- liquid
+  assign _title = title | default: ''
+  assign _trigger = trigger | default: ''
+  assign _panel = panel | default: ''
+  assign _open = open | default: false
+  assign _active = active | default: false
+
+  assign _details_class = details_class | default: 'group/nav'
+  assign _summary_class = summary_class | default: 'group/trigger list-none cursor-pointer select-none rounded-lg px-3 py-3 text-sm font-bold text-text no-underline hover:bg-button-hover hover:text-link group-open/nav:bg-button-hover focus:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-surface flex items-center justify-between'
+  assign _panel_class = panel_class | default: 'mt-2 pl-3 pr-1'
+
+  if _active
+    assign _summary_class = _summary_class | append: ' bg-button-hover text-link-hover'
+  endif
+
+  assign _show_chevron = show_chevron
+  if _show_chevron == blank
+    assign _show_chevron = true
+  endif
+
+  assign _chevron_icon = chevron_icon | default: 'chevron-down'
+  assign _chevron_size = chevron_size | default: '1rem'
+
+  assign _chevron_class = 'text-muted group-hover/trigger:text-link inline-flex shrink-0 transition-transform duration-200 group-open/nav:rotate-180'
+  if _active
+    assign _chevron_class = _chevron_class | append: ' text-link-hover'
+  endif
+-%}
+
+{%- if _panel != blank -%}
+  <details class="{{ _details_class }}"{% if _open %} open{% endif %}>
+    <summary class="{{ _summary_class }}">
+      {%- if _trigger != blank -%}
+        {{ _trigger }}
+      {%- else -%}
+        <span class="{% if _active %}text-link-hover{% endif %}">{{ _title | escape }}</span>
+        {%- if _show_chevron -%}
+          {% render 'ui-icon', name: _chevron_icon, size: _chevron_size, class: _chevron_class, decorative: true %}
+        {%- endif -%}
+      {%- endif -%}
+    </summary>
+    <div class="{{ _panel_class }}">{{ _panel }}</div>
+  </details>
+{%- endif -%}

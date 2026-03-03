@@ -1,0 +1,60 @@
+{% liquid
+  assign _trigger = trigger | default: ''
+  assign _panel = panel | default: ''
+  assign _open = open
+  assign _active = active | default: false
+  assign _details_class = details_class | default: 'group/nav relative'
+  assign _summary_class = summary_class | default: 'group/trigger relative list-none cursor-pointer select-none rounded-lg px-3 py-2 text-sm font-bold text-text no-underline hover:text-link focus:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-surface flex items-center justify-start gap-2'
+  assign _panel_class = panel_class | default: 'absolute left-0 top-full z-dropdown mt-2 w-72 rounded-popover border border-border bg-surface p-2 shadow-md'
+
+  assign summary_final = _summary_class
+%}
+
+{% if _trigger != blank and _panel != blank %}
+  <details class="{{ _details_class }}" data-ui-dropdown {% if _open %}open{% endif %}>
+    <summary class="{{ summary_final }}">{{ _trigger }}</summary>
+    <div class="{{ _panel_class }}">{{ _panel }}</div>
+  </details>
+
+  <script>
+    (function () {
+      var docEl = document.documentElement;
+      if (docEl.dataset.uiDropdownInit === '1') return;
+      docEl.dataset.uiDropdownInit = '1';
+
+      function closeAll(exceptDetails) {
+        document.querySelectorAll('details[data-ui-dropdown][open]').forEach(function (d) {
+          if (exceptDetails && d === exceptDetails) return;
+          d.removeAttribute('open');
+        });
+      }
+
+      document.addEventListener('click', function (e) {
+        if (!e.target.closest('details[data-ui-dropdown]')) closeAll();
+      }, true);
+
+      document.addEventListener('keydown', function (e) {
+        if (e.key !== 'Escape' && e.key !== 'Esc') return;
+        var open = document.querySelector('details[data-ui-dropdown][open]');
+        if (!open) return;
+        open.removeAttribute('open');
+        var summary = open.querySelector('summary');
+        if (summary) summary.focus();
+      }, true);
+
+      document.addEventListener('click', function (e) {
+        var a = e.target.closest('details[data-ui-dropdown] a');
+        if (!a) return;
+        var d = a.closest('details[data-ui-dropdown]');
+        if (d) d.removeAttribute('open');
+      }, true);
+
+      document.addEventListener('toggle', function (e) {
+        var d = e.target;
+        if (!d || d.tagName !== 'DETAILS') return;
+        if (!d.closest || !d.closest('details[data-ui-dropdown]')) return;
+        if (d.hasAttribute('open')) closeAll(d);
+      }, true);
+    })();
+  </script>
+{% endif %}

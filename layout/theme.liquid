@@ -54,10 +54,14 @@
 
     <script src="{{ 'iconify-icon.min.js' | asset_url }}" defer></script>
     <script src="{{ 'ui-tag.js' | asset_url }}" defer></script>
+    <script src="{{ 'ggms-logo-lockup.js' | asset_url }}" defer></script>
+
+    <script src="{{ 'ggms-cart-api.js' | asset_url }}" defer></script>
+    <script src="{{ 'ggms-cart-drawer.js' | asset_url }}" defer></script>
   </head>
 
   <body>
-    <a class="sr-only focus:not-sr-only" href="#MainContent">Skip to content</a>
+    {% render 'ui-skip-to-content' %}
 
     {% sections 'header-group' %}
 

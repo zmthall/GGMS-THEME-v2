@@ -9,6 +9,10 @@
   const clamp = (n, min, max) => Math.min(max, Math.max(min, n));
 
   function initStepper(stepper) {
+    // Prevent double-initializing after content refresh
+    if (stepper._stepperInit) return;
+    stepper._stepperInit = true;
+
     const input = stepper.querySelector('[data-stepper-input]');
     const minus = stepper.querySelector('[data-stepper-minus]');
     const plus = stepper.querySelector('[data-stepper-plus]');
@@ -19,7 +23,6 @@
     const step = toInt(stepper.getAttribute('data-stepper-step'), 1);
 
     function setDisabledState(val) {
-      const locked = input.disabled || input.readOnly || minus.disabled || plus.disabled;
       if (input.disabled || input.readOnly) {
         minus.disabled = true;
         plus.disabled = true;
@@ -29,7 +32,6 @@
       minus.disabled = val <= min;
       plus.disabled = val >= max;
 
-      // keep aria-disabled consistent (optional but nice)
       minus.setAttribute('aria-disabled', minus.disabled ? 'true' : 'false');
       plus.setAttribute('aria-disabled', plus.disabled ? 'true' : 'false');
     }
@@ -65,7 +67,6 @@
     });
 
     input.addEventListener('input', () => {
-      // allow typing without jumping the cursor too aggressively; only sanitize chars
       const raw = String(input.value || '');
       const digits = raw.replace(/[^\d]/g, '');
       if (raw !== digits) input.value = digits;
@@ -79,10 +80,14 @@
     setValue(toInt(input.value, min), { emit: false });
   }
 
-  function init() {
-    document.querySelectorAll(stepperSelector).forEach(initStepper);
+  function init(root) {
+    (root || document).querySelectorAll(stepperSelector).forEach(initStepper);
   }
 
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init, { once: true });
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', () => init(), { once: true });
   else init();
+
+  // Expose for cart drawer to re-init after content refresh
+  window.GGMS = window.GGMS || {};
+  window.GGMS.steppers = { init };
 })();

@@ -41,13 +41,15 @@
       {
         "type": "text",
         "id": "company_phone2_display",
-        "label": "Secondary phone (display) (optional)"
+        "label": "Secondary phone (display) (optional)",
+        "default": "(888) 852-4507"
       },
       {
         "type": "text",
         "id": "company_phone2_tel",
         "label": "Secondary phone (tel link) (optional)",
-        "info": "Example: +18445551234"
+        "info": "Example: +18445551234",
+        "default": "+18888524507"
       },
       {
         "type": "text",

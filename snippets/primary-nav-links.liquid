@@ -1,0 +1,153 @@
+{% liquid
+  assign _menu = menu
+  assign _collections_menu = collections_menu
+  assign _mega_label = mega_label | default: 'Products'
+
+  if _menu == blank and menu_handle != blank
+    assign _menu = linklists[menu_handle]
+  endif
+  if _menu == blank
+    assign _menu = linklists['main-menu']
+  endif
+  if _collections_menu == blank
+    assign _collections_menu = linklists['collections-menu']
+  endif
+
+  assign _mega_label_lc = _mega_label | downcase
+
+  assign is_products_context = false
+  if request.page_type == 'product'
+    assign is_products_context = true
+  elsif request.page_type == 'collection'
+    assign is_products_context = true
+  elsif request.page_type == 'list-collections'
+    assign is_products_context = true
+  endif
+%}
+
+{% if _menu != blank and _menu.links.size > 0 %}
+  <nav aria-label="Primary" data-primary-nav>
+    <ul role="list" class="flex items-center gap-1">
+      {% for link in _menu.links %}
+        {% liquid
+          assign link_title_lc = link.title | downcase
+
+          assign is_active = false
+          if link.active or link.child_active
+            assign is_active = true
+          endif
+
+          assign is_mega = false
+          if link_title_lc == _mega_label_lc
+            assign is_mega = true
+          endif
+
+          assign mega_active = is_active
+          if is_mega and is_products_context
+            assign mega_active = true
+          endif
+
+          assign is_contact = false
+          if link_title_lc == 'contact us'
+            assign is_contact = true
+          endif
+
+          assign chevron_class = 'inline-flex shrink-0 transition-transform duration-200 group-open/nav:rotate-180'
+            if is_active
+                assign chevron_class = chevron_class | append: ' text-brand-burgundy group-hover/trigger:text-link'
+                assign underline_class = 'bg-brand-burgundy group-hover/trigger:bg-link '
+            else 
+                assign chevron_class = chevron_class | append: ' text-muted'
+                assign underline_class = 'bg-text group-hover/trigger:bg-link group-hover/trigger:text-link'
+            endif
+        %}
+
+        <li class="relative">
+          {% if is_mega and _collections_menu != blank and _collections_menu.links.size > 0 %}
+            {% render 'ui-mega-menu-collections', label: link.title, menu: _collections_menu, active: mega_active, underline: true, open: false %}
+          {% elsif link.links.size > 0 %}
+            {% capture trigger %}
+              <span class="{% if is_active %}text-brand-burgundy group-hover/trigger:text-link{% endif %}">{{ link.title | escape }}</span>
+              {% render 'ui-icon', name: 'chevron-down', size: '1rem', class: chevron_class, decorative: true %}
+              <span class="pointer-events-none absolute left-3 right-3 bottom-[0.55rem] h-[0.5px] {{ underline_class }}"></span>
+            {% endcapture %}
+
+            {% capture panel %}
+              {% if is_contact %}
+                {% render 'ui-quick-contact', location_url: '/pages/location', class: 'px-1 py-1', show_heading: true %}
+                <div class="my-2 h-px w-full bg-border"></div>
+              {% endif %}
+
+              <ul role="list" class="flex flex-col gap-1">
+                {% for child in link.links %}
+                    {%  liquid 
+                        assign child_class = 'block no-underline rounded-lg px-3 py-2 text-sm'
+                        if child.active
+                            assign child_class = child_class | append: ' bg-button-hover'
+                        else
+                            assign child_class = child_class | append: ' text-text hover:bg-button-hover hover:text-link'
+                        endif
+                    %}
+                  {% if child.links.size > 0 %}
+                    <li class="py-1">
+                      <div class="px-3 py-2 text-xs font-semibold uppercase tracking-wide text-muted">{{ child.title | escape }}</div>
+                      <ul role="list" class="flex flex-col gap-1">
+                        {% for grandchild in child.links %}
+                            {% liquid
+                                assign child_class = 'block no-underline rounded-lg px-3 py-2 text-sm'
+                                if grandchild.active
+                                    assign grandchild_class = child_class | append: ' bg-button-hover'
+                                else
+                                    assign grandchild_class = child_class | append: ' text-text hover:bg-button-hover hover:text-link'
+                                endif
+                            %}
+                          <li>
+                            <a href="{{ grandchild.url }}" class="{{ grandchild_class }}"{% if grandchild.active %} aria-current="page"{% endif %}>{{ grandchild.title | escape }}</a>
+                          </li>
+                        {% endfor %}
+                      </ul>
+                    </li>
+                  {% else %}
+                    <li>
+                      <a href="{{ child.url }}" class="{{ child_class }}"{% if child.active %} aria-current="page"{% endif %}>{{ child.title | escape }}</a>
+                    </li>
+                  {% endif %}
+                {% endfor %}
+              </ul>
+            {% endcapture %}
+
+            {% liquid
+              assign panel_class = 'absolute left-0 top-full z-dropdown mt-2 w-72 rounded-popover border border-border bg-surface p-2 shadow-md'
+              if is_contact
+                assign panel_class = 'absolute left-0 top-full z-dropdown mt-2 w-96 rounded-popover border border-border bg-surface p-2 shadow-md'
+              endif
+
+              assign dropdown_summary_class = 'group/trigger hover:bg-button-hover relative list-none cursor-pointer select-none rounded-lg px-3 py-2 text-sm font-bold text-text no-underline hover:text-link focus:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-surface flex items-center justify-start gap-2'
+              if is_active
+                assign dropdown_summary_class = dropdown_summary_class | append: ' bg-button-hover'
+              endif
+            %}
+
+            {% render 'ui-dropdown', trigger: trigger, panel: panel, open: is_active, details_class: 'group/nav relative', summary_class: dropdown_summary_class, panel_class: panel_class %}
+          {% else %}
+            {% liquid
+                assign link_class = 'group/trigger relative block rounded-lg px-3 py-2 text-sm font-bold no-underline focus:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-surface'
+                assign link_underlined_class = 'pointer-events-none absolute left-3 right-3 bottom-[0.55rem] h-[0.5px]'
+                if is_active
+                    assign link_class = link_class | append: ' bg-button-hover text-brand-burgundy hover:text-link'
+                    assign link_underlined_class = link_underlined_class | append: ' bg-brand-burgundy group-hover/trigger:bg-link'
+                else
+                    assign link_class = link_class | append: ' text-text hover:bg-button-hover hover:text-link'
+                    assign link_underlined_class = link_underlined_class | append: ' bg-text group-hover/trigger:bg-link group-hover/trigger:text-link'
+                endif
+            %}
+            <a href="{{ link.url }}" class="{{ link_class }}"{% if link.active %} aria-current="page"{% endif %}>
+              {{ link.title | escape }}
+              <span class="{{ link_underlined_class }}"></span>
+            </a>
+          {% endif %}
+        </li>
+      {% endfor %}
+    </ul>
+  </nav>
+{% endif %}

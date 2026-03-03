@@ -1,0 +1,207 @@
+{% comment %}
+  primary-mobile-nav-links
+
+  Drawer + accordion mobile nav using Shopify menus.
+
+  Args:
+  - menu: menu object (primary nav)
+  - menu_handle: optional fallback (default: main-menu)
+  - collections_menu: optional menu object (default: collections-menu)
+  - mega_label: menu item title to treat as Products (default: Products)
+  - all_label: label for Shop All button (default: Shop All Products)
+  - show_products_search: boolean (default: true)
+  - products_search_placeholder: string (default: Search products...)
+{% endcomment %}
+
+{% liquid
+  assign _menu = menu
+  assign _collections_menu = collections_menu
+  assign _mega_label = mega_label | default: 'Products'
+  assign _all_label = all_label | default: 'Shop All Products'
+  assign _show_products_search = show_products_search
+  if _show_products_search == blank
+    assign _show_products_search = true
+  endif
+  assign _products_search_placeholder = products_search_placeholder | default: 'Search products...'
+
+  if _menu == blank and menu_handle != blank
+    assign _menu = linklists[menu_handle]
+  endif
+  if _menu == blank
+    assign _menu = linklists['main-menu']
+  endif
+  if _collections_menu == blank
+    assign _collections_menu = linklists['collections-menu']
+  endif
+
+  assign _mega_label_lc = _mega_label | downcase
+  assign _drawer_id = 'MobileNavDrawer'
+  assign _search_action = routes.search_url | append: '?type=product'
+%}
+
+{% if _menu != blank and _menu.links.size > 0 %}
+  <button type="button" class="cursor-pointer inline-flex items-center justify-center rounded-md p-2 text-text hover:bg-button-hover hover:text-link focus:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-surface md:hidden" data-mobile-nav-open aria-controls="{{ _drawer_id }}" aria-expanded="false">
+    {% render 'ui-icon', name: 'mobile-nav', size: '1.5rem', class: 'text-base-icon', decorative: true %}
+    <span class="sr-only">Open menu</span>
+  </button>
+
+  <div id="{{ _drawer_id }}" class="fixed inset-0 z-drawer hidden md:hidden" data-mobile-nav-root>
+    <div class="absolute inset-0 bg-overlay/60" data-mobile-nav-overlay></div>
+
+    <div class="absolute inset-y-0 left-0 w-[min(22rem,calc(100vw-2rem))] border-r border-border bg-surface shadow-md -translate-x-full transition-transform duration-normal ease-standard flex flex-col" data-mobile-nav-panel tabindex="-1" role="dialog" aria-modal="true" aria-label="Mobile navigation">
+      <div class="flex items-center justify-between border-b border-border px-gutter py-4">
+        <a href="{{ routes.root_url }}" class="text-base font-semibold text-text no-underline hover:text-link focus:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-surface">{{ shop.name }}</a>
+        <button type="button" class="cursor-pointer inline-flex items-center justify-center rounded-md p-2 text-text hover:bg-button-hover hover:text-link focus:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-surface" data-mobile-nav-close aria-label="Close menu">
+          {% render 'ui-icon', name: 'cancel', size: '1.5rem', class: 'text-base-icon', decorative: true %}
+        </button>
+      </div>
+
+      <div class="flex-1 overflow-auto px-gutter py-4">
+        {% render 'ui-quick-contact', location_url: '/pages/location', class: 'mb-4', show_heading: true %}
+        <div class="mb-4 h-px w-full bg-border"></div>
+
+        <ul role="list" class="flex flex-col gap-1">
+          {% for link in _menu.links %}
+            {% liquid
+              assign is_active = false
+              if link.active or link.child_active
+                assign is_active = true
+              endif
+
+              assign is_mega = false
+              assign link_title_lc = link.title | downcase
+              if link_title_lc == _mega_label_lc
+                assign is_mega = true
+              endif
+            %}
+
+            <li>
+              {% if is_mega and _collections_menu != blank and _collections_menu.links.size > 0 %}
+                {% capture panel %}
+                  <div class="flex flex-col gap-3">
+                    {% render 'ui-button', href: routes.all_products_collection_url, label: _all_label, variant: 'secondary', class: 'no-underline' %}
+                    {% if _show_products_search %}
+                      {% render 'form-search', action: _search_action, placeholder: _products_search_placeholder, icon: 'search', button_label: 'Search', class: 'w-full' %}
+                    {% endif %}
+                    <div class="h-px w-full bg-border"></div>
+                    <ul role="list" class="flex flex-col gap-1">
+                      {% for item in _collections_menu.links %}
+                        <li>
+                          <a href="{{ item.url }}" class="block rounded-lg px-3 py-2 text-sm font-semibold text-text no-underline hover:bg-button-hover hover:text-link{% if item.active %} bg-button-hover text-link-hover{% endif %}"{% if item.active %} aria-current="page"{% endif %}>{{ item.title | escape }}</a>
+                        </li>
+                      {% endfor %}
+                    </ul>
+                  </div>
+                {% endcapture %}
+
+                {% render 'ui-accordion-item', title: link.title, active: is_active, open: is_active, panel: panel %}
+
+              {% elsif link.links.size > 0 %}
+                {% capture panel %}
+                  <ul role="list" class="flex flex-col gap-1">
+                    {% for child in link.links %}
+                      {% if child.links.size > 0 %}
+                        <li class="pt-2">
+                          <div class="px-3 py-2 text-xs font-semibold uppercase tracking-wide text-muted">{{ child.title | escape }}</div>
+                          <ul role="list" class="flex flex-col gap-1">
+                            {% for grandchild in child.links %}
+                              <li>
+                                <a href="{{ grandchild.url }}" class="block rounded-lg px-3 py-2 text-sm text-text no-underline hover:bg-button-hover hover:text-link{% if grandchild.active %} bg-button-hover text-link-hover{% endif %}"{% if grandchild.active %} aria-current="page"{% endif %}>{{ grandchild.title | escape }}</a>
+                              </li>
+                            {% endfor %}
+                          </ul>
+                        </li>
+                      {% else %}
+                        <li>
+                          <a href="{{ child.url }}" class="block rounded-lg px-3 py-2 text-sm text-text no-underline hover:bg-button-hover hover:text-link{% if child.active %} bg-button-hover text-link-hover{% endif %}"{% if child.active %} aria-current="page"{% endif %}>{{ child.title | escape }}</a>
+                        </li>
+                      {% endif %}
+                    {% endfor %}
+                  </ul>
+                {% endcapture %}
+
+                {% render 'ui-accordion-item', title: link.title, active: is_active, open: is_active, panel: panel %}
+
+              {% else %}
+                <a href="{{ link.url }}" class="block rounded-lg px-3 py-3 text-sm font-bold text-text no-underline hover:bg-button-hover hover:text-link focus:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-surface{% if link.active %} bg-button-hover text-link-hover{% endif %}"{% if link.active %} aria-current="page"{% endif %}>{{ link.title | escape }}</a>
+              {% endif %}
+            </li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      var docEl = document.documentElement;
+      if (docEl.dataset.mobileNavInit === '1') return;
+      docEl.dataset.mobileNavInit = '1';
+
+      var current = null;
+      var currentPanel = null;
+      var returnFocus = null;
+
+      function focusables(panel) {
+        var els = panel.querySelectorAll('a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), summary');
+        return Array.prototype.slice.call(els).filter(function (el) { return !!(el.offsetWidth || el.offsetHeight || el.getClientRects().length); });
+      }
+
+      function openDrawer(root, opener) {
+        var panel = root.querySelector('[data-mobile-nav-panel]');
+        if (!panel) return;
+        returnFocus = opener || null;
+        root.classList.remove('hidden');
+        document.body.classList.add('overflow-hidden');
+        current = root;
+        currentPanel = panel;
+        requestAnimationFrame(function () { panel.classList.remove('-translate-x-full'); panel.classList.add('translate-x-0'); });
+        var closeBtn = root.querySelector('[data-mobile-nav-close]');
+        if (closeBtn) closeBtn.focus();
+        if (opener) opener.setAttribute('aria-expanded', 'true');
+      }
+
+      function closeDrawer(root) {
+        var panel = root.querySelector('[data-mobile-nav-panel]');
+        if (!panel) return;
+        var opener = returnFocus || document.querySelector('[data-mobile-nav-open][aria-controls="' + root.id + '"]');
+        var done = function () {
+          root.classList.add('hidden');
+          document.body.classList.remove('overflow-hidden');
+          panel.removeEventListener('transitionend', done);
+          if (opener) { opener.setAttribute('aria-expanded', 'false'); opener.focus(); }
+          current = null;
+          currentPanel = null;
+          returnFocus = null;
+        };
+        panel.addEventListener('transitionend', done);
+        setTimeout(done, 350);
+        panel.classList.add('-translate-x-full');
+        panel.classList.remove('translate-x-0');
+      }
+
+      document.addEventListener('click', function (e) {
+        var openBtn = e.target.closest('[data-mobile-nav-open]');
+        if (openBtn) { var id = openBtn.getAttribute('aria-controls'); var root = id ? document.getElementById(id) : null; if (root) openDrawer(root, openBtn); return; }
+        var closeBtn = e.target.closest('[data-mobile-nav-close]');
+        if (closeBtn) { var root2 = closeBtn.closest('[data-mobile-nav-root]'); if (root2) closeDrawer(root2); return; }
+        var overlay = e.target.closest('[data-mobile-nav-overlay]');
+        if (overlay) { var root3 = overlay.closest('[data-mobile-nav-root]'); if (root3) closeDrawer(root3); return; }
+        var linkEl = e.target.closest('[data-mobile-nav-root] a');
+        if (linkEl) { var root4 = linkEl.closest('[data-mobile-nav-root]'); if (root4) closeDrawer(root4); }
+      }, true);
+
+      document.addEventListener('keydown', function (e) {
+        if (!current || !currentPanel) return;
+        if (e.key === 'Escape' || e.key === 'Esc') { e.preventDefault(); closeDrawer(current); return; }
+        if (e.key !== 'Tab') return;
+        var list = focusables(currentPanel);
+        if (!list.length) return;
+        var first = list[0];
+        var last = list[list.length - 1];
+        if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+        else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+      }, true);
+    })();
+  </script>
+{% endif %}

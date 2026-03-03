@@ -1,0 +1,63 @@
+{%- comment -%}
+  ui-quick-contact
+
+  Args:
+  - location_url: URL to your Location page (default: /pages/location)
+  - class: optional wrapper classes
+  - heading: optional (default: Quick contact)
+  - show_heading: boolean (default true)
+{%- endcomment -%}
+
+{%- liquid
+  assign _location_url = location_url | default: '/pages/location'
+  assign _class = class | default: ''
+  assign _heading = heading | default: 'Quick contact'
+  assign _show_heading = show_heading
+  if _show_heading == blank
+    assign _show_heading = true
+  endif
+
+  assign has_phone_1 = false
+  if settings.company_phone_tel != blank and settings.company_phone_display != blank
+    assign has_phone_1 = true
+  endif
+
+  assign has_phone_2 = false
+  if settings.company_phone2_tel != blank and settings.company_phone2_display != blank
+    assign has_phone_2 = true
+  endif
+
+  assign has_address = false
+  if settings.company_address_line1 != blank and settings.company_city != blank and settings.company_state != blank
+    assign has_address = true
+  endif
+
+  assign address_short = settings.company_address_line1 | append: ' | ' | append: settings.company_city | append: ' ' | append: settings.company_state
+-%}
+
+<div class="{{ _class | strip }}">
+  {%- if _show_heading -%}
+    <div class="px-3 pt-2 pb-1 text-xs font-semibold uppercase tracking-wide text-muted">{{ _heading }}</div>
+  {%- endif -%}
+
+  {%- if has_phone_1 -%}
+    <a href="tel:{{ settings.company_phone_tel }}" class="flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold text-text no-underline hover:bg-button-hover hover:text-link">
+      {% render 'ui-icon', name: 'phone', size: '1.125rem', class: 'text-base-icon', decorative: true %}
+      <span>{{ settings.company_phone_display }}</span>
+    </a>
+  {%- endif -%}
+
+  {%- if has_phone_2 -%}
+    <a href="tel:{{ settings.company_phone2_tel }}" class="flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold text-text no-underline hover:bg-button-hover hover:text-link">
+      {% render 'ui-icon', name: 'phone', size: '1.125rem', class: 'text-base-icon', decorative: true %}
+      <span>Toll Free: {{ settings.company_phone2_display }}</span>
+    </a>
+  {%- endif -%}
+
+  {%- if has_address -%}
+    <a href="{{ _location_url }}" class="flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold text-text no-underline hover:bg-button-hover hover:text-link">
+      {% render 'ui-icon', name: 'location', size: '1.125rem', class: 'text-base-icon', decorative: true %}
+      <span>{{ address_short }}</span>
+    </a>
+  {%- endif -%}
+</div>

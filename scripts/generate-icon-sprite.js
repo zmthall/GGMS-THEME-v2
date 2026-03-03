@@ -72,9 +72,6 @@ ${symbols.join("\n\n")}
 
   fs.mkdirSync(path.dirname(OUT_FILE), { recursive: true });
   fs.writeFileSync(OUT_FILE, output, "utf8");
-
-  console.log(`✅ Wrote sprite: ${OUT_FILE}`);
-  console.log(`   Icons: ${files.length}`);
 }
 
 main();

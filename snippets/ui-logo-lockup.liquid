@@ -1,22 +1,14 @@
 {% comment %}
   UI: Logo Lockup (Dual State)
 
-  Purpose:
-  - Renders BOTH the full logo (default) and compact SVG wordmark (scrolled)
-  - Visibility/animation is controlled by a single global class on <html>:
-    html.is-nav-compact
+  Adds a JS-callable dual-state animation for the GGMS 3D logo:
+  - Forward: bridge fades out, then GOLDEN GATE flattens above MEDICAL SUPPLIES
+  - Backward: GOLDEN GATE returns to arch, then bridge fades back in
 
-  Behavior:
-  - Default logo shows when NOT compact
-  - Wordmark shows when compact
-  - Both remain in DOM to allow smooth transitions
-
-  Args:
-  - class: outer wrapper classes
-  - default_class: extra classes for default logo wrapper
-  - compact_class: extra classes for compact wordmark wrapper
-  - href: link destination (defaults routes.root_url)
-  - primary_max_width / secondary_max_width: used by default image logo mode
+  JS API (global):
+    window.GGMSLogoLockup.toFlat()
+    window.GGMSLogoLockup.toDefault()
+    window.GGMSLogoLockup.toggle()
 {% endcomment %}
 
 {% assign link = href %}
@@ -35,39 +27,36 @@
 {% assign smax = secondary_max_width %}
 {% if smax == blank %}{% assign smax = settings.company_logo_secondary_max_width | default: 180 %}{% endif %}
 
-<a href="{{ link }}" class="inline-block no-underline" style="max-width: {{ pmax }}px; width: 100%;" aria-label="{{ shop.name }} home">
-    {% if lp != blank %}
+<a href="{{ link }}" class="inline-block no-underline {{ extra }}" style="max-width: {{ pmax }}px; width: 100%;" aria-label="{{ shop.name }} home">
+  {% if lp != blank %}
 
-    {% elsif ls != blank %}
+  {% elsif ls != blank %}
 
-    {% else %} 
-      <div class="flex flex-col justify-center items-center relative pt-11">
-        {% render 'ui-logo-3d-letter-assets' %}
+  {% else %} 
+  <div class="ggms-logo flex flex-col justify-center items-center relative pt-11" data-ggms-logo>
+    {% render 'ui-logo-3d-letter-assets' %}
 
-        {%comment%} Left side - GOLDEN {%endcomment%}
-        {% render 'ui-logo-3d-letter', letter: 'G', div_class: 'absolute left-1/2 -translate-x-[calc(50%+6.35rem-1.5rem)] bottom-[2.4rem] rotate-[-86deg]' %}
-        {% render 'ui-logo-3d-letter', letter: 'O', div_class: 'absolute left-1/2 -translate-x-[calc(50%+5.8rem-1.25rem)] bottom-[3.8rem] rotate-[-63deg]' %}
-        {% render 'ui-logo-3d-letter', letter: 'L', div_class: 'absolute left-1/2 -translate-x-[calc(50%+4.85rem-0.95rem)] bottom-[5.25rem] rotate-[-47deg]' %}
-        {% render 'ui-logo-3d-letter', letter: 'D', div_class: 'absolute left-1/2 -translate-x-[calc(50%+3.6rem-0.85rem)] bottom-[6.3rem] rotate-[-30deg]' %}
-        {% render 'ui-logo-3d-letter', letter: 'E', div_class: 'absolute left-1/2 -translate-x-[calc(50%+2.1rem-0.75rem)] bottom-[6.9rem] rotate-[-12.5deg]' %}
-        
-        {%comment%} Center - N {%endcomment%}
-        {% render 'ui-logo-3d-letter', letter: 'N', div_class: 'absolute left-1/2 -translate-x-[calc(50%-0.25rem)] bottom-28 rotate-[4.25deg]' %}
-        
-        {%comment%} Right side - GATE {%endcomment%}
-        {% render 'ui-logo-3d-letter', letter: 'G', div_class: 'absolute left-1/2 translate-x-[calc(50%+1.95rem-0.4rem)] bottom-[6.3rem] rotate-[29deg]' %}
-        {% render 'ui-logo-3d-letter', letter: 'A', div_class: 'absolute left-1/2 translate-x-[calc(50%+3.2rem-0.5rem)] bottom-[5.2rem] rotate-[49deg]' %}
-        {% render 'ui-logo-3d-letter', letter: 'T', div_class: 'absolute left-1/2 translate-x-[calc(50%+4.1rem-0.7rem)] bottom-[3.9rem] rotate-[66deg]' %}
-        {% render 'ui-logo-3d-letter', letter: 'E', div_class: 'absolute left-1/2 translate-x-[calc(50%+4.45rem-0.7rem)] bottom-[2.6rem] rotate-[83deg]' %}
+    {% render 'ui-logo-3d-letter', letter: 'G', div_class: 'ggms-letter ggms-letter--1' %}
+    {% render 'ui-logo-3d-letter', letter: 'O', div_class: 'ggms-letter ggms-letter--2' %}
+    {% render 'ui-logo-3d-letter', letter: 'L', div_class: 'ggms-letter ggms-letter--3' %}
+    {% render 'ui-logo-3d-letter', letter: 'D', div_class: 'ggms-letter ggms-letter--4' %}
+    {% render 'ui-logo-3d-letter', letter: 'E', div_class: 'ggms-letter ggms-letter--5' %}
+    {% render 'ui-logo-3d-letter', letter: 'N', div_class: 'ggms-letter ggms-letter--6' %}
 
-        <span class="block w-2/5 mb-1.5 ml-1">
-          {% assign bridge_logo_src = 'bridge-ggms.png' | asset_url %}
-          {% render 'image', src: bridge_logo_src, alt: settings.company_name %}
-        </span>
-        <span>
-          {% assign bottom_logo_src = 'medical-supplies-logo.png' | asset_url %}
-          {% render 'image', src: bottom_logo_src, alt: settings.company_name %}
-        </span>
-      </div>
-    {% endif %}
+    {% render 'ui-logo-3d-letter', letter: 'G', div_class: 'ggms-letter ggms-letter--7' %}
+    {% render 'ui-logo-3d-letter', letter: 'A', div_class: 'ggms-letter ggms-letter--8' %}
+    {% render 'ui-logo-3d-letter', letter: 'T', div_class: 'ggms-letter ggms-letter--9' %}
+    {% render 'ui-logo-3d-letter', letter: 'E', div_class: 'ggms-letter ggms-letter--10' %}
+
+    <span class="ggms-logo__bridge block w-2/5 mb-1.5 ml-1" data-ggms-bridge>
+      {% assign bridge_logo_src = 'bridge-ggms.png' | asset_url %}
+      {% render 'image', src: bridge_logo_src, alt: settings.company_name %}
+    </span>
+
+    <span class="ggms-logo__bottom" data-ggms-bottom>
+      {% assign bottom_logo_src = 'medical-supplies-logo.png' | asset_url %}
+      {% render 'image', src: bottom_logo_src, alt: settings.company_name %}
+    </span>
+  </div>
+{% endif %}
 </a>

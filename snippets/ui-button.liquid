@@ -139,7 +139,7 @@
 {%- if _href != blank -%}
   <a
     href="{{ _href }}"
-    class="{{ classes | strip }} underline underline-offset-4"
+    class="{{ classes | strip }} no-underline"
     {%- if needs_aria and _aria_label != blank -%} aria-label="{{ _aria_label | escape }}"{%- endif -%}
     {%- if _disabled -%}aria-disabled="true" tabindex="-1"{%- endif -%}
     {%- if _loading %} aria-busy="true"{%- endif %}

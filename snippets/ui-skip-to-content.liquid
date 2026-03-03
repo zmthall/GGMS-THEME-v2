@@ -1,0 +1,33 @@
+{%- comment -%}
+  ui-skip-to-content
+
+  Args:
+  - target_id: string (default: MainContent)
+  - label: string (default: Skip to content)
+  - show_icon: boolean (default: true)
+  - icon: string (default: chevron-right)
+  - icon_size: string (default: 1rem)
+  - class: string (optional; appended)
+{%- endcomment -%}
+
+{%- liquid
+  assign _target_id = target_id | default: 'MainContent'
+  assign _label = label | default: 'Skip to content'
+  assign _show_icon = show_icon
+  if _show_icon == blank
+    assign _show_icon = true
+  endif
+  assign _icon = icon | default: 'chevron-right'
+  assign _icon_size = icon_size | default: '1rem'
+  assign _class = class | default: ''
+
+  assign base = 'sr-only focus:not-sr-only focus:not-sr-only focus:block focus:w-fit focus:mx-auto focus:my-4 focus:ml-2 focus:z-toast focus:inline-flex focus:items-center focus:gap-2 focus:rounded-md focus:bg-surface focus:px-4 focus:py-3 focus:text-sm focus:font-bold focus:!text-brand-burgundy focus:shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-surface'
+  assign classes = base | append: ' ' | append: _class
+-%}
+
+<a href="#{{ _target_id | escape }}" class="{{ classes | strip }} no-underline">
+  {%- if _show_icon -%}
+    {% render 'ui-icon', name: _icon, size: _icon_size, class: 'text-base-icon', decorative: true %}
+  {%- endif -%}
+  {{ _label | escape }}
+</a>

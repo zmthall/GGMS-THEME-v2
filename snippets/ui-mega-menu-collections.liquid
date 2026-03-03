@@ -1,0 +1,116 @@
+{% comment %}
+  ui-mega-menu-collections
+
+  Mega menu for collection navigation driven by a Shopify menu.
+
+  Args:
+  - label: string (trigger label)
+  - menu: menu object OR handle string
+  - active: boolean
+  - underline: boolean (default true)
+  - open: boolean (default false)
+  - all_url: optional string (default: routes.all_products_collection_url)
+  - all_label: optional string (default: Shop All Products)
+  - show_search: boolean (default true)
+  - search_placeholder: string (default: Search products...)
+{% endcomment %}
+
+{% liquid
+  assign _label = label | default: 'Products'
+  assign _menu = menu
+  assign _active = active
+  assign _underline = underline
+  assign _open = open
+  assign _all_url = all_url | default: routes.all_products_collection_url
+  assign _all_label = all_label | default: 'Shop All Products'
+  assign _show_search = show_search
+  if _show_search == blank
+    assign _show_search = true
+  endif
+  assign _search_placeholder = search_placeholder | default: 'Search products...'
+
+  if _menu == blank
+    assign _menu = linklists['collections-menu']
+  endif
+
+  assign chevron_class = 'inline-flex shrink-0 transition-transform duration-200 group-open/nav:rotate-180'
+
+  assign summary_class = 'group/trigger hover:bg-button-hover relative list-none cursor-pointer select-none rounded-lg px-3 py-2 text-sm font-bold text-text no-underline hover:text-link focus:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-surface flex items-center justify-start gap-2'
+
+  if _active
+    assign chevron_class = chevron_class | append: ' text-brand-burgundy group-hover/trigger:text-link'
+    assign summary_class = summary_class | append: ' bg-button-hover'
+    if _underline
+        assign underline_class = 'bg-brand-burgundy group-hover/trigger:bg-link'
+    endif
+  else 
+    assign chevron_class = chevron_class | append: ' text-muted'
+    if _underline
+        assign underline_class = 'bg-text group-hover/trigger:bg-link group-hover/trigger:text-link'
+    endif
+  endif
+
+  assign search_action = routes.search_url | append: '?type=product'
+%}
+
+{% if _menu != blank and _menu.links.size > 0 %}
+  {% capture trigger %}
+    <span class="{% if _active %}text-brand-burgundy group-hover/trigger:text-link{% endif %}">{{ _label | escape }}</span>
+    {% render 'ui-icon', name: 'chevron-down', size: '1rem', class: chevron_class, decorative: true %}
+    {% if _underline %}
+      <span class="pointer-events-none absolute left-3 right-3 bottom-[0.55rem] h-[0.5px] {{ underline_class }}"></span>
+    {% endif %}
+  {% endcapture %}
+
+  {% capture panel %}
+    <div class="w-full">
+      <div class="mx-auto max-w-page px-gutter">
+        <div class="rounded-popover border border-border bg-surface p-4 shadow-md md:p-6">
+          <div class="flex flex-col gap-4">
+            <div class="flex items-center justify-between gap-4">
+              {% render 'ui-button', href: _all_url, label: _all_label, variant: 'secondary', class: 'no-underline' %}
+              <div class="hidden md:block text-sm text-muted">Browse or search by category</div>
+            </div>
+
+            <div class="h-px w-full bg-border"></div>
+
+            {% if _show_search %}
+              {% render 'form-search', action: search_action, placeholder: _search_placeholder, icon: 'search', button_label: 'Search', class: 'w-full' %}
+              <div class="h-px w-full bg-border"></div>
+            {% endif %}
+
+            <div class="max-h-[calc(100vh-14rem)] overflow-auto">
+              <ul role="list" class="grid grid-cols-2 gap-x-4 gap-y-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
+                {% for item in _menu.links %}
+                  <li>
+                    {% liquid
+                        assign collection_links_class = 'block rounded-lg px-2 py-2 text-sm font-semibold no-underline leading-snug'
+                        if item.active
+                            assign collection_links_class = collection_links_class | append: ' bg-button-hover'
+                        else 
+                            assign collection_links_class = collection_links_class | append: ' text-text hover:bg-button-hover hover:text-link'
+                        endif
+                    %}
+                    <a href="{{ item.url }}" class="{{ collection_links_class }}"{% if item.active %} aria-current="page"{% endif %}>
+                      {{ item.title | escape }}
+                    </a>
+                  </li>
+                {% endfor %}
+              </ul>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  {% endcapture %}
+
+  {% render 'ui-dropdown',
+    trigger: trigger,
+    panel: panel,
+    open: _open,
+    details_class: 'group/nav relative',
+    summary_class: summary_class,
+    panel_class: 'fixed left-0 right-0 top-[var(--header-h)] z-dropdown'
+  %}
+{% endif %}
