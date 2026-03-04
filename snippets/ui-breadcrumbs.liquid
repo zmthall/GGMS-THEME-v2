@@ -1,0 +1,440 @@
+{% comment %}
+  ui-breadcrumbs
+
+  Renders accessible breadcrumbs + BreadcrumbList JSON-LD (per page) with no layout JS required.
+
+  Inputs (optional):
+  - menu_handle: String (default: 'collections-menu')
+  - all_products_url: String (default: '/collections/all')
+  - type: String override ('collection' | 'product' | 'blog' | 'page' | 'article') (default: request.page_type)
+  - show_schema: Boolean (default: true)
+
+  Behavior:
+  - Hidden on homepage and unsupported page types.
+  - Collection pages:
+      Home -> All Products -> (menu chain from menu_handle; up to 4 levels) -> Current collection
+      If collection not found in menu, falls back to Home -> All Products -> Current collection.
+  - Product pages:
+      Always includes Home -> All Products -> Product.
+      Optionally includes ONE root category crumb (top-level menu item) if and only if the product maps to exactly one root category in menu_handle.
+      If product maps to 2+ root categories (ambiguous), no category crumb is shown.
+  - Blog/Article:
+      Blog: Home -> Blog
+      Article: Home -> Blog -> Article
+  - Page:
+      Home -> Page
+  - Responsive:
+      Desktop (md+): full trail, titles truncate with ellipsis.
+      Mobile (<md): "← Back" link (to previous crumb) + small trail of last two crumbs.
+
+  Notes:
+  - Uses "|" as the divider.
+  - Current crumb is rendered as text with aria-current="page".
+{% endcomment %}
+
+{%- liquid
+  assign menu_handle = menu_handle | default: 'collections-menu'
+  assign all_products_url = all_products_url | default: '/collections/all'
+
+  assign show_schema_val = show_schema
+  if show_schema_val == blank
+    assign show_schema_val = true
+  endif
+
+  assign bc_type = type | default: request.page_type
+  assign should_render = true
+
+  if bc_type == 'index'
+    assign should_render = false
+  endif
+
+  assign is_supported = false
+  if bc_type == 'collection' and collection
+    assign is_supported = true
+  elsif bc_type == 'product' and product
+    assign is_supported = true
+  elsif bc_type == 'page' and page
+    assign is_supported = true
+  elsif bc_type == 'blog' and blog
+    assign is_supported = true
+  elsif bc_type == 'article' and article and blog
+    assign is_supported = true
+  endif
+
+  if is_supported == false
+    assign should_render = false
+  endif
+
+  assign bc_titles = ''
+  assign bc_urls = ''
+  assign bc_count = 0
+
+  if should_render
+    assign _t = 'Home'
+    assign _u = routes.root_url
+    if bc_count > 0
+      assign bc_titles = bc_titles | append: '||'
+      assign bc_urls = bc_urls | append: '||'
+    endif
+    assign bc_titles = bc_titles | append: _t
+    assign bc_urls = bc_urls | append: _u
+    assign bc_count = bc_count | plus: 1
+
+    if bc_type == 'collection' or bc_type == 'product'
+      assign _t = 'All Products'
+      assign _u = all_products_url
+      if bc_count > 0
+        assign bc_titles = bc_titles | append: '||'
+        assign bc_urls = bc_urls | append: '||'
+      endif
+      assign bc_titles = bc_titles | append: _t
+      assign bc_urls = bc_urls | append: _u
+      assign bc_count = bc_count | plus: 1
+    endif
+
+    if bc_type == 'collection' and collection
+      assign menu_links = linklists[menu_handle].links
+      assign path_found = false
+      assign path_depth = 0
+      assign p1 = nil
+      assign p2 = nil
+      assign p3 = nil
+      assign p4 = nil
+
+      for l1 in menu_links
+        if l1.url == collection.url
+          assign p1 = l1
+          assign path_depth = 1
+          assign path_found = true
+          break
+        endif
+
+        for l2 in l1.links
+          if l2.url == collection.url
+            assign p1 = l1
+            assign p2 = l2
+            assign path_depth = 2
+            assign path_found = true
+            break
+          endif
+
+          for l3 in l2.links
+            if l3.url == collection.url
+              assign p1 = l1
+              assign p2 = l2
+              assign p3 = l3
+              assign path_depth = 3
+              assign path_found = true
+              break
+            endif
+
+            for l4 in l3.links
+              if l4.url == collection.url
+                assign p1 = l1
+                assign p2 = l2
+                assign p3 = l3
+                assign p4 = l4
+                assign path_depth = 4
+                assign path_found = true
+                break
+              endif
+            endfor
+
+            if path_found
+              break
+            endif
+          endfor
+
+          if path_found
+            break
+          endif
+        endfor
+
+        if path_found
+          break
+        endif
+      endfor
+
+      if path_found
+        if path_depth >= 1 and p1
+          assign _t = p1.title
+          assign _u = p1.url
+          if bc_count > 0
+            assign bc_titles = bc_titles | append: '||'
+            assign bc_urls = bc_urls | append: '||'
+          endif
+          assign bc_titles = bc_titles | append: _t
+          assign bc_urls = bc_urls | append: _u
+          assign bc_count = bc_count | plus: 1
+        endif
+
+        if path_depth >= 2 and p2
+          assign _t = p2.title
+          assign _u = p2.url
+          if bc_count > 0
+            assign bc_titles = bc_titles | append: '||'
+            assign bc_urls = bc_urls | append: '||'
+          endif
+          assign bc_titles = bc_titles | append: _t
+          assign bc_urls = bc_urls | append: _u
+          assign bc_count = bc_count | plus: 1
+        endif
+
+        if path_depth >= 3 and p3
+          assign _t = p3.title
+          assign _u = p3.url
+          if bc_count > 0
+            assign bc_titles = bc_titles | append: '||'
+            assign bc_urls = bc_urls | append: '||'
+          endif
+          assign bc_titles = bc_titles | append: _t
+          assign bc_urls = bc_urls | append: _u
+          assign bc_count = bc_count | plus: 1
+        endif
+
+        if path_depth >= 4 and p4
+          assign _t = p4.title
+          assign _u = p4.url
+          if bc_count > 0
+            assign bc_titles = bc_titles | append: '||'
+            assign bc_urls = bc_urls | append: '||'
+          endif
+          assign bc_titles = bc_titles | append: _t
+          assign bc_urls = bc_urls | append: _u
+          assign bc_count = bc_count | plus: 1
+        endif
+      else
+        assign _t = collection.title
+        assign _u = collection.url
+        if bc_count > 0
+          assign bc_titles = bc_titles | append: '||'
+          assign bc_urls = bc_urls | append: '||'
+        endif
+        assign bc_titles = bc_titles | append: _t
+        assign bc_urls = bc_urls | append: _u
+        assign bc_count = bc_count | plus: 1
+      endif
+    endif
+
+    if bc_type == 'product' and product
+      assign menu_links = linklists[menu_handle].links
+      assign matched_root_count = 0
+      assign matched_root_title = ''
+      assign matched_root_url = ''
+
+      for root in menu_links
+        assign root_matched = false
+
+        for pc in product.collections
+          if pc.url == all_products_url
+            continue
+          endif
+
+          if root.url == pc.url
+            assign root_matched = true
+            break
+          endif
+
+          for c1 in root.links
+            if c1.url == pc.url
+              assign root_matched = true
+              break
+            endif
+
+            for c2 in c1.links
+              if c2.url == pc.url
+                assign root_matched = true
+                break
+              endif
+
+              for c3 in c2.links
+                if c3.url == pc.url
+                  assign root_matched = true
+                  break
+                endif
+              endfor
+
+              if root_matched
+                break
+              endif
+            endfor
+
+            if root_matched
+              break
+            endif
+          endfor
+
+          if root_matched
+            break
+          endif
+        endfor
+
+        if root_matched
+          assign matched_root_count = matched_root_count | plus: 1
+          if matched_root_count == 1
+            assign matched_root_title = root.title
+            assign matched_root_url = root.url
+          endif
+        endif
+      endfor
+
+      if matched_root_count == 1
+        assign _t = matched_root_title
+        assign _u = matched_root_url
+        if bc_count > 0
+          assign bc_titles = bc_titles | append: '||'
+          assign bc_urls = bc_urls | append: '||'
+        endif
+        assign bc_titles = bc_titles | append: _t
+        assign bc_urls = bc_urls | append: _u
+        assign bc_count = bc_count | plus: 1
+      endif
+
+      assign _t = product.title
+      assign _u = product.url
+      if bc_count > 0
+        assign bc_titles = bc_titles | append: '||'
+        assign bc_urls = bc_urls | append: '||'
+      endif
+      assign bc_titles = bc_titles | append: _t
+      assign bc_urls = bc_urls | append: _u
+      assign bc_count = bc_count | plus: 1
+    endif
+
+    if bc_type == 'page' and page
+      assign _t = page.title
+      assign _u = page.url
+      if bc_count > 0
+        assign bc_titles = bc_titles | append: '||'
+        assign bc_urls = bc_urls | append: '||'
+      endif
+      assign bc_titles = bc_titles | append: _t
+      assign bc_urls = bc_urls | append: _u
+      assign bc_count = bc_count | plus: 1
+    endif
+
+    if bc_type == 'blog' and blog
+      assign _t = blog.title
+      assign _u = blog.url
+      if bc_count > 0
+        assign bc_titles = bc_titles | append: '||'
+        assign bc_urls = bc_urls | append: '||'
+      endif
+      assign bc_titles = bc_titles | append: _t
+      assign bc_urls = bc_urls | append: _u
+      assign bc_count = bc_count | plus: 1
+    endif
+
+    if bc_type == 'article' and article and blog
+      assign _t = blog.title
+      assign _u = blog.url
+      if bc_count > 0
+        assign bc_titles = bc_titles | append: '||'
+        assign bc_urls = bc_urls | append: '||'
+      endif
+      assign bc_titles = bc_titles | append: _t
+      assign bc_urls = bc_urls | append: _u
+      assign bc_count = bc_count | plus: 1
+
+      assign _t = article.title
+      assign _u = article.url
+      if bc_count > 0
+        assign bc_titles = bc_titles | append: '||'
+        assign bc_urls = bc_urls | append: '||'
+      endif
+      assign bc_titles = bc_titles | append: _t
+      assign bc_urls = bc_urls | append: _u
+      assign bc_count = bc_count | plus: 1
+    endif
+  endif
+
+  if bc_count < 2
+    assign should_render = false
+  endif
+
+  if should_render
+    assign bc_titles_arr = bc_titles | split: '||'
+    assign bc_urls_arr = bc_urls | split: '||'
+    assign last_index = bc_count | minus: 1
+    assign prev_index = bc_count | minus: 2
+    assign prev_title = bc_titles_arr[prev_index]
+    assign prev_url = bc_urls_arr[prev_index]
+    assign current_title = bc_titles_arr[last_index]
+endif
+-%}
+
+{% if should_render %}
+  <nav aria-label="Breadcrumb" class="w-full">
+    <div class="md:hidden rounded-input border border-border bg-surface px-3 py-2">
+      <a href="{{ prev_url }}" aria-label="Back to {{ prev_title | escape }}" class="inline-flex items-center gap-2 text-sm font-medium text-link hover:text-link-hover">
+        <span aria-hidden="true">←</span>
+        <span>Back</span>
+      </a>
+
+      <ol class="mt-2 flex min-w-0 items-center gap-2 text-sm">
+        <li class="min-w-0">
+          <a href="{{ prev_url }}" class="block max-w-56 truncate text-muted hover:text-link-hover">{{ prev_title }}</a>
+        </li>
+        <li class="flex items-center text-muted" aria-hidden="true">|</li>
+        <li class="min-w-0">
+          <span class="block max-w-56 truncate font-medium text-text" aria-current="page">{{ current_title }}</span>
+        </li>
+      </ol>
+    </div>
+
+    <div class="hidden md:block rounded-input border border-border bg-surface px-3 py-2">
+      <ol class="flex min-w-0 items-center gap-2 text-sm">
+        {% for t in bc_titles_arr %}
+          {%- liquid
+            assign i = forloop.index0
+            assign u = bc_urls_arr[i]
+            assign is_current = false
+            if i == last_index
+              assign is_current = true
+            endif
+          -%}
+          <li class="flex min-w-0 items-center gap-2">
+            {% if is_current %}
+              <span class="block max-w-[20rem] truncate font-medium text-text" aria-current="page">{{ t }}</span>
+            {% else %}
+              <a href="{{ u }}" class="block max-w-56 truncate text-muted hover:text-link-hover">{{ t }}</a>
+              <span class="text-muted" aria-hidden="true">|</span>
+            {% endif %}
+          </li>
+        {% endfor %}
+      </ol>
+    </div>
+  </nav>
+
+  {% if show_schema_val %}
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          {%- for t in bc_titles_arr -%}
+            {%- liquid
+              assign i = forloop.index0
+              assign u = bc_urls_arr[i]
+              assign item_url = u
+              if i == last_index
+                assign item_url = canonical_url
+              else
+                if item_url contains 'http'
+                else
+                  assign item_url = request.origin | append: item_url
+                endif
+              endif
+            -%}
+            {
+              "@type": "ListItem",
+              "position": {{ forloop.index }},
+              "name": {{ t | json }},
+              "item": {{ item_url | json }}
+            }{% unless forloop.last %},{% endunless %}
+          {%- endfor -%}
+        ]
+      }
+    </script>
+  {% endif %}
+{% endif %}

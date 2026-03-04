@@ -71,6 +71,7 @@
     <div id="header-scroll-sentinel" class="absolute top-37.5 h-0 w-0 pointer-events-none" aria-hidden="true"></div>
 
     <main id="MainContent" role="main">
+      {% render 'ui-breadcrumbs', menu_handle: 'collections-menu', all_products_url: '/collections/all', show_schema: true %}
       {{ content_for_layout }}
     </main>
 

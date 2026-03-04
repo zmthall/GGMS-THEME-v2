@@ -354,7 +354,13 @@
             <div class="space-y-4">
                 <h3>Logo / Brand Slot</h3>
                 <div>
-                    {% render 'ui-logo-lockup', animated: false %}
+                    {% render 'ui-logo-lockup', class: 'w-32 ml-6', animated: false %}
+                </div>
+            </div>
+            <div class="space-y-4">
+                <h3>Logo / Brand Slot (flat only)</h3>
+                <div>
+                    {% render 'ui-logo-lockup', class: 'w-32 ml-6', flat_only: true %}
                 </div>
             </div>
             <div class="space-y-4">
@@ -365,29 +371,82 @@
             </div>
             <div class="space-y-4">
                 <h3>Dropdown Menu</h3>
+                <div>
+                    {% capture dropdown_trigger %}
+                        <span>Sample Dropdown</span>
+                        {% render 'ui-icon', name: 'chevron-down', size: '1rem', class: 'inline-flex shrink-0 transition-transform duration-200 group-open/nav:rotate-180 text-muted', decorative: true %}
+                    {% endcapture %}
+                    {% capture dropdown_panel %}
+                        <ul role="list" class="flex flex-col gap-1">
+                            <li><a href="#" class="block rounded-lg px-3 py-2 text-sm font-semibold text-text no-underline hover:bg-button-hover hover:text-link">Link One</a></li>
+                            <li><a href="#" class="block rounded-lg px-3 py-2 text-sm font-semibold text-text no-underline hover:bg-button-hover hover:text-link">Link Two</a></li>
+                            <li><a href="#" class="block rounded-lg px-3 py-2 text-sm font-semibold text-text no-underline hover:bg-button-hover hover:text-link">Link Three</a></li>
+                        </ul>
+                    {% endcapture %}
+                    {% render 'ui-dropdown', trigger: dropdown_trigger, panel: dropdown_panel %}
+                </div>
             </div>
             <div class="space-y-4">
                 <h3>Mega Menu</h3>
+                <div>
+                    {% render 'ui-mega-menu-collections', label: 'Products', menu: section.settings.menu %}
+                </div>
             </div>
             <div class="space-y-4">
                 <h3>Mobile Nav</h3>
+                <div class="border border-border rounded-lg p-4 bg-surface max-w-sm">
+                    <div class="flex items-center justify-between mb-4">
+                        {% render 'ui-logo-lockup', class: 'w-24', flat_only: true %}
+                        <button type="button" class="cursor-pointer inline-flex items-center justify-center rounded-md p-2 text-text hover:bg-button-hover hover:text-link" aria-label="Close menu">
+                            {% render 'ui-icon', name: 'cancel', size: '1.5rem', class: 'text-base-icon', decorative: true %}
+                        </button>
+                    </div>
+                    <nav class="flex flex-col gap-1">
+                        <a href="#" class="block rounded-lg px-3 py-2 text-sm font-bold text-text no-underline hover:bg-button-hover hover:text-link">Home</a>
+                        <a href="#" class="block rounded-lg px-3 py-2 text-sm font-bold text-brand-burgundy bg-button-hover no-underline">Products</a>
+                        <a href="#" class="block rounded-lg px-3 py-2 text-sm font-bold text-text no-underline hover:bg-button-hover hover:text-link">About</a>
+                        <a href="#" class="block rounded-lg px-3 py-2 text-sm font-bold text-text no-underline hover:bg-button-hover hover:text-link">Contact</a>
+                    </nav>
+                </div>
             </div>
             <div class="space-y-4">
                 <h3>Mobile nav accordion items</h3>
-            </div>
-            <div class="space-y-4">
-                <h3>Active Links</h3>
+                <div class="max-w-sm">
+                    {% capture accordion_trigger %}
+                        <span>Products</span>
+                        {% render 'ui-icon', name: 'chevron-down', size: '1rem', class: 'inline-flex shrink-0 transition-transform duration-200 group-open/nav:rotate-180 text-muted', decorative: true %}
+                    {% endcapture %}
+                    {% capture accordion_panel %}
+                        <ul role="list" class="flex flex-col gap-1 pl-3">
+                            <li><a href="#" class="block rounded-lg px-3 py-2 text-sm font-semibold text-text no-underline hover:bg-button-hover hover:text-link">Wound Care</a></li>
+                            <li><a href="#" class="block rounded-lg px-3 py-2 text-sm font-semibold text-text no-underline hover:bg-button-hover hover:text-link">Diagnostics</a></li>
+                            <li><a href="#" class="block rounded-lg px-3 py-2 text-sm font-semibold text-text no-underline hover:bg-button-hover hover:text-link">PPE</a></li>
+                            <li><a href="#" class="block rounded-lg px-3 py-2 text-sm font-semibold text-text no-underline hover:bg-button-hover hover:text-link">Furniture</a></li>
+                        </ul>
+                    {% endcapture %}
+                    {% render 'ui-dropdown',
+                        trigger: accordion_trigger,
+                        panel: accordion_panel,
+                        details_class: 'group/nav',
+                        summary_class: 'group/trigger list-none cursor-pointer select-none rounded-lg px-3 py-2 text-sm font-bold text-text no-underline hover:bg-button-hover hover:text-link flex items-center justify-between gap-2 w-full',
+                        panel_class: 'py-1'
+                    %}
+                </div>
             </div>
             <div class="space-y-4">
                 <h3>Skip to content Link</h3>
-            </div>
-            <div class="space-y-4">
-                <h3>Search Trigger</h3>
+                <div>
+                    <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:z-50 focus:top-2 focus:left-2 focus:rounded-md focus:bg-brand-blue focus:px-4 focus:py-2 focus:text-sm focus:font-bold focus:text-white focus:outline-none focus:ring-2 focus:ring-focus focus:ring-offset-2">Skip to content</a>
+                    <p class="text-sm text-muted">Tab into this area to reveal the skip link.</p>
+                </div>
             </div>
             <div class="space-y-4">
                 <h3>Cart Trigger</h3>
+                <div>
+                    {% render 'ui-cart-drawer' %}
+                </div>
             </div>
-            <div class="space-y-4">
+            {% comment %} <div class="space-y-4">
                 <h3>Account Trigger</h3>
             </div>
             <div class="space-y-4">
@@ -395,7 +454,7 @@
             </div>
             <div class="space-y-4">
                 <h3>Language Selector</h3>
-            </div>
+            </div> {% endcomment %}
             <div class="space-y-4">
                 <h3>Breadcrumbs</h3>
             </div>
