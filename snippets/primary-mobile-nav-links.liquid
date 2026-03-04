@@ -50,7 +50,9 @@
 
     <div class="absolute inset-y-0 left-0 w-[min(22rem,calc(100vw-2rem))] border-r border-border bg-surface shadow-md -translate-x-full transition-transform duration-normal ease-standard flex flex-col" data-mobile-nav-panel tabindex="-1" role="dialog" aria-modal="true" aria-label="Mobile navigation">
       <div class="flex items-center justify-between border-b border-border px-gutter py-4">
-        <a href="{{ routes.root_url }}" class="text-base font-semibold text-text no-underline hover:text-link focus:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-surface">{{ shop.name }}</a>
+         <div class="flex">
+          {% render 'ui-logo-lockup', animated: false, class: 'w-32', flat_only: true %}
+         </div>
         <button type="button" class="cursor-pointer inline-flex items-center justify-center rounded-md p-2 text-text hover:bg-button-hover hover:text-link focus:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-surface" data-mobile-nav-close aria-label="Close menu">
           {% render 'ui-icon', name: 'cancel', size: '1.5rem', class: 'text-base-icon', decorative: true %}
         </button>

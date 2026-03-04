@@ -1,6 +1,11 @@
 {% comment %}
   UI: Logo Lockup (Dual State)
+
+  Parameters:
+    flat_only  — (boolean) When true, renders only the flat logo image. No arch, no animation.
 {% endcomment %}
+
+{% assign _flat_only = flat_only | default: false %}
 
 {% assign link = href %}
 {% if link == blank %}{% assign link = routes.root_url %}{% endif %}
@@ -22,8 +27,28 @@
 {% assign logo_flat_fallback_url = 'https://cdn.shopify.com/s/files/1/0840/7125/2274/files/medical-supply-logo_text_only.png?v=1772567404' %}
 
 <a href="{{ link }}" class="inline-block no-underline {{ extra }}" aria-label="{{ shop.name }} home">
+  {% if flat_only %}
 
-  {% if lp != blank %}
+    {% if logo_flat != blank %}
+      <img
+        src="{{ logo_flat | image_url: width: 600 }}"
+        alt="{{ shop.name }}"
+        class="w-full h-auto"
+        loading="eager"
+        fetchpriority="high"
+        width="{{ logo_flat.width }}"
+        height="{{ logo_flat.height }}"
+      >
+    {% else %}
+      <img
+        src="{{ logo_flat_fallback_url }}"
+        alt="{{ shop.name }}"
+        class="w-full h-auto"
+        loading="eager"
+        fetchpriority="high"
+      >
+    {% endif %}
+  {% elsif lp != blank %}
     {{- '<!-- Primary logo image -->' -}}
 
   {% elsif ls != blank %}

@@ -290,20 +290,28 @@
     const logo = getLogo();
     if (!logo) return;
 
+    // Always clear transition suppression
+    logo.classList.remove('no-transition');
+
     const letters = getLetters(logo);
     letters.forEach((el) => {
       el.removeAttribute('style');
+      if (el.style) el.style.transition = '';
       delete el.dataset.ggmsInline;
-      el.style.transition = '';
     });
 
-    const bridge = logo.querySelector(BRIDGE_SEL);
-    if (bridge) bridge.removeAttribute('style');
-
-    logo.classList.remove('no-transition');
+    logo.getBoundingClientRect();
     logo.classList.remove('is-bridge-hidden');
     logo.classList.remove('is-flat');
 
+    const bridge = logo.querySelector('[data-ggms-bridge]');
+    if (bridge) {
+      bridge.style.transition = '';
+      bridge.style.opacity = '';
+      bridge.style.transform = '';
+    }
+
+    // Force fresh measurements after reset
     invalidateCache();
   }
 
