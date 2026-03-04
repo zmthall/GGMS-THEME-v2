@@ -8,14 +8,19 @@
   const LETTER_MOVE_MS = 800;
 
   const GAP_ABOVE_BOTTOM_PX = 6;
-  const LETTER_GAP_PX = 1;
-  const WORD_GAP_PX = 10;
+  const LETTER_GAP_PX = 6;
+  const WORD_GAP_PX = 18;
   const WORD_BREAK_AFTER_INDEX = 6;
 
   const LAST_TWO_SHIFT_PX = -4;
 
+  const MIN_AVAILABLE_PX = 24;
+  const MIN_SCALE = 0.06;
+  const MAX_LAYOUT_RAF_TRIES = 12;
+
   let cached = null;
   let cachedSig = '';
+  let currentAnimationId = 0;
 
   function prefersReducedMotion() {
     return window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -30,7 +35,8 @@
   }
 
   function getLogo() {
-    return document.querySelector(LOGO_SEL);
+    const header = document.querySelector('[data-site-header]');
+    return header ? header.querySelector(LOGO_SEL) : null;
   }
 
   function getLetters(logo) {
@@ -50,6 +56,24 @@
       else el.removeAttribute('style');
       delete el.dataset.ggmsInline;
     });
+  }
+
+  function invalidateCache() {
+    cached = null;
+    cachedSig = '';
+  }
+
+  function layoutSignature(logo) {
+    const bottom = logo.querySelector(BOTTOM_SEL);
+    if (!bottom) return '';
+    return [
+      logo.clientWidth,
+      logo.clientHeight,
+      bottom.offsetLeft,
+      bottom.offsetTop,
+      bottom.offsetWidth,
+      bottom.offsetHeight
+    ].join('|');
   }
 
   function measureWidthsOffDom(logo, letters) {
@@ -81,25 +105,20 @@
     return widths;
   }
 
-  function layoutSignature(logo) {
-    const bottom = logo.querySelector(BOTTOM_SEL);
-    if (!bottom) return '';
-    return [
-      logo.clientWidth,
-      logo.clientHeight,
-      bottom.offsetLeft,
-      bottom.offsetTop,
-      bottom.offsetWidth,
-      bottom.offsetHeight
-    ].join('|');
-  }
-
   function computeFlatLayout(logo) {
     const bottom = logo.querySelector(BOTTOM_SEL);
     if (!bottom) return null;
 
     const letters = getLetters(logo);
     if (!letters.length) return null;
+
+    const logoW = logo.clientWidth;
+    const logoH = logo.clientHeight;
+    if (logoW < MIN_AVAILABLE_PX || logoH < 10) return null;
+
+    const bottomW = bottom.offsetWidth;
+    const available = Math.max(0, bottomW - 6);
+    if (available < MIN_AVAILABLE_PX) return null;
 
     const firstInner = letters[0].querySelector('.gg-letter-3d') || letters[0];
     const letterH = firstInner.getBoundingClientRect().height || 28;
@@ -116,11 +135,12 @@
       if (i < widths.length - 1) total += LETTER_GAP_PX;
       if (i === WORD_BREAK_AFTER_INDEX - 1) total += WORD_GAP_PX;
     }
+    if (total <= 0) return null;
 
-    const available = Math.max(0, bottom.offsetWidth - 6);
-    const scale = total > 0 ? Math.min(1, available / total) : 1;
+    const scale = Math.min(1, available / total);
+    if (!Number.isFinite(scale) || scale < MIN_SCALE) return null;
 
-    const anchorCenter = bottom.offsetLeft + (bottom.offsetWidth / 2);
+    const anchorCenter = bottom.offsetLeft + (bottomW / 2);
     let cursor = Math.round(anchorCenter - (total * scale) / 2);
     if (cursor < 0) cursor = 0;
 
@@ -140,14 +160,10 @@
     return { placements, scale };
   }
 
-  function invalidateCache() {
-    cached = null;
-    cachedSig = '';
-  }
-
   function ensureCachedLayout() {
     const logo = getLogo();
     if (!logo) return null;
+    if (logo.offsetParent === null) return null;
 
     const sig = layoutSignature(logo);
     if (cached && cachedSig === sig) return cached;
@@ -160,8 +176,21 @@
     return cached;
   }
 
+  async function waitForUsableLayout() {
+    for (let i = 0; i < MAX_LAYOUT_RAF_TRIES; i++) {
+      const layout = ensureCachedLayout();
+      if (layout) return layout;
+      await raf();
+    }
+    return null;
+  }
+
   function prewarm() {
-    const run = () => ensureCachedLayout();
+    const run = () => {
+      const logo = getLogo();
+      if (!logo || logo.offsetParent === null) return;
+      ensureCachedLayout();
+    };
 
     if (document.fonts && document.fonts.ready) {
       document.fonts.ready.then(() => {
@@ -194,43 +223,34 @@
       });
     }
 
-    if ('requestIdleCallback' in window) {
-      window.requestIdleCallback(() => run(), { timeout: 1500 });
-    } else {
-      window.setTimeout(() => run(), 60);
-    }
-  }
-
-  let resizeT = null;
-  function onResize() {
-    if (resizeT) window.clearTimeout(resizeT);
-    resizeT = window.setTimeout(() => {
-      invalidateCache();
-      prewarm();
-    }, 120);
+    if ('requestIdleCallback' in window) window.requestIdleCallback(() => run(), { timeout: 1500 });
+    else window.setTimeout(() => run(), 60);
   }
 
   async function toFlat() {
+    const animId = ++currentAnimationId;
     const logo = getLogo();
-    if (!logo) return;
+    if (!logo || logo.offsetParent === null) return;
 
     const letters = getLetters(logo);
     if (!letters.length) return;
 
     logo.classList.add('is-bridge-hidden');
 
-    const layoutPromise = Promise.resolve().then(() => ensureCachedLayout());
-
     if (!prefersReducedMotion()) await waitMs(BRIDGE_FADE_MS + 40);
+    if (animId !== currentAnimationId) return;
 
-    const layout = await layoutPromise;
+    invalidateCache();
+    const layout = await waitForUsableLayout();
     if (!layout) return;
+    if (animId !== currentAnimationId) return;
 
     snapshotInline(letters);
 
     letters[0].getBoundingClientRect();
     await raf();
     await raf();
+    if (animId !== currentAnimationId) return;
 
     for (let i = 0; i < letters.length; i++) {
       const p = layout.placements[i];
@@ -244,8 +264,9 @@
   }
 
   async function toDefault() {
+    const animId = ++currentAnimationId;
     const logo = getLogo();
-    if (!logo) return;
+    if (!logo || logo.offsetParent === null) return;
 
     const letters = getLetters(logo);
     if (!letters.length) return;
@@ -253,13 +274,99 @@
     letters[0].getBoundingClientRect();
     await raf();
     await raf();
+    if (animId !== currentAnimationId) return;
 
     restoreInline(letters);
 
     if (!prefersReducedMotion()) await waitMs(LETTER_MOVE_MS + 60);
+    if (animId !== currentAnimationId) return;
 
     logo.classList.remove('is-bridge-hidden');
     if (!prefersReducedMotion()) await waitMs(BRIDGE_FADE_MS + 40);
+  }
+
+  function hardReset() {
+    currentAnimationId++;
+    const logo = getLogo();
+    if (!logo) return;
+
+    const letters = getLetters(logo);
+    letters.forEach((el) => {
+      el.removeAttribute('style');
+      delete el.dataset.ggmsInline;
+      el.style.transition = '';
+    });
+
+    const bridge = logo.querySelector(BRIDGE_SEL);
+    if (bridge) bridge.removeAttribute('style');
+
+    logo.classList.remove('no-transition');
+    logo.classList.remove('is-bridge-hidden');
+    logo.classList.remove('is-flat');
+
+    invalidateCache();
+  }
+
+  function toFlatInstant() {
+    const animId = ++currentAnimationId;
+    const logo = getLogo();
+    if (!logo || logo.offsetParent === null) return;
+
+    const letters = getLetters(logo);
+    if (!letters.length) return;
+
+    const bridge = logo.querySelector(BRIDGE_SEL);
+
+    const cleanup = () => {
+      if (animId !== currentAnimationId) return;
+      logo.classList.remove('no-transition');
+      letters.forEach((el) => { el.style.transition = ''; });
+      if (bridge) bridge.removeAttribute('style');
+    };
+
+    const attempt = async () => {
+      if (animId !== currentAnimationId) return;
+
+      logo.classList.add('no-transition');
+
+      if (bridge) {
+        bridge.style.transition = 'none';
+        bridge.style.opacity = '0';
+      }
+
+      letters.forEach((el) => { el.style.transition = 'none'; });
+
+      invalidateCache();
+      const layout = await waitForUsableLayout();
+      if (!layout) {
+        cleanup();
+        return;
+      }
+      if (animId !== currentAnimationId) return;
+
+      snapshotInline(letters);
+
+      logo.getBoundingClientRect();
+
+      for (let i = 0; i < letters.length; i++) {
+        const p = layout.placements[i];
+        letters[i].style.left = `${Math.round(p.left)}px`;
+        letters[i].style.bottom = `${Math.round(p.bottom)}px`;
+        letters[i].style.transformOrigin = 'left bottom';
+        letters[i].style.transform = `scale(${layout.scale}) rotate(0deg)`;
+      }
+
+      logo.classList.add('is-bridge-hidden');
+      logo.classList.add('is-flat');
+
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => cleanup());
+      });
+
+      window.setTimeout(() => cleanup(), 250);
+    };
+
+    attempt();
   }
 
   function toggle() {
@@ -271,6 +378,15 @@
     return toFlat();
   }
 
+  let resizeT = null;
+  function onResize() {
+    if (resizeT) window.clearTimeout(resizeT);
+    resizeT = window.setTimeout(() => {
+      invalidateCache();
+      prewarm();
+    }, 120);
+  }
+
   function boot() {
     prewarm();
     window.addEventListener('resize', onResize, { passive: true });
@@ -279,5 +395,5 @@
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot, { once: true });
   else boot();
 
-  window.GGMSLogoLockup = { toFlat, toDefault, toggle, prewarm };
+  window.GGMSLogoLockup = { toFlat, toFlatInstant, toDefault, toggle, prewarm, hardReset, invalidateCache };
 })();

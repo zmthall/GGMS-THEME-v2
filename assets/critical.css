@@ -1,13 +1,23 @@
 /* critical.css — truly minimal */
 *, *::before, *::after { box-sizing: border-box; }
 
+.shopify-section-group-header-group {
+  position: sticky;
+  top: 0;
+  z-index: var(--z-header);
+  width: 100%;
+}
+
+:root {
+  --logo-height-full: 150px;
+  --logo-height-compact: 80px;
+}
+
 img, svg, video, canvas {
   max-width: 100%;
   height: auto;
   display: block;
 }
-
-/* Icon Styling */
 
 iconify-icon {
   display: inline-block;
@@ -23,22 +33,18 @@ iconify-icon {
   flex: 0 0 auto;
 }
 
-/* Local sprite SVG should fill wrapper */
 .ui-icon > svg {
   width: 100%;
   height: 100%;
   display: block;
 }
 
-/* IMPORTANT: Iconify host must be sized (Shadow DOM SVG is 1em) */
 .ui-icon > iconify-icon {
   width: 100%;
   height: 100%;
   display: block;
-  font-size: var(--ui-icon-size, 1em); /* key line */
+  font-size: var(--ui-icon-size, 1em);
 }
-
-/* Icon Styling End */
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
@@ -49,19 +55,66 @@ iconify-icon {
   }
 }
 
+/* =====================
+   Header height — CSS-driven so there is never a JS load flash
+   JS only animates changes after load
+   ===================== */
+[data-site-header] {
+  height: 5rem;
+  transition: height 250ms cubic-bezier(0.2, 0.0, 0, 1);
+}
+
+@media (min-width: 768px) {
+  [data-site-header] {
+    height: 8rem;
+  }
+}
+
+/* =====================
+   Logo
+   ===================== */
 .ggms-logo__bridge { opacity: 1; transition: opacity 360ms ease; }
 .ggms-logo.is-bridge-hidden .ggms-logo__bridge { opacity: 0; }
 
+.ggms-logo {
+  height: var(--logo-height-full);
+  transition: height 250ms cubic-bezier(0.2, 0.0, 0, 1),
+              padding-top 250ms cubic-bezier(0.2, 0.0, 0, 1),
+              translate 250ms cubic-bezier(0.2, 0.0, 0, 1);
+}
+
+/* Suppress transitions during instant resets */
+.ggms-logo.no-transition,
+.ggms-logo.no-transition .ggms-logo__bottom {
+  transition: none !important;
+}
+
+.ggms-logo.is-flat {
+  height: var(--logo-height-compact) !important;
+  padding-top: 0 !important;
+  translate: 0px -9px;
+}
+
+.ggms-logo__bottom {
+  transition: transform 250ms cubic-bezier(0.2, 0.0, 0, 1);
+  transform: none;
+}
+
+.ggms-logo.is-flat .ggms-logo__bottom {
+  transform: translateY(-20px);
+}
+
+[data-ggms-bridge] { transform-origin: top; transition: opacity 360ms ease, transform 360ms ease; }
+.ggms-logo.is-bridge-hidden [data-ggms-bridge] { opacity: 0; transform: scaleY(0); }
+
 .ggms-letter { position: absolute; left: 50%; transform-origin: center; user-select: none; will-change: transform, bottom, left; transition: transform 800ms cubic-bezier(0.2, 0.8, 0.2, 1), bottom 800ms cubic-bezier(0.2, 0.8, 0.2, 1), left 800ms cubic-bezier(0.2, 0.8, 0.2, 1); }
 
-/* DEFAULT ARCH — your corrected 1:1 values (keep yours) */
 .ggms-letter--1 { bottom: 2.4rem; transform: translateX(calc(-1*(50% + 6.35rem - 1.5rem))) rotate(-86deg); }
 .ggms-letter--2 { bottom: 3.8rem; transform: translateX(calc(-1*(50% + 5.8rem - 1.25rem))) rotate(-63deg); }
 .ggms-letter--3 { bottom: 5.25rem; transform: translateX(calc(-1*(50% + 4.85rem - 0.95rem))) rotate(-47deg); }
 .ggms-letter--4 { bottom: 6.3rem; transform: translateX(calc(-1*(50% + 3.6rem - 0.85rem))) rotate(-30deg); }
 .ggms-letter--5 { bottom: 6.9rem; transform: translateX(calc(-1*(50% + 2.1rem - 0.75rem))) rotate(-12.5deg); }
 .ggms-letter--6 { bottom: 7rem; transform: translateX(calc((-50% + 0.25rem))) rotate(4.25deg); }
-
 .ggms-letter--7 { bottom: 6.3rem; transform: translateX(calc(50% + 1.95rem - 0.4rem)) rotate(29deg); }
 .ggms-letter--8 { bottom: 5.2rem; transform: translateX(calc(50% + 3.2rem - 0.5rem)) rotate(49deg); }
 .ggms-letter--9 { bottom: 3.9rem; transform: translateX(calc(50% + 4.1rem - 0.7rem)) rotate(66deg); }
@@ -72,50 +125,35 @@ iconify-icon {
   .ggms-letter { transition: none !important; }
 }
 
-/* ==========================================================================
+/* =====================
    Scrollbar styling
-   - Chrome/Edge/Safari: ::-webkit-scrollbar (full control)
-   - Firefox: scrollbar-color + scrollbar-width (limited but works)
-   - Dark mode responds to [data-theme="dark"] on <html>
-   ========================================================================== */
-
-/* Light mode — uses brand border + surface tokens */
+   ===================== */
 :root {
-  scrollbar-color: var(--ggms-border) var(--ggms-page-bg);
+  scrollbar-color: var(--ggms-text-muted) var(--ggms-page-bg);
   scrollbar-width: thin;
 }
 
 html::-webkit-scrollbar { width: 8px; height: 8px; }
 html::-webkit-scrollbar-track { background: var(--ggms-page-bg); }
-html::-webkit-scrollbar-thumb { background-color: var(--ggms-border); border-radius: 9999px; border: 2px solid var(--ggms-page-bg); }
-html::-webkit-scrollbar-thumb:hover { background-color: var(--ggms-text-muted); }
+html::-webkit-scrollbar-thumb { background-color: var(--ggms-text-muted); border-radius: 9999px; border: 2px solid var(--ggms-page-bg); }
+html::-webkit-scrollbar-thumb:hover { background-color: var(--ggms-text); }
 
-/* Dark mode — same tokens, they auto-switch via your dark theme overrides */
 [data-theme="dark"] {
-  scrollbar-color: var(--ggms-border) var(--ggms-page-bg);
+  scrollbar-color: var(--ggms-text-muted) var(--ggms-page-bg);
 }
-
 [data-theme="dark"]::-webkit-scrollbar-track { background: var(--ggms-page-bg); }
-[data-theme="dark"]::-webkit-scrollbar-thumb { background-color: var(--ggms-border); border-color: var(--ggms-page-bg); }
-[data-theme="dark"]::-webkit-scrollbar-thumb:hover { background-color: var(--ggms-text-muted); }
+[data-theme="dark"]::-webkit-scrollbar-thumb { background-color: var(--ggms-text-muted); border-color: var(--ggms-page-bg); }
+[data-theme="dark"]::-webkit-scrollbar-thumb:hover { background-color: var(--ggms-text); }
 
-/* System dark mode */
 @media (prefers-color-scheme: dark) {
-  html[data-theme="system"] {
-    scrollbar-color: var(--ggms-border) var(--ggms-page-bg);
-  }
-
+  html[data-theme="system"] { scrollbar-color: var(--ggms-text-muted) var(--ggms-page-bg); }
   html[data-theme="system"]::-webkit-scrollbar-track { background: var(--ggms-page-bg); }
-  html[data-theme="system"]::-webkit-scrollbar-thumb { background-color: var(--ggms-border); border-color: var(--ggms-page-bg); }
-  html[data-theme="system"]::-webkit-scrollbar-thumb:hover { background-color: var(--ggms-text-muted); }
+  html[data-theme="system"]::-webkit-scrollbar-thumb { background-color: var(--ggms-text-muted); border-color: var(--ggms-page-bg); }
+  html[data-theme="system"]::-webkit-scrollbar-thumb:hover { background-color: var(--ggms-text); }
 }
 
-/* Apply to all scrollable elements inside the page */
-* {
-  scrollbar-width: thin;
-}
-
+* { scrollbar-width: thin; }
 *::-webkit-scrollbar { width: 8px; height: 8px; }
 *::-webkit-scrollbar-track { background: var(--ggms-page-bg); }
-*::-webkit-scrollbar-thumb { background-color: var(--ggms-border); border-radius: 9999px; border: 2px solid var(--ggms-page-bg); }
-*::-webkit-scrollbar-thumb:hover { background-color: var(--ggms-text-muted); }
+*::-webkit-scrollbar-thumb { background-color: var(--ggms-text-muted); border-radius: 9999px; border: 2px solid var(--ggms-page-bg); }
+*::-webkit-scrollbar-thumb:hover { background-color: var(--ggms-text); }

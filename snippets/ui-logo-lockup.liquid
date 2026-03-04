@@ -1,25 +1,17 @@
 {% comment %}
   UI: Logo Lockup (Dual State)
-
-  Adds a JS-callable dual-state animation for the GGMS 3D logo:
-  - Forward: bridge fades out, then GOLDEN GATE flattens above MEDICAL SUPPLIES
-  - Backward: GOLDEN GATE returns to arch, then bridge fades back in
-
-  JS API (global):
-    window.GGMSLogoLockup.toFlat()
-    window.GGMSLogoLockup.toDefault()
-    window.GGMSLogoLockup.toggle()
 {% endcomment %}
 
 {% assign link = href %}
 {% if link == blank %}{% assign link = routes.root_url %}{% endif %}
 
+{% assign animated = animated | default: true %}
+
 {% assign extra = class | default: '' %}
-{% assign default_extra = default_class | default: '' %}
-{% assign compact_extra = compact_class | default: '' %}
 
 {% assign lp = settings.company_logo_primary %}
 {% assign ls = settings.company_logo_secondary %}
+{% assign logo_flat = settings.company_logo_flat %}
 
 {% assign pmax = primary_max_width %}
 {% if pmax == blank %}{% assign pmax = settings.company_logo_primary_max_width | default: 250 %}{% endif %}
@@ -27,36 +19,69 @@
 {% assign smax = secondary_max_width %}
 {% if smax == blank %}{% assign smax = settings.company_logo_secondary_max_width | default: 180 %}{% endif %}
 
-<a href="{{ link }}" class="inline-block no-underline {{ extra }}" style="max-width: {{ pmax }}px; width: 100%;" aria-label="{{ shop.name }} home">
+{% assign logo_flat_fallback_url = 'https://cdn.shopify.com/s/files/1/0840/7125/2274/files/medical-supply-logo_text_only.png?v=1772567404' %}
+
+<a href="{{ link }}" class="inline-block no-underline {{ extra }}" aria-label="{{ shop.name }} home">
+
   {% if lp != blank %}
+    {{- '<!-- Primary logo image -->' -}}
 
   {% elsif ls != blank %}
+    {{- '<!-- Secondary logo image -->' -}}
 
-  {% else %} 
-  <div class="ggms-logo flex flex-col justify-center items-center relative pt-11" data-ggms-logo>
-    {% render 'ui-logo-3d-letter-assets' %}
+  {% else %}
 
-    {% render 'ui-logo-3d-letter', letter: 'G', div_class: 'ggms-letter ggms-letter--1' %}
-    {% render 'ui-logo-3d-letter', letter: 'O', div_class: 'ggms-letter ggms-letter--2' %}
-    {% render 'ui-logo-3d-letter', letter: 'L', div_class: 'ggms-letter ggms-letter--3' %}
-    {% render 'ui-logo-3d-letter', letter: 'D', div_class: 'ggms-letter ggms-letter--4' %}
-    {% render 'ui-logo-3d-letter', letter: 'E', div_class: 'ggms-letter ggms-letter--5' %}
-    {% render 'ui-logo-3d-letter', letter: 'N', div_class: 'ggms-letter ggms-letter--6' %}
+    {{- '<!-- Mobile: static flat logo, no transform needed -->' -}}
+    <div class="block md:hidden">
+      {% if logo_flat != blank %}
+        <img
+          src="{{ logo_flat | image_url: width: 600 }}"
+          alt="{{ shop.name }}"
+          class="w-full h-auto"
+          loading="eager"
+          fetchpriority="high"
+          width="{{ logo_flat.width }}"
+          height="{{ logo_flat.height }}"
+        >
+      {% else %}
+        <img
+          src="{{ logo_flat_fallback_url }}"
+          alt="{{ shop.name }}"
+          class="w-full h-auto"
+          loading="eager"
+          fetchpriority="high"
+        >
+      {% endif %}
+    </div>
 
-    {% render 'ui-logo-3d-letter', letter: 'G', div_class: 'ggms-letter ggms-letter--7' %}
-    {% render 'ui-logo-3d-letter', letter: 'A', div_class: 'ggms-letter ggms-letter--8' %}
-    {% render 'ui-logo-3d-letter', letter: 'T', div_class: 'ggms-letter ggms-letter--9' %}
-    {% render 'ui-logo-3d-letter', letter: 'E', div_class: 'ggms-letter ggms-letter--10' %}
+    {{- '<!-- Desktop: arch logo with scale transform -->' -}}
+    <div class="hidden md:block" style="max-width: {{ pmax }}px; width: 100%; transform: scale(0.75) translateY(25px); transform-origin: left top;">
+      <div class="ggms-logo flex flex-col justify-center items-center relative pt-11" {% if animated %}data-ggms-logo{% endif %}>
+        {% render 'ui-logo-3d-letter-assets' %}
 
-    <span class="ggms-logo__bridge block w-2/5 mb-1.5 ml-1" data-ggms-bridge>
-      {% assign bridge_logo_src = 'bridge-ggms.png' | asset_url %}
-      {% render 'image', src: bridge_logo_src, alt: settings.company_name %}
-    </span>
+        {% render 'ui-logo-3d-letter', letter: 'G', div_class: 'ggms-letter ggms-letter--1' %}
+        {% render 'ui-logo-3d-letter', letter: 'O', div_class: 'ggms-letter ggms-letter--2' %}
+        {% render 'ui-logo-3d-letter', letter: 'L', div_class: 'ggms-letter ggms-letter--3' %}
+        {% render 'ui-logo-3d-letter', letter: 'D', div_class: 'ggms-letter ggms-letter--4' %}
+        {% render 'ui-logo-3d-letter', letter: 'E', div_class: 'ggms-letter ggms-letter--5' %}
+        {% render 'ui-logo-3d-letter', letter: 'N', div_class: 'ggms-letter ggms-letter--6' %}
 
-    <span class="ggms-logo__bottom" data-ggms-bottom>
-      {% assign bottom_logo_src = 'medical-supplies-logo.png' | asset_url %}
-      {% render 'image', src: bottom_logo_src, alt: settings.company_name %}
-    </span>
-  </div>
-{% endif %}
+        {% render 'ui-logo-3d-letter', letter: 'G', div_class: 'ggms-letter ggms-letter--7' %}
+        {% render 'ui-logo-3d-letter', letter: 'A', div_class: 'ggms-letter ggms-letter--8' %}
+        {% render 'ui-logo-3d-letter', letter: 'T', div_class: 'ggms-letter ggms-letter--9' %}
+        {% render 'ui-logo-3d-letter', letter: 'E', div_class: 'ggms-letter ggms-letter--10' %}
+
+        <span class="ggms-logo__bridge block w-2/5 mb-1.5 ml-1" data-ggms-bridge>
+          {% assign bridge_logo_src = 'bridge-ggms.png' | asset_url %}
+          {% render 'image', src: bridge_logo_src, alt: settings.company_name %}
+        </span>
+
+        <span class="ggms-logo__bottom" data-ggms-bottom>
+          {% assign bottom_logo_src = 'medical-supplies-logo.png' | asset_url %}
+          {% render 'image', src: bottom_logo_src, alt: settings.company_name %}
+        </span>
+      </div>
+    </div>
+
+  {% endif %}
 </a>

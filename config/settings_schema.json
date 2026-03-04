@@ -187,6 +187,11 @@
       },
       {
         "type": "image_picker",
+        "id": "company_logo_flat",
+        "label": "Flat logo (mobile / compact header)"
+      },
+      {
+        "type": "image_picker",
         "id": "company_logo_secondary",
         "label": "Secondary logo (small / text)"
       },

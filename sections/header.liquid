@@ -1,13 +1,13 @@
 {% comment %}
   Section: Header
-  ------------------------------------------------------------------------------
-  Settings:
-    - menu (link_list): Shopify menu to use for primary navigation
 {% endcomment %}
 
-<header class="w-full border-b border-border bg-surface">
-  <div class="mx-auto flex max-w-page h-header items-center justify-between px-gutter">
-    <a href="{{ routes.root_url }}" class="text-base font-semibold text-text no-underline hover:text-link focus:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-surface">{{ shop.name }}</a>
+<header class="w-full border-b border-border bg-surface" data-site-header>
+  <div class="mx-auto flex max-w-page h-full items-center justify-between px-gutter">
+
+    <div class="flex items-center w-37.5 overflow-visible shrink-0">
+      {% render 'ui-logo-lockup' %}
+    </div>
 
     <div class="hidden md:block">
       {% render 'primary-nav-links', menu: section.settings.menu %}
@@ -17,6 +17,7 @@
       {% render 'primary-mobile-nav-links', menu: section.settings.menu %}
       {% render 'ui-cart-drawer' %}
     </div>
+
   </div>
 </header>
 
