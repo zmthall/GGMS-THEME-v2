@@ -1,0 +1,517 @@
+{% comment %}
+  announcement-bar
+
+  Purpose:
+  - Top-of-page announcement bar that scrolls away on page scroll (non-sticky).
+  - Ticker mode uses a centered 1000px viewport (max-w-[1000px]) and a seamless loop (no snap).
+  - Ticker duplicates items 3x so the loop reset stays behind the scene.
+  - Slider mode is seamless/infinite (uses DOM clones + transition-end jump with no visual teleport).
+
+  Blocks:
+  - announcement
+      - text (required)
+      - href (optional)
+      - intent (auto | reference | functional | external | ugc | sponsored)
+      - type (auto | internal | external)
+      - enabled (default: true)
+
+  Settings:
+  - mode: ticker | slider | rotate | static
+  - speed_seconds (ticker): seconds per loop
+  - rotate_seconds (rotate): seconds per message
+  - pause_on_hover (ticker): true/false
+  - show_dividers (ticker/static): true/false (uses | between items)
+  - edge_padding: none | sm | md | lg
+  - align: left | center
+  - background: page | surface
+  - border: true/false
+  - dismissible: true/false (stores local dismissal in localStorage)
+  - dismiss_days: days hidden after dismiss
+
+  Accessibility:
+  - prefers-reduced-motion disables ticker/rotate and shows static list.
+{% endcomment %}
+
+{%- liquid
+  assign _mode = section.settings.mode | default: 'ticker'
+  assign _speed = section.settings.speed_seconds | default: 18
+  assign _rotate = section.settings.rotate_seconds | default: 4
+  assign _pause = section.settings.pause_on_hover
+  if _pause == blank
+    assign _pause = true
+  endif
+  assign _dividers = section.settings.show_dividers
+  if _dividers == blank
+    assign _dividers = true
+  endif
+  assign _edge_padding = section.settings.edge_padding | default: 'md'
+  assign _align = section.settings.align | default: 'center'
+  assign _bg = section.settings.background | default: 'surface'
+  assign _border = section.settings.border
+  if _border == blank
+    assign _border = true
+  endif
+  assign _dismissible = section.settings.dismissible
+  if _dismissible == blank
+    assign _dismissible = false
+  endif
+  assign _dismiss_days = section.settings.dismiss_days | default: 7
+
+  assign enabled_count = 0
+  for b in section.blocks
+    if b.type == 'announcement'
+      assign b_enabled = b.settings.enabled
+      if b_enabled == blank
+        assign b_enabled = true
+      endif
+      if b_enabled and b.settings.text != blank
+        assign enabled_count = enabled_count | plus: 1
+      endif
+    endif
+  endfor
+
+  assign should_render = true
+  if enabled_count == 0
+    assign should_render = false
+  endif
+
+  assign bg_class = ''
+  if _bg == 'page'
+    assign bg_class = 'bg-page'
+  else
+    assign bg_class = 'bg-surface'
+  endif
+
+  assign border_class = ''
+  if _border
+    assign border_class = 'border-b border-border'
+  endif
+
+  assign align_class = ''
+  if _align == 'left'
+    assign align_class = 'justify-start text-left'
+  else
+    assign align_class = 'justify-center text-center'
+  endif
+
+  assign edge_class = ''
+  case _edge_padding
+    when 'none'
+      assign edge_class = 'px-0'
+    when 'sm'
+      assign edge_class = 'px-3'
+    when 'lg'
+      assign edge_class = 'px-8'
+    else
+      assign edge_class = 'px-5'
+  endcase
+
+  assign bar_id = 'AnnouncementBar-' | append: section.id
+  assign dismiss_key = 'ggms_announcement_dismiss_' | append: section.id
+
+  capture ab_items
+    for block in section.blocks
+      if block.type == 'announcement'
+        assign b_enabled = block.settings.enabled
+        if b_enabled == blank
+          assign b_enabled = true
+        endif
+        assign b_text = block.settings.text | default: ''
+        assign b_href = block.settings.href | default: ''
+        assign b_intent = block.settings.intent | default: 'auto'
+        assign b_type = block.settings.type | default: 'auto'
+        if b_enabled and b_text != blank
+          echo '<span class="inline-flex items-center whitespace-nowrap">'
+          if b_href != blank
+            render 'ui-link', href: b_href, label: b_text, intent: b_intent, type: b_type, underline: false, class: 'text-sm font-medium text-text hover:text-link-hover'
+          else
+            echo '<span class="text-sm font-medium text-text">'
+            echo b_text
+            echo '</span>'
+          endif
+          echo '</span>'
+          unless forloop.last
+            if _dividers
+              echo '<span class="mx-3 text-muted" aria-hidden="true">|</span>'
+            else
+              echo '<span class="mx-3" aria-hidden="true"></span>'
+            endif
+          endunless
+        endif
+      endif
+    endfor
+  endcapture
+-%}
+
+{% if should_render %}
+  <div id="{{ bar_id }}" class="{{ bg_class }} {{ border_class }} hidden sm:block" role="region" aria-label="Announcement">
+    <!-- Announcement bar content rendered by JavaScript for motion/rotation, with a static fallback -->
+    <div class="px-3 md:px-4">
+      <div class="mx-auto w-full max-w-250">
+        <div class="relative flex items-center {{ align_class }} py-2">
+          <div class="min-w-0 flex-1">
+            <div class="ui-ab-motion">
+              {% if _mode == 'ticker' and enabled_count > 1 %}
+                <div class="{{ edge_class }}">
+                  <div class="ui-ab-ticker {% if _pause %}ui-ab-pause{% endif %}" data-ui-ab-ticker>
+                    <div class="ui-ab-track" data-ui-ab-track style="--ab-duration: {{ _speed }}s;">
+                      <div class="ui-ab-row" data-ui-ab-row>{{ ab_items }}</div>
+                      <div class="ui-ab-row" aria-hidden="true">{{ ab_items }}</div>
+                      <div class="ui-ab-row" aria-hidden="true">{{ ab_items }}</div>
+                    </div>
+                  </div>
+                </div>
+
+              {% elsif _mode == 'slider' and enabled_count > 1 %}
+                <div class="ui-ab-slider {{ edge_class }}" data-ui-ab-slider data-ui-ab-count="{{ enabled_count | escape }}">
+                  <button type="button" class="ui-ab-arrow inline-flex h-control-sm w-control-sm items-center justify-center rounded-input text-muted hover:text-text focus:outline-none focus-visible:ring-2 focus-visible:ring-border focus-visible:ring-offset-2 focus-visible:ring-offset-page" aria-label="Previous announcement" data-ui-ab-prev><span aria-hidden="true">←</span></button>
+                  <div class="ui-ab-viewport" aria-live="polite">
+                    <div class="ui-ab-slides" data-ui-ab-slides>
+                      {% for block in section.blocks %}
+                        {%- if block.type == 'announcement' -%}
+                          {%- liquid
+                            assign b_enabled = block.settings.enabled
+                            if b_enabled == blank
+                              assign b_enabled = true
+                            endif
+                            assign b_text = block.settings.text | default: ''
+                            assign b_href = block.settings.href | default: ''
+                            assign b_intent = block.settings.intent | default: 'auto'
+                            assign b_type = block.settings.type | default: 'auto'
+                          -%}
+                          {% if b_enabled and b_text != blank %}
+                            <div class="ui-ab-slide" data-ui-ab-slide>
+                              {% if b_href != blank %}
+                                {% render 'ui-link', href: b_href, label: b_text, intent: b_intent, type: b_type, underline: false, class: 'text-sm font-medium text-text hover:text-link-hover' %}
+                              {% else %}
+                                <span class="text-sm font-medium text-text">{{ b_text }}</span>
+                              {% endif %}
+                            </div>
+                          {% endif %}
+                        {%- endif -%}
+                      {% endfor %}
+                    </div>
+                  </div>
+                  <button type="button" class="ui-ab-arrow inline-flex h-control-sm w-control-sm items-center justify-center rounded-input text-muted hover:text-text focus:outline-none focus-visible:ring-2 focus-visible:ring-border focus-visible:ring-offset-2 focus-visible:ring-offset-page" aria-label="Next announcement" data-ui-ab-next><span aria-hidden="true">→</span></button>
+                </div>
+
+              {% elsif _mode == 'rotate' and enabled_count > 1 %}
+                <div class="ui-ab-rotate {{ edge_class }}" data-ui-ab-rotate data-interval="{{ _rotate | escape }}">
+                  {% for block in section.blocks %}
+                    {%- if block.type == 'announcement' -%}
+                      {%- liquid
+                        assign b_enabled = block.settings.enabled
+                        if b_enabled == blank
+                          assign b_enabled = true
+                        endif
+                        assign b_text = block.settings.text | default: ''
+                        assign b_href = block.settings.href | default: ''
+                        assign b_intent = block.settings.intent | default: 'auto'
+                        assign b_type = block.settings.type | default: 'auto'
+                      -%}
+                      {% if b_enabled and b_text != blank %}
+                        <div class="ui-ab-rot-slide {% if forloop.first %}is-active{% endif %}" data-ui-ab-rot-slide>
+                          {% if b_href != blank %}
+                            {% render 'ui-link', href: b_href, label: b_text, intent: b_intent, type: b_type, underline: false, class: 'text-sm font-medium text-text hover:text-link-hover' %}
+                          {% else %}
+                            <span class="text-sm font-medium text-text">{{ b_text }}</span>
+                          {% endif %}
+                        </div>
+                      {% endif %}
+                    {%- endif -%}
+                  {% endfor %}
+                </div>
+
+              {% else %}
+                <div class="flex flex-wrap items-center {{ edge_class }} gap-x-3 gap-y-1">{{ ab_items }}</div>
+              {% endif %}
+            </div>
+
+            <div class="ui-ab-reduced">
+              <div class="flex flex-wrap items-center {{ edge_class }} gap-x-3 gap-y-1">{{ ab_items }}</div>
+            </div>
+          </div>
+
+          {% if _dismissible %}
+            <button type="button" class="ml-3 inline-flex h-control-sm w-control-sm items-center justify-center rounded-input text-muted hover:text-text focus:outline-none focus-visible:ring-2 focus-visible:ring-border focus-visible:ring-offset-2 focus-visible:ring-offset-page" aria-label="Dismiss announcement bar" data-ui-ab-dismiss data-ui-ab-key="{{ dismiss_key | escape }}" data-ui-ab-days="{{ _dismiss_days | escape }}"><span aria-hidden="true">×</span></button>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <style>
+      #{{ bar_id }} .ui-ab-ticker{position:relative;overflow:hidden;-webkit-mask-image:linear-gradient(to right, transparent, #000 24px, #000 calc(100% - 24px), transparent);mask-image:linear-gradient(to right, transparent, #000 24px, #000 calc(100% - 24px), transparent)}
+      #{{ bar_id }} .ui-ab-track{display:flex;white-space:nowrap;will-change:transform;animation:ui_ab_scroll var(--ab-duration,18s) linear infinite}
+      #{{ bar_id }} .ui-ab-row{display:inline-flex;align-items:center;padding-right:2rem}
+      #{{ bar_id }} .ui-ab-pause:hover .ui-ab-track{animation-play-state:paused}
+      @keyframes ui_ab_scroll{0%{transform:translateX(0)}100%{transform:translateX(calc(-1px * var(--ab-shift, 0)))}}
+
+      #{{ bar_id }} .ui-ab-slider{display:flex;align-items:center;gap:0.75rem}
+      #{{ bar_id }} .ui-ab-viewport{overflow:hidden;min-width:0;flex:1}
+      #{{ bar_id }} .ui-ab-slides{display:flex;transform:translateX(0);transition:transform 220ms ease}
+      #{{ bar_id }} .ui-ab-slide{flex:0 0 100%;min-width:0;display:flex;justify-content:center}
+      #{{ bar_id }} .ui-ab-slide > *{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+      #{{ bar_id }} .ui-ab-rotate{position:relative;min-height:1.5rem}
+      #{{ bar_id }} .ui-ab-rot-slide{display:none}
+      #{{ bar_id }} .ui-ab-rot-slide.is-active{display:block}
+
+      #{{ bar_id }} .ui-ab-reduced{display:none}
+      @media (prefers-reduced-motion: reduce){
+        #{{ bar_id }} .ui-ab-motion{display:none!important}
+        #{{ bar_id }} .ui-ab-reduced{display:block!important}
+      }
+    </style>
+
+    <script>
+      (function(){
+        var root = document.getElementById({{ bar_id | json }});
+        if(!root) return;
+        if(root.dataset.uiAbInit === '1') return;
+        root.dataset.uiAbInit = '1';
+
+        var dismissBtn = root.querySelector('[data-ui-ab-dismiss]');
+        if(dismissBtn){
+          var key = dismissBtn.getAttribute('data-ui-ab-key');
+          var days = parseInt(dismissBtn.getAttribute('data-ui-ab-days') || '7', 10);
+          try{
+            var stored = localStorage.getItem(key);
+            if(stored){
+              var until = parseInt(stored, 10);
+              if(until && Date.now() < until){
+                root.style.display = 'none';
+                return;
+              }
+            }
+          }catch(e){}
+          dismissBtn.addEventListener('click', function(){
+            try{
+              var ttl = Date.now() + (days * 24 * 60 * 60 * 1000);
+              localStorage.setItem(key, String(ttl));
+            }catch(e){}
+            root.style.display = 'none';
+          });
+        }
+
+        var reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        if(reduced) return;
+
+        var ticker = root.querySelector('[data-ui-ab-ticker]');
+        if(ticker){
+          var track = ticker.querySelector('[data-ui-ab-track]');
+          var row = ticker.querySelector('[data-ui-ab-row]');
+          var raf = null;
+          function recalc(){
+            if(!track || !row) return;
+            var w = Math.ceil(row.getBoundingClientRect().width);
+            if(!w) return;
+            track.style.setProperty('--ab-shift', String(w));
+            track.style.animation = 'none';
+            track.offsetHeight;
+            track.style.animation = '';
+          }
+          function onResize(){
+            if(raf) cancelAnimationFrame(raf);
+            raf = requestAnimationFrame(recalc);
+          }
+          recalc();
+          window.addEventListener('resize', onResize, { passive: true });
+        }
+
+        var rotator = root.querySelector('[data-ui-ab-rotate]');
+        if(rotator){
+          var interval = parseInt(rotator.getAttribute('data-interval') || '4', 10) * 1000;
+          var slides = rotator.querySelectorAll('[data-ui-ab-rot-slide]');
+          if(slides && slides.length > 1){
+            var idx = 0;
+            window.setInterval(function(){
+              slides[idx].classList.remove('is-active');
+              idx = (idx + 1) % slides.length;
+              slides[idx].classList.add('is-active');
+            }, interval);
+          }
+        }
+
+        var slider = root.querySelector('[data-ui-ab-slider]');
+        if(slider){
+          var slidesWrap = slider.querySelector('[data-ui-ab-slides]');
+          var prevBtn = slider.querySelector('[data-ui-ab-prev]');
+          var nextBtn = slider.querySelector('[data-ui-ab-next]');
+          if(!slidesWrap || !prevBtn || !nextBtn) return;
+
+          var baseSlides = Array.prototype.slice.call(slidesWrap.querySelectorAll('[data-ui-ab-slide]'));
+          if(!baseSlides || baseSlides.length < 2) return;
+
+          var transitionValue = 'transform 220ms ease';
+          var isAnimating = false;
+
+          function makeClone(node, name){
+            var c = node.cloneNode(true);
+            c.setAttribute('data-ui-ab-clone', name);
+            c.setAttribute('aria-hidden', 'true');
+            var focusables = c.querySelectorAll('a,button,input,select,textarea,[tabindex]');
+            for(var i=0;i<focusables.length;i++){
+              try{ focusables[i].setAttribute('tabindex','-1'); }catch(e){}
+            }
+            return c;
+          }
+
+          var firstReal = baseSlides[0];
+          var lastReal = baseSlides[baseSlides.length - 1];
+          var cloneFirst = makeClone(firstReal, 'first');
+          var cloneLast = makeClone(lastReal, 'last');
+
+          slidesWrap.insertBefore(cloneLast, firstReal);
+          slidesWrap.appendChild(cloneFirst);
+
+          var realCount = baseSlides.length;
+          var index = 1;
+
+          function setTransition(on){
+            slidesWrap.style.transition = on ? transitionValue : 'none';
+          }
+
+          function setX(idx){
+            slidesWrap.style.transform = 'translateX(' + (-100 * idx) + '%)';
+          }
+
+          setTransition(false);
+          setX(index);
+          slidesWrap.offsetHeight;
+          setTransition(true);
+
+          function goTo(nextIndex){
+            if(isAnimating) return;
+            isAnimating = true;
+            index = nextIndex;
+            setX(index);
+          }
+
+          prevBtn.addEventListener('click', function(){
+            goTo(index - 1);
+          });
+
+          nextBtn.addEventListener('click', function(){
+            goTo(index + 1);
+          });
+
+          slidesWrap.addEventListener('transitionend', function(e){
+            if(!e || e.propertyName !== 'transform') return;
+
+            if(index === 0){
+              setTransition(false);
+              index = realCount;
+              setX(index);
+              slidesWrap.offsetHeight;
+              setTransition(true);
+            } else if(index === realCount + 1){
+              setTransition(false);
+              index = 1;
+              setX(index);
+              slidesWrap.offsetHeight;
+              setTransition(true);
+            }
+
+            isAnimating = false;
+          });
+        }
+      })();
+    </script>
+  </div>
+{% endif %}
+
+{% schema %}
+{
+  "name": "Announcement bar",
+  "settings": [
+    {
+      "type": "select",
+      "id": "mode",
+      "label": "Mode",
+      "default": "ticker",
+      "options": [
+        { "value": "ticker", "label": "Ticker (scrolling)" },
+        { "value": "slider", "label": "Slider (arrows)" },
+        { "value": "rotate", "label": "Rotate messages" },
+        { "value": "static", "label": "Static" }
+      ]
+    },
+    { "type": "range", "id": "speed_seconds", "min": 8, "max": 40, "step": 1, "label": "Ticker speed (seconds per loop)", "default": 18 },
+    { "type": "range", "id": "rotate_seconds", "min": 2, "max": 12, "step": 1, "label": "Rotate interval (seconds)", "default": 4 },
+    { "type": "checkbox", "id": "pause_on_hover", "label": "Pause ticker on hover", "default": true },
+    { "type": "checkbox", "id": "show_dividers", "label": "Show dividers between items", "default": true },
+    {
+      "type": "select",
+      "id": "edge_padding",
+      "label": "Inner edge padding",
+      "default": "md",
+      "options": [
+        { "value": "none", "label": "None" },
+        { "value": "sm", "label": "Small" },
+        { "value": "md", "label": "Medium" },
+        { "value": "lg", "label": "Large" }
+      ]
+    },
+    {
+      "type": "select",
+      "id": "align",
+      "label": "Content alignment",
+      "default": "center",
+      "options": [
+        { "value": "left", "label": "Left" },
+        { "value": "center", "label": "Center" }
+      ]
+    },
+    {
+      "type": "select",
+      "id": "background",
+      "label": "Background",
+      "default": "surface",
+      "options": [
+        { "value": "surface", "label": "Surface" },
+        { "value": "page", "label": "Page" }
+      ]
+    },
+    { "type": "checkbox", "id": "border", "label": "Bottom border", "default": true },
+    { "type": "checkbox", "id": "dismissible", "label": "Dismissible", "default": false },
+    { "type": "range", "id": "dismiss_days", "min": 1, "max": 30, "step": 1, "label": "Dismiss duration (days)", "default": 7 }
+  ],
+  "blocks": [
+    {
+      "type": "announcement",
+      "name": "Announcement",
+      "settings": [
+        { "type": "checkbox", "id": "enabled", "label": "Enabled", "default": true },
+        { "type": "text", "id": "text", "label": "Text", "default": "Free local delivery on qualifying orders." },
+        { "type": "url", "id": "href", "label": "Link (optional)" },
+        {
+          "type": "select",
+          "id": "type",
+          "label": "Link type",
+          "default": "auto",
+          "options": [
+            { "value": "auto", "label": "Auto" },
+            { "value": "internal", "label": "Internal" },
+            { "value": "external", "label": "External (new tab)" }
+          ]
+        },
+        {
+          "type": "select",
+          "id": "intent",
+          "label": "Link intent (SEO rel)",
+          "default": "auto",
+          "options": [
+            { "value": "auto", "label": "Auto" },
+            { "value": "reference", "label": "Reference (do-follow, new tab)" },
+            { "value": "functional", "label": "Functional (same tab)" },
+            { "value": "external", "label": "External (nofollow)" },
+            { "value": "ugc", "label": "UGC (ugc nofollow)" },
+            { "value": "sponsored", "label": "Sponsored (sponsored)" }
+          ]
+        }
+      ]
+    }
+  ],
+  "max_blocks": 12
+}
+{% endschema %}

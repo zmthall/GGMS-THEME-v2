@@ -22,16 +22,19 @@
                 <h3>Inline Links</h3>
                 <div class="flex flex-col items-start gap-6">
                     <p>
-                        Lorem ipsum dolor sit amet consectetur adipisicing elit. Distinctio ipsum laboriosam recusandae cumque officiis, {% render 'ui-link', href: '#', content: 'Internal Link' %} tempore earum. Quam cum sed delectus!
+                    Lorem ipsum dolor sit amet consectetur adipisicing elit. Distinctio ipsum laboriosam recusandae cumque officiis, {% render 'ui-link', href: '#', label: 'Internal Link' %} tempore earum. Quam cum sed delectus!
                     </p>
+
                     <p>
-                        Lorem ipsum dolor sit amet consectetur adipisicing elit. Distinctio ipsum laboriosam recusandae cumque officiis, {% render 'ui-link', href: '#', variant: 'muted', content: 'Internal Link' %} tempore earum. Quam cum sed delectus!
+                    Lorem ipsum dolor sit amet consectetur adipisicing elit. Distinctio ipsum laboriosam recusandae cumque officiis, {% render 'ui-link', href: '#', variant: 'muted', label: 'Internal Link' %} tempore earum. Quam cum sed delectus!
                     </p>
+
                     <p>
-                        Lorem ipsum dolor sit amet consectetur adipisicing elit. Distinctio ipsum laboriosam recusandae cumque officiis, {% render 'ui-link', href: '#', type: 'external', content: 'External Link' %} tempore earum. Quam cum sed delectus!                 
+                    Lorem ipsum dolor sit amet consectetur adipisicing elit. Distinctio ipsum laboriosam recusandae cumque officiis, {% render 'ui-link', href: 'https://external.com/#', type: 'external', label: 'External Link' %} tempore earum. Quam cum sed delectus!
                     </p>
+
                     <p>
-                        Lorem ipsum dolor sit amet consectetur adipisicing elit. Distinctio ipsum laboriosam recusandae cumque officiis, {% render 'ui-link', href: '#', variant: 'muted', type: 'external', content: 'External Link' %} tempore earum. Quam cum sed delectus!    
+                    Lorem ipsum dolor sit amet consectetur adipisicing elit. Distinctio ipsum laboriosam recusandae cumque officiis, {% render 'ui-link', href: 'https://external.com/#', variant: 'muted', type: 'external', label: 'External Link' %} tempore earum. Quam cum sed delectus!
                     </p>
                 </div>
             </div>
@@ -455,15 +458,6 @@
             <div class="space-y-4">
                 <h3>Language Selector</h3>
             </div> {% endcomment %}
-            <div class="space-y-4">
-                <h3>Breadcrumbs</h3>
-            </div>
-            <div class="space-y-4">
-                <h3>Pagination</h3>
-            </div>
-            <div class="space-y-4">
-                <h3>Back Link Pattern</h3>
-            </div>
         </div>
 
         {% comment %} <div class="space-y-12">

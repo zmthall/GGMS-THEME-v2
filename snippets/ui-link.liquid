@@ -1,77 +1,202 @@
-{%- comment -%}
-  ui-button
+{% comment %}
+  ui-link
 
   Args:
+    - href: string (required)
     - content: HTML string (preferred "slot") OR label fallback
-    - type: (internal | external) optional (default: internal)
-    - variant: (default | muted)
-    - href: string (required; needed for links)
+    - label: string (fallback if content blank)
 
+    - type: (auto | internal | external) optional (default: auto)
+    - intent: (auto | reference | functional | external | ugc | sponsored) optional (default: auto)
+    - behavior: (auto | new_tab | same_tab) optional (default: auto)
+
+    - variant: (default | muted | icon-only) optional (default: default)
+    - underline: boolean optional (default: true)
+
+    - show_external_icon: boolean optional (default: true)
     - aria_label: required if icon-only or no visible text
+
+    - rel_override: string optional
+    - target_override: string optional
+    - disabled: boolean optional (default: false)
+    - attrs: raw attribute string optional
 {% endcomment %}
 
-{%-  liquid 
-    assign _content = content | default: ''
-    assign _type = type | default: 'internal'
-    assign _variant = variant | default: 'default'
-    assign _href = href | default: ''
+{%- liquid
+  assign _href = href | default: ''
+  assign _content = content | default: ''
+  assign _label = label | default: ''
+  assign _type = type | default: 'auto'
+  assign _intent = intent | default: 'auto'
+  assign _behavior = behavior | default: 'auto'
+  assign _variant = variant | default: 'default'
 
-    assign _aria_label = aria_label | default: ''
+  assign _underline = underline
+  if _underline == blank
+    assign _underline = true
+  endif
 
-    assign variant_classes = ''
-    case _variant
-        when 'muted'
-            assign variant_classes = 'text-muted hover:text-link-hover '
-    endcase
+  assign _show_external_icon = show_external_icon
+  if _show_external_icon == blank
+    assign _show_external_icon = true
+  endif
 
-    assign ring = 'focus-visible:ring-border focus-visible:ring-offset-page '
+  assign _aria_label = aria_label | default: ''
 
-    assign base = 'inline-flex justify-center items-center gap-1 no-underline '
-    
-    assign needs_aria = false
-    if _variant == 'icon-only'
-        assign needs_aria = true
+  assign _disabled = disabled
+  if _disabled == blank
+    assign _disabled = false
+  endif
+
+  assign _attrs = attrs | default: ''
+
+  assign is_link_missing_href = false
+  if _href == blank
+    assign is_link_missing_href = true
+  endif
+
+  assign _has_visible_text = true
+  if _variant == 'icon-only'
+    assign _has_visible_text = false
+  elsif _content == blank and _label == blank
+    assign _has_visible_text = false
+  endif
+
+  assign needs_aria = false
+  if _has_visible_text == false
+    assign needs_aria = true
+  endif
+
+  assign _is_special = false
+  if _href contains 'mailto:' or _href contains 'tel:' or _href contains 'sms:'
+    assign _is_special = true
+  endif
+
+  assign first1 = _href | slice: 0, 1
+  assign first2 = _href | slice: 0, 2
+
+  assign _is_internal = false
+  if first1 == '/' or first1 == '#'
+    assign _is_internal = true
+  elsif _href contains '://'
+    if _href contains request.host
+      assign _is_internal = true
     endif
-
-    assign is_link_missing_href = false
-    if _href == blank
-        assign is_link_missing_href = true
+  elsif first2 == '//'
+    if _href contains request.host
+      assign _is_internal = true
     endif
+  else
+    assign _is_internal = true
+  endif
 
-    assign classes = base | append: variant_classes | append: ring
-%}
+  if _type == 'internal'
+    assign _is_internal = true
+  elsif _type == 'external'
+    assign _is_internal = false
+  endif
+
+  assign _is_external = false
+  if _is_internal == false and _is_special == false
+    assign _is_external = true
+  endif
+
+  if _intent == 'auto'
+    if _is_external
+      assign _intent = 'external'
+    else
+      assign _intent = 'internal'
+    endif
+  endif
+
+  assign _target_blank = false
+  if _is_external and _is_special == false
+    if _type == 'external'
+      assign _target_blank = true
+    elsif _behavior == 'new_tab'
+      assign _target_blank = true
+    elsif _behavior == 'same_tab'
+      assign _target_blank = false
+    else
+      if _intent == 'reference' or _intent == 'ugc' or _intent == 'sponsored'
+        assign _target_blank = true
+      else
+        assign _target_blank = false
+      endif
+    endif
+  endif
+
+  assign _rel = ''
+  if _target_blank
+    assign _rel = 'noopener noreferrer'
+  endif
+
+  if _is_external and _is_special == false
+    if _intent == 'sponsored'
+      if _rel != blank
+        assign _rel = _rel | append: ' '
+      endif
+      assign _rel = _rel | append: 'sponsored'
+    elsif _intent == 'ugc'
+      if _rel != blank
+        assign _rel = _rel | append: ' '
+      endif
+      assign _rel = _rel | append: 'ugc nofollow'
+    elsif _intent == 'external'
+      if _rel != blank
+        assign _rel = _rel | append: ' '
+      endif
+      assign _rel = _rel | append: 'nofollow'
+    endif
+  endif
+
+  if rel_override != blank
+    assign _rel = rel_override
+  endif
+
+  assign _target = ''
+  if target_override != blank
+    assign _target = target_override
+  elsif _target_blank
+    assign _target = '_blank'
+  endif
+
+  assign variant_classes = ''
+  case _variant
+    when 'muted'
+      assign variant_classes = 'text-muted hover:text-link-hover '
+    else
+      assign variant_classes = 'text-link hover:text-link-hover '
+  endcase
+
+  assign ring = 'focus:outline-none focus-visible:ring-2 focus-visible:ring-border focus-visible:ring-offset-2 focus-visible:ring-offset-page '
+  assign base = 'inline-flex justify-center items-center gap-1 no-underline '
+
+  assign classes = base | append: variant_classes | append: ring
+
+  assign should_show_external_icon = false
+  if _is_external and _is_special == false and _show_external_icon
+    assign should_show_external_icon = true
+  endif
+-%}
 
 {%- if _href != blank -%}
-    <a
-        href="{{ _href }}"
-        class="{{ classes | strip }}"
-        {%- if type == 'external' %}
-            rel="noopener noreferrer"
-            target="_blank"
-        {%- endif %}
-        {%- if needs_aria and _aria_label != blank -%} aria-label="{{ _aria_label | escape }}"{%- endif -%}
-    {%- if _disabled -%}aria-disabled="true" tabindex="-1"{%- endif -%}
-    >
-        <span class="underline">{{ _content }}</span>
-        {%- if type == 'external' -%} 
-            <span class="inline-flex no-underline">
-                {% render 'ui-icon', name: 'external', size: '1em', class: 'text-inherit' %}
-            </span>
-        {%- endif -%}
-    </a>
-{% elsif is_link_missing_href %}
-    <span
-        after="Missing HREF"
-        class="{{ classes | strip }} pointer-events-none opacity-60"
-        aria-disabled="true"
-    {{ _attrs }}
-    >
+  <a href="{{ _href }}" class="{{ classes | strip }}" {% if _target != blank %}target="{{ _target }}"{% endif %} {% if _rel != blank %}rel="{{ _rel }}"{% endif %} {% if needs_aria and _aria_label != blank %}aria-label="{{ _aria_label | escape }}"{% endif %} {% if _disabled %}aria-disabled="true" tabindex="-1"{% endif %} {{ _attrs }}>
+    {%- if _underline -%}<span class="underline underline-offset-4">{%- endif -%}
+      {%- if _content != blank -%}{{ _content }}{%- else -%}{{ _label | escape }}{%- endif -%}
+    {%- if _underline -%}</span>{%- endif -%}
+    {%- if should_show_external_icon -%}
+      <span class="inline-flex no-underline">
+        {% render 'ui-icon', name: 'external', size: '1em', class: 'text-inherit' %}
+      </span>
+    {%- endif -%}
+    {%- if _target_blank -%}<span class="sr-only"> (opens in a new tab)</span>{%- endif -%}
+  </a>
+{%- elsif is_link_missing_href -%}
+  <span class="{{ classes | strip }} pointer-events-none opacity-60" aria-disabled="true" data-after="Missing HREF" {{ _attrs }}>
     <span class="underline underline-offset-4">
-        {{ _content }}
+      {%- if _content != blank -%}{{ _content }}{%- else -%}{{ _label | escape }}{%- endif -%}
     </span>
-
-    <span class="ml-2 no-underline text-muted">
-        (Missing HREF)
-    </span>
+    <span class="ml-2 no-underline text-muted">(Missing HREF)</span>
   </span>
 {%- endif -%}

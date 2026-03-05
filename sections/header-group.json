@@ -2,12 +2,61 @@
   "type": "header",
   "name": "t:general.header",
   "sections": {
+    "announcement-bar": {
+      "type": "announcement-bar",
+      "blocks": {
+        "a1": {
+          "type": "announcement",
+          "settings": {
+            "enabled": true,
+            "text": "Free local delivery on qualifying orders.",
+            "href": "/collections/all",
+            "type": "internal",
+            "intent": "functional"
+          }
+        },
+        "a2": {
+          "type": "announcement",
+          "settings": {
+            "enabled": true,
+            "text": "Need help? Contact our team.",
+            "href": "/pages/contact",
+            "type": "internal",
+            "intent": "functional"
+          }
+        },
+        "a3": {
+          "type": "announcement",
+          "settings": {
+            "enabled": true,
+            "text": "Sizing guide",
+            "href": "https://external.com/",
+            "type": "external",
+            "intent": "reference"
+          }
+        }
+      },
+      "block_order": ["a1", "a2", "a3"],
+      "settings": {
+        "mode": "slider",
+        "speed_seconds": 18,
+        "rotate_seconds": 4,
+        "pause_on_hover": true,
+        "show_dividers": true,
+        "edge_padding": "md",
+        "align": "center",
+        "background": "surface",
+        "border": true,
+        "dismissible": false,
+        "dismiss_days": 7
+      }
+    },
     "header": {
       "type": "header",
-      "settings": {}
+      "settings": {
+        "menu": "main-menu"
+      }
     }
   },
-  "order": [
-    "header"
-  ]
+  "order": ["announcement-bar", "header"]
 }
