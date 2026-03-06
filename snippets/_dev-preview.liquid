@@ -981,6 +981,72 @@
             </div>
         </div>
 
+        <div class="space-y-6">
+            <h2>Tooltip Components</h2>
+
+            <div class="flex flex-wrap items-center gap-6">
+                {% capture tooltip_top_trigger %}
+                {% render 'ui-button',
+                    label: 'Top Tooltip',
+                    variant: 'secondary',
+                    type: 'button',
+                    class: 'text-sm font-bold'
+                %}
+                {% endcapture %}
+                {% render 'ui-tooltip',
+                id: 'TooltipTop',
+                placement: 'top',
+                trigger: tooltip_top_trigger,
+                content: 'This tooltip appears above the trigger.'
+                %}
+
+                {% capture tooltip_bottom_trigger %}
+                {% render 'ui-button',
+                    label: 'Bottom Tooltip',
+                    variant: 'secondary',
+                    type: 'button',
+                    class: 'text-sm font-bold'
+                %}
+                {% endcapture %}
+                {% render 'ui-tooltip',
+                id: 'TooltipBottom',
+                placement: 'bottom',
+                trigger: tooltip_bottom_trigger,
+                content: 'This tooltip appears below the trigger.'
+                %}
+
+                {% capture tooltip_left_trigger %}
+                {% render 'ui-button',
+                    label: 'Left Tooltip',
+                    variant: 'secondary',
+                    type: 'button',
+                    class: 'text-sm font-bold'
+                %}
+                {% endcapture %}
+                {% render 'ui-tooltip',
+                id: 'TooltipLeft',
+                placement: 'left',
+                trigger: tooltip_left_trigger,
+                content: 'This tooltip appears to the left.'
+                %}
+
+                {% capture tooltip_right_trigger %}
+                {% render 'ui-button',
+                    label: 'Right Tooltip',
+                    variant: 'secondary',
+                    type: 'button',
+                    class: 'text-sm font-bold'
+                %}
+                {% endcapture %}
+                {% render 'ui-tooltip',
+                id: 'TooltipRight',
+                placement: 'right',
+                trigger: tooltip_right_trigger,
+                content: 'This tooltip appears to the right.'
+                %}
+            </div>
+        </div>
+
         {% comment %} <div class="space-y-12">
         <h2>Overlays & Disclosures</h2>
         <div class="space-y-4">

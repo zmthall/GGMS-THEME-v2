@@ -1,66 +1,92 @@
 {%- comment -%}
   ui-tooltip (CSS-only)
+
   Shows tooltip on:
   - hover (mouse)
   - focus-within (keyboard / click)
 
   Args:
-  - id: unique id base (required)
-  - text: tooltip content (required)
-  - position: top|bottom (default: top)
-  - icon: iconify name (default: "mdi:help-circle-outline")
-  - label: accessible label for the trigger (default: "More info")
-  - class: wrapper class (optional)
-  - trigger_class: trigger button class (optional)
+    - id: unique id base (required)
+
+    Content:
+    - text: tooltip text (preferred simple usage)
+    - content: optional captured HTML content
+
+    Placement:
+    - position: top | bottom | left | right (default: top)
+
+    Trigger options:
+    - trigger: optional captured custom trigger markup
+    - icon: icon name for default trigger (default: "mdi:help-circle-outline")
+    - label: accessible label for the trigger (default: "More info")
+
+    Classes:
+    - class: wrapper class (optional)
+    - trigger_class: trigger button class (optional)
+    - panel_class: tooltip panel class (optional)
+
+  Notes:
+    - If `trigger` is provided, it is rendered as-is inside the trigger wrapper.
+    - If `trigger` is blank, a default icon trigger button is rendered.
+    - If `content` is provided, it overrides `text`.
 {%- endcomment -%}
 
 {%- liquid
-  assign _id = id
-  assign _text = text
+  assign _id = id | default: ''
+  assign _text = text | default: ''
+  assign _content = content | default: ''
   assign _pos = position | default: 'top'
   assign _icon = icon | default: 'mdi:help-circle-outline'
   assign _label = label | default: 'More info'
   assign _class = class | default: ''
   assign _trigger_class = trigger_class | default: ''
+  assign _panel_class = panel_class | default: ''
+
+  assign _tooltip_content = _content
+  if _tooltip_content == blank
+    assign _tooltip_content = _text
+  endif
+
+  assign _pos_classes = 'bottom-full left-1/2 mb-2 -translate-x-1/2 origin-bottom'
+  case _pos
+    when 'bottom'
+      assign _pos_classes = 'top-full left-1/2 mt-2 -translate-x-1/2 origin-top'
+    when 'left'
+      assign _pos_classes = 'right-full top-1/2 mr-2 -translate-y-1/2 origin-right'
+    when 'right'
+      assign _pos_classes = 'left-full top-1/2 ml-2 -translate-y-1/2 origin-left'
+  endcase
 -%}
 
-{%- capture _pos_classes -%}
-  {%- if _pos == 'bottom' -%}
-    top-full mt-2
-  {%- else -%}
-    bottom-full mb-2
-  {%- endif -%}
-{%- endcapture -%}
+{%- if _id != blank and _tooltip_content != blank -%}
+  <span class="relative inline-flex align-middle group/tooltip {{ _class }}">
+    {%- if trigger != blank -%}
+      <span class="inline-flex items-center justify-center {{ _trigger_class }}" aria-describedby="{{ _id }}-tooltip">
+        {{ trigger }}
+      </span>
+    {%- else -%}
+      <button
+        type="button"
+        class="inline-flex items-center justify-center rounded-md text-text hover:bg-button-hover hover:text-link focus:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-surface {{ _trigger_class }}"
+        aria-describedby="{{ _id }}-tooltip"
+        aria-label="{{ _label | escape }}"
+      >
+        <span class="sr-only">{{ _label }}</span>
+        {% render 'ui-icon',
+          name: _icon,
+          size: '1.25rem',
+          class: 'text-base-icon opacity-80',
+          decorative: true
+        %}
+      </button>
+    {%- endif -%}
 
-<span class="relative inline-flex align-middle group/tooltip {{ _class }}">
-  <button
-    type="button"
-    class="inline-flex items-center justify-center rounded-md
-           focus:outline-none focus:ring-2 focus:ring-[#121B75]/30
-           {{ _trigger_class }}"
-    aria-describedby="{{ _id }}-tooltip"
-  >
-    <span class="sr-only">{{ _label }}</span>
-
-    {% render 'ui-icon',
-      name: _icon,
-      size: 'sm',
-      class: 'text-[#121B75] opacity-80',
-      decorative: true
-    %}
-  </button>
-
-  <span
-    id="{{ _id }}-tooltip"
-    role="tooltip"
-    class="pointer-events-none absolute z-50 w-max max-w-xs
-           rounded-md border border-[#e1e1e1] bg-white px-3 py-2 text-xs font-semibold text-[#1e1e1e]
-           shadow-lg opacity-0 scale-95 translate-y-1
-           transition duration-150 ease-out
-           group-hover/tooltip:opacity-100 group-hover/tooltip:scale-100 group-hover/tooltip:translate-y-0
-           group-focus-within/tooltip:opacity-100 group-focus-within/tooltip:scale-100 group-focus-within/tooltip:translate-y-0
-           left-0 {{ _pos_classes }}"
-  >
-    {{ _text }}
+    <span
+      id="{{ _id }}-tooltip"
+      role="tooltip"
+      class="pointer-events-none absolute z-dropdown w-max max-w-xs rounded-md border border-border bg-surface px-3 py-2 text-xs font-semibold leading-snug text-text shadow-md opacity-0 scale-95 transition duration-fast ease-standard group-hover/tooltip:opacity-100 group-hover/tooltip:scale-100 group-focus-within/tooltip:opacity-100 group-focus-within/tooltip:scale-100 {{ _pos_classes }} {{ _panel_class }}"
+    >
+      {{ _tooltip_content }}
+    </span>
   </span>
-</span>
+{%- endif -%}
