@@ -471,93 +471,219 @@
                 <h3>Language Selector</h3>
             </div> {% endcomment %}
         </div>
+        <div class="space-y-6">
+            <h2>Alert / Callout Components</h2>
+
+            <div class="space-y-4">
+                <h3>Inline Alerts</h3>
+
+                <div class="space-y-4">
+                {% render 'ui-alert',
+                    variant: 'info',
+                    mode: 'inline',
+                    title: 'General information',
+                    message: 'This is a neutral informational alert for guidance, notices, or general communication.'
+                %}
+
+                {% render 'ui-alert',
+                    variant: 'success',
+                    mode: 'inline',
+                    title: 'Success message',
+                    message: 'Your changes were saved successfully and everything completed as expected.'
+                %}
+
+                {% render 'ui-alert',
+                    variant: 'warning',
+                    mode: 'inline',
+                    title: 'Warning message',
+                    message: 'Please review this section before continuing because some selections may affect the outcome.'
+                %}
+
+                {% render 'ui-alert',
+                    variant: 'danger',
+                    mode: 'inline',
+                    title: 'Danger message',
+                    message: 'We could not complete your request at this time. Please correct the issue and try again.'
+                %}
+
+                {% render 'ui-alert',
+                    variant: 'cart',
+                    mode: 'inline',
+                    title: 'Cart updated',
+                    message: '1 item was added to your cart.',
+                    action_label: 'View cart',
+                    action_url: routes.cart_url
+                %}
+                </div>
+            </div>
+
+            <div class="space-y-4">
+                <h3>Compact Inline Alerts</h3>
+
+                <div class="space-y-4">
+                {% render 'ui-alert',
+                    variant: 'info',
+                    mode: 'inline',
+                    title: 'Compact info',
+                    message: 'A smaller neutral alert.',
+                    compact: true
+                %}
+
+                {% render 'ui-alert',
+                    variant: 'success',
+                    mode: 'inline',
+                    title: 'Compact success',
+                    message: 'Saved successfully.',
+                    compact: true
+                %}
+
+                {% render 'ui-alert',
+                    variant: 'warning',
+                    mode: 'inline',
+                    title: 'Compact warning',
+                    message: 'Please double-check this setting.',
+                    compact: true
+                %}
+
+                {% render 'ui-alert',
+                    variant: 'danger',
+                    mode: 'inline',
+                    title: 'Compact danger',
+                    message: 'Something went wrong.',
+                    compact: true
+                %}
+
+                {% render 'ui-alert',
+                    variant: 'cart',
+                    mode: 'inline',
+                    title: 'Compact cart',
+                    message: 'Cart quantity updated.',
+                    compact: true,
+                    action_label: 'View cart',
+                    action_url: routes.cart_url
+                %}
+                </div>
+            </div>
+
+            <div class="space-y-4">
+                <h3>Toast Style Examples</h3>
+
+                <div class="space-y-4">
+                {% render 'ui-alert',
+                    variant: 'info',
+                    mode: 'toast',
+                    title: 'Toast info',
+                    message: 'This is how an informational toast will look.',
+                    dismissible: true,
+                    compact: true
+                %}
+
+                {% render 'ui-alert',
+                    variant: 'success',
+                    mode: 'toast',
+                    title: 'Toast success',
+                    message: 'Your action completed successfully.',
+                    dismissible: true,
+                    compact: true
+                %}
+
+                {% render 'ui-alert',
+                    variant: 'warning',
+                    mode: 'toast',
+                    title: 'Toast warning',
+                    message: 'You may want to review this item.',
+                    dismissible: true,
+                    compact: true
+                %}
+
+                {% render 'ui-alert',
+                    variant: 'danger',
+                    mode: 'toast',
+                    title: 'Toast danger',
+                    message: 'We could not complete that action.',
+                    dismissible: true,
+                    compact: true
+                %}
+
+                {% render 'ui-alert',
+                    variant: 'cart',
+                    mode: 'toast',
+                    title: 'Toast cart',
+                    message: '1 item was added to your cart.',
+                    dismissible: true,
+                    compact: true,
+                    action_label: 'View cart',
+                    action_url: routes.cart_url
+                %}
+                </div>
+            </div>
+        </div>
+
+        <div class="space-y-6">
+            <h2>Inline Note Components</h2>
+
+            <div class="space-y-4">
+                <h3>Please Note</h3>
+
+                <div class="space-y-3">
+                {% render 'ui-note-inline',
+                    content: 'Insurance coverage may vary by payer and documentation.'
+                %}
+
+                {% render 'ui-note-inline',
+                    content: 'Product availability may change without notice.'
+                %}
+
+                {% render 'ui-note-inline',
+                    content: 'This item may require additional documentation before fulfillment.',
+                    class: 'text-sm'
+                %}
+
+                {% render 'ui-note-inline',
+                    label: 'Important:',
+                    content: 'Some products may ship separately depending on stock availability.'
+                %}
+                </div>
+            </div>
+        </div>
 
         {% comment %} <div class="space-y-12">
-            <h2>Header (Global)</h2>
-            <div class="space-y-4">
-                <h3>Announcement Bar</h3>
-            </div>
-            <div class="space-y-4">
-                <h3>Header Layout (desktop/mobile)</h3>
-            </div>
-            <div class="space-y-4">
-                <h3>Sticky Header</h3>
-            </div>
-            <div class="space-y-4">
-                <h3>Mobile Menu (open/close)</h3>
-            </div>
-            <div class="space-y-4">
-                <h3>Header Search Behavior</h3>
-            </div>
-            <div class="space-y-4">
-                <h3>Cart Count Display</h3>
-            </div>
-        </div> {% endcomment %}
+        <h2>Overlays & Disclosures</h2>
+        <div class="space-y-4">
+            <h3>Modal (generic)</h3>
+        </div>
+        <div class="space-y-4">
+            <h3>Drawer / Side panel (generic)</h3>
+        </div>
+        <div class="space-y-4">
+            <h3>Popover</h3>
+        </div>
+        <div class="space-y-4">
+            <h3>Tooltip</h3>
+        </div>
+        <div class="space-y-4">
+            <h3>Backdrop</h3>
+        </div>
+    </div> {% endcomment %}
 
-        {% comment %} <div class="space-y-12">
-            <h2>Footer (Global)</h2>
-            <div class="space-y-4">
-                <h3>Footer Layout grid</h3>
-            </div>
-            <div class="space-y-4">
-                <h3>Footer Link Groups</h3>
-            </div>
-            <div class="space-y-4">
-                <h3>Content Block</h3>
-            </div>
-            <div class="space-y-4">
-                <h3>Social Links</h3>
-            </div>
-            <div class="space-y-4">
-                <h3>Newsletter Signup</h3>
-            </div>
-            <div class="space-y-4">
-                <h3>Legal Row</h3>
-            </div>
-            <div class="space-y-4">
-                <h3>Payment Icons Row</h3>
-            </div>
-            <div class="space-y-4">
-                <h3>Back to Top Button</h3>
-            </div> {% endcomment %}
-
-            {% comment %} <div class="space-y-12">
-                <h2>Overlays & Disclosures</h2>
-                <div class="space-y-4">
-                    <h3>Modal (generic)</h3>
-                </div>
-                <div class="space-y-4">
-                    <h3>Drawer / Side panel (generic)</h3>
-                </div>
-                <div class="space-y-4">
-                    <h3>Popover</h3>
-                </div>
-                <div class="space-y-4">
-                    <h3>Tooltip</h3>
-                </div>
-                <div class="space-y-4">
-                    <h3>Backdrop</h3>
-                </div>
-            </div> {% endcomment %}
-
-            {% comment %} <div class="space-y-12">
-                <h2>Interaction State Standards</h2>
-                <div class="space-y-4">
-                    <h3>Hover States</h3>
-                </div>
-                <div class="space-y-4">
-                    <h3>Focus-visible States</h3>
-                </div>
-                <div class="space-y-4">
-                    <h3>Active/Pressed States</h3>
-                </div>
-                <div class="space-y-4">
-                    <h3>Disabled States</h3>
-                </div>
-                <div class="space-y-4">
-                    <h3>Error States</h3>
-                </div>
-            </div> {% endcomment %}
+    {% comment %} <div class="space-y-12">
+        <h2>Interaction State Standards</h2>
+        <div class="space-y-4">
+            <h3>Hover States</h3>
+        </div>
+        <div class="space-y-4">
+            <h3>Focus-visible States</h3>
+        </div>
+        <div class="space-y-4">
+            <h3>Active/Pressed States</h3>
+        </div>
+        <div class="space-y-4">
+            <h3>Disabled States</h3>
+        </div>
+        <div class="space-y-4">
+            <h3>Error States</h3>
+        </div>
+    </div> {% endcomment %}
     {% endcapture %}
     {% render 'layout-section', bg: 'page', content: body %}
 </div>

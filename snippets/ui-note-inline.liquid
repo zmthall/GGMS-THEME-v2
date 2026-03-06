@@ -1,0 +1,32 @@
+{% comment %}
+  ui-note-inline
+
+  Lightweight inline "Please Note" text helper.
+
+  Args:
+    - content: optional HTML/text content
+    - label: optional prefix label
+      Default: Please Note:
+    - class: optional extra wrapper classes
+
+  Usage:
+    {% render 'ui-note-inline', content: 'Insurance coverage may vary by payer and documentation.' %}
+
+    {% capture note_content %}
+      This item may require additional documentation before fulfillment.
+    {% endcapture %}
+    {% render 'ui-note-inline', content: note_content %}
+{% endcomment %}
+
+{%- liquid
+  assign _content = content | default: ''
+  assign _label = label | default: 'Please Note:'
+  assign _class = class | default: ''
+-%}
+
+{%- if _content != blank -%}
+  <div class="leading-tight text-brand-burgundy {{ _class }}">
+    <span class="font-bold underline">{{ _label }}</span>
+    {{ _content }}
+  </div>
+{%- endif -%}

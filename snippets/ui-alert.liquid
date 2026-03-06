@@ -1,0 +1,200 @@
+{% comment %}
+  ui-alert
+
+  Reusable alert / callout component for inline and toast presentation.
+
+  Args:
+    - variant: info | success | warning | danger | cart
+      Default: info
+
+    - mode: inline | toast
+      Default: inline
+
+    - id: optional wrapper id
+    - title: optional heading text
+    - message: optional body text
+    - icon: optional icon override passed to ui-icon
+    - show_icon: boolean
+      Default: true
+
+    - dismissible: boolean
+      Default:
+        - false for inline
+        - true for toast
+
+    - compact: boolean
+      Default: false
+
+    - action_label: optional action link label
+    - action_url: optional action link URL
+
+    - role_alert: boolean
+      Forces role="alert" when true.
+      Default behavior:
+        - danger => alert
+        - everything else => status
+
+    - class: optional extra wrapper classes
+
+  Notes:
+    - This snippet is presentation only.
+    - Toast runtime creation/dismiss/autohide lives in toast.js.
+    - Can still be rendered directly in Liquid for inline alerts or pre-rendered toast markup.
+{% endcomment %}
+
+{%- liquid
+  assign _variant = variant | default: 'info'
+  assign _mode = mode | default: 'inline'
+  assign _title = title | default: ''
+  assign _message = message | default: ''
+  assign _icon = icon | default: ''
+  assign _show_icon = show_icon
+  if _show_icon == blank
+    assign _show_icon = true
+  endif
+
+  assign _dismissible = dismissible
+  if _dismissible == blank
+    if _mode == 'toast'
+      assign _dismissible = true
+    else
+      assign _dismissible = false
+    endif
+  endif
+
+  assign _compact = compact
+  if _compact == blank
+    assign _compact = false
+  endif
+
+  assign _class = class | default: ''
+
+  assign _role = 'status'
+  if _variant == 'danger'
+    assign _role = 'alert'
+  endif
+  if role_alert
+    assign _role = 'alert'
+  endif
+
+  assign _icon_name = _icon
+  if _icon_name == blank
+    case _variant
+      when 'success'
+        assign _icon_name = 'solar:check-circle-bold'
+      when 'warning'
+        assign _icon_name = 'solar:danger-triangle-bold'
+      when 'danger'
+        assign _icon_name = 'solar:close-circle-bold'
+      when 'cart'
+        assign _icon_name = 'solar:cart-large-2-bold'
+      else
+        assign _icon_name = 'solar:info-circle-bold'
+    endcase
+  endif
+
+  assign _wrapper_base = 'relative border-2 text-text'
+  assign _layout_base = 'flex items-start gap-3'
+  assign _content_base = 'min-w-0 flex-1'
+  assign _title_base = 'font-heading font-semibold leading-tight text-text'
+  assign _message_base = 'text-text'
+  assign _action_base = 'inline-flex items-center font-semibold underline underline-offset-4 transition-colors duration-fast ease-standard'
+  assign _dismiss_base = 'inline-flex shrink-0 items-center justify-center rounded-full text-muted transition-colors duration-fast ease-standard hover:bg-button-hover hover:text-text focus:outline-none focus:ring-2 focus:ring-focus'
+
+  if _compact
+    assign _padding_class = 'p-3'
+    assign _icon_wrap_size = 'h-9 w-9'
+    assign _icon_size = 'sm'
+    assign _title_class = 'text-sm'
+    assign _message_class = 'text-sm leading-5'
+    assign _action_class = 'mt-2 text-sm'
+    assign _dismiss_size = 'h-8 w-8'
+  else
+    assign _padding_class = 'p-4'
+    assign _icon_wrap_size = 'h-10 w-10'
+    assign _icon_size = 'md'
+    assign _title_class = 'text-base'
+    assign _message_class = 'text-sm leading-6'
+    assign _action_class = 'mt-2 text-sm'
+    assign _dismiss_size = 'h-9 w-9'
+  endif
+
+  assign _mode_classes = ''
+  if _mode == 'toast'
+    assign _mode_classes = 'pointer-events-auto w-full max-w-full rounded-card shadow-md sm:w-[26rem]'
+  else
+    assign _mode_classes = 'w-full rounded-card'
+  endif
+
+  case _variant
+    when 'success'
+      assign _wrapper_variant = 'border-success/35 bg-success/10'
+      assign _icon_wrap_variant = 'border border-success/20 bg-success/10 text-success'
+      assign _accent_text = 'text-success'
+      assign _action_variant = 'text-success hover:text-success'
+    when 'warning'
+      assign _wrapper_variant = 'border-warning/35 bg-warning/10'
+      assign _icon_wrap_variant = 'border border-warning/20 bg-warning/10 text-warning'
+      assign _accent_text = 'text-warning'
+      assign _action_variant = 'text-warning hover:text-warning'
+    when 'danger'
+      assign _wrapper_variant = 'border-danger/40 bg-danger/10'
+      assign _icon_wrap_variant = 'border border-danger/20 bg-danger/10 text-danger'
+      assign _accent_text = 'text-danger'
+      assign _action_variant = 'text-danger hover:text-danger'
+    when 'cart'
+      assign _wrapper_variant = 'border-border bg-surface'
+      assign _icon_wrap_variant = 'border border-brand-blue/20 bg-brand-blue/10 text-brand-blue'
+      assign _accent_text = 'text-brand-blue'
+      assign _action_variant = 'text-link hover:text-link-hover'
+    else
+      assign _wrapper_variant = 'border-border bg-surface'
+      assign _icon_wrap_variant = 'border border-border bg-page text-muted'
+      assign _accent_text = 'text-muted'
+      assign _action_variant = 'text-link hover:text-link-hover'
+  endcase
+
+  if _mode == 'toast'
+    assign _wrapper_variant = _wrapper_variant | append: ' transition-all duration-normal ease-standard'
+  endif
+
+  assign _title_mt = ''
+  assign _message_mt = ''
+  if _title != blank and _message != blank
+    assign _message_mt = ' mt-1'
+  endif
+-%}
+
+{%- if _title != blank or _message != blank -%}
+  <section{% if id != blank %} id="{{ id }}"{% endif %} class="{{ _wrapper_base }} {{ _mode_classes }} {{ _wrapper_variant }} {{ _class }}" role="{{ _role }}" data-alert data-alert-variant="{{ _variant }}" data-alert-mode="{{ _mode }}">
+    <div class="{{ _layout_base }} {{ _padding_class }}">
+      {%- if _show_icon -%}
+        <div class="mt-0.5 flex {{ _icon_wrap_size }} shrink-0 items-center justify-center rounded-full {{ _icon_wrap_variant }}" aria-hidden="true">
+          {% render 'ui-icon', name: _icon_name, size: _icon_size, class: _accent_text, decorative: true %}
+        </div>
+      {%- endif -%}
+
+      <div class="{{ _content_base }}">
+        {%- if _title != blank -%}
+          <p class="{{ _title_base }} {{ _title_class }}{% if _variant == 'info' or _variant == 'cart' %}{% else %} {{ _accent_text }}{% endif %}">{{ _title }}</p>
+        {%- endif -%}
+
+        {%- if _message != blank -%}
+          <p class="{{ _message_base }} {{ _message_class }}{{ _message_mt }}">{{ _message }}</p>
+        {%- endif -%}
+
+        {%- if action_label != blank and action_url != blank -%}
+          <div class="{{ _action_class }}">
+            <a href="{{ action_url }}" class="{{ _action_base }} {{ _action_variant }}">{{ action_label }}</a>
+          </div>
+        {%- endif -%}
+      </div>
+
+      {%- if _dismissible -%}
+        <button type="button" class="{{ _dismiss_base }} {{ _dismiss_size }}" aria-label="Dismiss notification" data-alert-dismiss>
+          {% render 'ui-icon', name: 'solar:close-circle-linear', size: 'sm', class: 'text-current', decorative: true %}
+        </button>
+      {%- endif -%}
+    </div>
+  </section>
+{%- endif -%}

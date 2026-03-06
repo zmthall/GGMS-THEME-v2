@@ -60,8 +60,6 @@
 
     <script src="{{ 'ggms-cart-api.js' | asset_url }}" defer></script>
     <script src="{{ 'ggms-cart-drawer.js' | asset_url }}" defer></script>
-
-
   </head>
 
   <body>
@@ -79,5 +77,13 @@
     {% sections 'footer-group' %}
 
     {% render 'ui-icon-sprite' %}
+
+    <script>
+      window.GGMSTheme = window.GGMSTheme || {}
+      window.GGMSTheme.desktopScripts = [
+        "{{ 'toast.js' | asset_url }}"
+      ]
+    </script>
+    <script src="{{ 'desktop-scripts.js' | asset_url }}" defer></script>
   </body>
 </html>
