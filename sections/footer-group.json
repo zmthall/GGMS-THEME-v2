@@ -4,7 +4,85 @@
   "sections": {
     "footer": {
       "type": "footer",
-      "settings": {}
+      "blocks": {
+        "link_strip_zHfkcq": {
+          "type": "link_strip",
+          "settings": {
+            "heading": "Policies",
+            "menu": "policies-conditions"
+          }
+        },
+        "menu_rb3J8z": {
+          "type": "menu",
+          "settings": {
+            "column": "3",
+            "heading": "Quick Links",
+            "menu": "footer-top"
+          }
+        },
+        "social_icons_cD4faG": {
+          "type": "social_icons",
+          "settings": {
+            "column": "3",
+            "heading": "Follow Us"
+          }
+        },
+        "richtext_AYmJLi": {
+          "type": "richtext",
+          "settings": {
+            "column": "2",
+            "heading": "Insurance & Billing",
+            "text": "<p>We can help you understand coverage basics and next steps. We focus on clear guidance—no pressure.</p>",
+            "cta_label": "Reach out",
+            "cta_link": "shopify://pages/contact-us"
+          }
+        },
+        "newsletter_FRVLVx": {
+          "type": "newsletter",
+          "settings": {
+            "column": "2",
+            "heading": "Updates & Education",
+            "text": "Get practical tips, product education, and store updates.",
+            "placeholder": "Email address",
+            "button_label": "Subscribe"
+          }
+        },
+        "contact_YRPpdX": {
+          "type": "contact",
+          "settings": {
+            "column": "1",
+            "heading": "Golden Gate Medical Supply",
+            "subheading": "Your Gateway to Better Health",
+            "location_url": "",
+            "contact_label": "Contact Us",
+            "contact_link": "",
+            "hours": "<p>Mon-Fri: 8am-4pm</p>",
+            "division_line": "A Division of Golden Gate Manor Inc."
+          }
+        }
+      },
+      "block_order": [
+        "link_strip_zHfkcq",
+        "menu_rb3J8z",
+        "social_icons_cD4faG",
+        "richtext_AYmJLi",
+        "newsletter_FRVLVx",
+        "contact_YRPpdX"
+      ],
+      "settings": {
+        "show_help_strip": true,
+        "help_heading": "Need help choosing the right equipment?",
+        "help_text": "Call us and we'll help you figure out what you need and what coverage may apply.",
+        "primary_cta_mode": "phone",
+        "primary_cta_label": "Call (719) 569-7361",
+        "primary_cta_phone": "(719) 569-7361",
+        "primary_cta_url": "",
+        "secondary_cta_label": "Contact Us",
+        "secondary_cta_link": "shopify://pages/contact-us",
+        "show_policy_links": true,
+        "copyright_name": "Golden Gate Medical Supply",
+        "show_payment_icons": true
+      }
     }
   },
   "order": [
