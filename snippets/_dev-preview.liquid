@@ -647,6 +647,88 @@
             </div>
         </div>
 
+        <div class="space-y-6">
+            <h2>Loading Components</h2>
+
+            <div class="space-y-4">
+                <h3>Inline Loading Indicator</h3>
+
+                <div class="space-y-4">
+                <div class="flex items-center gap-3">
+                    <span class="text-sm text-muted">Extra small</span>
+                    {% render 'ui-loading-inline', size: 'xs' %}
+                </div>
+
+                <div class="flex items-center gap-3">
+                    <span class="text-sm text-muted">Small</span>
+                    {% render 'ui-loading-inline', size: 'sm' %}
+                </div>
+
+                <div class="flex items-center gap-3">
+                    <span class="text-sm text-muted">Medium</span>
+                    {% render 'ui-loading-inline', size: 'md' %}
+                </div>
+
+                <div class="flex items-center gap-3">
+                    <span class="text-sm text-muted">Large</span>
+                    {% render 'ui-loading-inline', size: 'lg' %}
+                </div>
+
+                <div class="flex items-center gap-3">
+                    <span class="text-sm text-muted">Brand burgundy</span>
+                    {% render 'ui-loading-inline', size: 'md', spinner_class: 'text-brand-burgundy' %}
+                </div>
+
+                <div class="rounded-card border border-border bg-surface p-6">
+                    {% render 'ui-loading-inline', size: 'lg', centered: true %}
+                </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="space-y-6">
+            <h2>Skeleton Components</h2>
+
+            <div class="space-y-4">
+                <h3>Text Skeleton</h3>
+
+                <div class="space-y-4 rounded-card border border-border bg-surface p-4">
+                {% render 'ui-skeleton', mode: 'text', lines: 4 %}
+                {% render 'ui-skeleton', mode: 'text', lines: 6 %}
+                </div>
+            </div>
+
+            <div class="space-y-4">
+                <h3>Card Skeleton</h3>
+
+                <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+                {% render 'ui-skeleton', mode: 'card', variant: 'base' %}
+                {% render 'ui-skeleton', mode: 'card', variant: 'base' %}
+                {% render 'ui-skeleton', mode: 'card', variant: 'base' %}
+                </div>
+            </div>
+
+            <div class="space-y-4">
+                <h3>Image Skeleton</h3>
+
+                <div class="grid gap-4 md:grid-cols-2">
+                {% render 'ui-skeleton', mode: 'image', variant: 'base', aspect_class: 'aspect-video' %}
+                {% render 'ui-skeleton', mode: 'image', variant: 'base', aspect_class: 'aspect-square' %}
+                </div>
+            </div>
+
+            <div class="space-y-4">
+                <h3>Product Skeleton</h3>
+
+                <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                {% render 'ui-skeleton', mode: 'product', variant: 'base' %}
+                {% render 'ui-skeleton', mode: 'product', variant: 'base' %}
+                {% render 'ui-skeleton', mode: 'product', variant: 'base' %}
+                {% render 'ui-skeleton', mode: 'product', variant: 'base' %}
+                </div>
+            </div>
+        </div>
+
         {% comment %} <div class="space-y-12">
         <h2>Overlays & Disclosures</h2>
         <div class="space-y-4">

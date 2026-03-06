@@ -1,0 +1,177 @@
+{% comment %}
+  ui-skeleton
+
+  Reusable skeleton loading component.
+
+  Args:
+    - mode: text | card | image | product
+      Default: text
+
+    - variant: expandable variant key
+      Defaults:
+        - text -> base
+        - card -> base
+        - image -> base
+        - product -> base
+
+    - class: optional extra wrapper classes
+
+    Text mode:
+      - lines: number of lines (default: 4)
+
+    Image mode:
+      - aspect_class: optional aspect ratio class (default: 'aspect-square')
+      - image_height_class: optional height class override
+
+    Notes:
+      - Uses animate-pulse for a soft loading effect
+      - Uses theme token classes only so it works in light/dark/system modes
+      - Intended as a layout placeholder, not a text-based loader
+{% endcomment %}
+
+{%- liquid
+  assign _mode = mode | default: 'text'
+  assign _variant = variant | default: 'base'
+  assign _class = class | default: ''
+
+  assign _lines = lines | default: 4
+
+  assign _aspect_class = aspect_class | default: 'aspect-square'
+  assign _image_height_class = image_height_class | default: ''
+
+  assign _wrapper_base = 'animate-pulse'
+  assign _block = 'bg-border/60'
+  assign _block_soft = 'bg-border/40'
+  assign _card_shell = 'rounded-card border border-border bg-surface'
+-%}
+
+{%- if _mode == 'text' -%}
+  <div class="{{ _wrapper_base }} w-full space-y-3 {{ _class }}" aria-hidden="true" data-skeleton data-skeleton-mode="text" data-skeleton-variant="{{ _variant }}">
+    {%- for i in (1.._lines) -%}
+      {%- liquid
+        assign _line_width = 'w-full'
+        if forloop.last
+          assign _line_width = 'w-3/4'
+        elsif forloop.index == 2
+          assign _line_width = 'w-11/12'
+        elsif forloop.index == 3
+          assign _line_width = 'w-10/12'
+        endif
+      -%}
+      <div class="h-4 rounded-md {{ _block_soft }} {{ _line_width }}"></div>
+    {%- endfor -%}
+  </div>
+
+{%- elsif _mode == 'card' -%}
+  {%- case _variant -%}
+    {%- when 'base' -%}
+      <div class="{{ _wrapper_base }} {{ _card_shell }} overflow-hidden {{ _class }}" aria-hidden="true" data-skeleton data-skeleton-mode="card" data-skeleton-variant="{{ _variant }}">
+        <div class="aspect-16/10 w-full {{ _block }}"></div>
+
+        <div class="space-y-4 p-4">
+          <div class="space-y-2">
+            <div class="h-5 w-3/4 rounded-md {{ _block }}"></div>
+            <div class="h-4 w-full rounded-md {{ _block_soft }}"></div>
+            <div class="h-4 w-10/12 rounded-md {{ _block_soft }}"></div>
+          </div>
+
+          <div class="flex items-center justify-between gap-3 pt-2">
+            <div class="h-4 w-24 rounded-md {{ _block_soft }}"></div>
+            <div class="h-10 w-28 rounded-md {{ _block }}"></div>
+          </div>
+        </div>
+      </div>
+
+    {%- else -%}
+      <div class="{{ _wrapper_base }} {{ _card_shell }} overflow-hidden {{ _class }}" aria-hidden="true" data-skeleton data-skeleton-mode="card" data-skeleton-variant="{{ _variant }}">
+        <div class="aspect-16/10 w-full {{ _block }}"></div>
+
+        <div class="space-y-4 p-4">
+          <div class="space-y-2">
+            <div class="h-5 w-3/4 rounded-md {{ _block }}"></div>
+            <div class="h-4 w-full rounded-md {{ _block_soft }}"></div>
+            <div class="h-4 w-10/12 rounded-md {{ _block_soft }}"></div>
+          </div>
+
+          <div class="flex items-center justify-between gap-3 pt-2">
+            <div class="h-4 w-24 rounded-md {{ _block_soft }}"></div>
+            <div class="h-10 w-28 rounded-md {{ _block }}"></div>
+          </div>
+        </div>
+      </div>
+  {%- endcase -%}
+
+{%- elsif _mode == 'image' -%}
+  {%- case _variant -%}
+    {%- when 'base' -%}
+      <div class="{{ _wrapper_base }} self-start {{ _class }}" aria-hidden="true" data-skeleton data-skeleton-mode="image" data-skeleton-variant="{{ _variant }}">
+        {%- if _image_height_class != blank -%}
+          <div class="w-full overflow-hidden rounded-card border border-border bg-surface {{ _image_height_class }}">
+            <div class="h-full w-full {{ _block }}"></div>
+          </div>
+        {%- else -%}
+          <div class="w-full overflow-hidden rounded-card border border-border bg-surface {{ _aspect_class }}">
+            <div class="h-full w-full {{ _block }}"></div>
+          </div>
+        {%- endif -%}
+      </div>
+
+    {%- else -%}
+      <div class="{{ _wrapper_base }} self-start {{ _class }}" aria-hidden="true" data-skeleton data-skeleton-mode="image" data-skeleton-variant="{{ _variant }}">
+        {%- if _image_height_class != blank -%}
+          <div class="w-full overflow-hidden rounded-card border border-border bg-surface {{ _image_height_class }}">
+            <div class="h-full w-full {{ _block }}"></div>
+          </div>
+        {%- else -%}
+          <div class="w-full overflow-hidden rounded-card border border-border bg-surface {{ _aspect_class }}">
+            <div class="h-full w-full {{ _block }}"></div>
+          </div>
+        {%- endif -%}
+      </div>
+  {%- endcase -%}
+
+{%- elsif _mode == 'product' -%}
+  {%- case _variant -%}
+    {%- when 'base' -%}
+      <div class="{{ _wrapper_base }} {{ _card_shell }} overflow-hidden {{ _class }}" aria-hidden="true" data-skeleton data-skeleton-mode="product" data-skeleton-variant="{{ _variant }}">
+        <div class="aspect-square w-full {{ _block }}"></div>
+
+        <div class="space-y-4 p-4">
+          <div class="space-y-2">
+            <div class="h-5 w-4/5 rounded-md {{ _block }}"></div>
+            <div class="h-4 w-2/3 rounded-md {{ _block_soft }}"></div>
+          </div>
+
+          <div class="space-y-3">
+            <div class="h-5 w-20 rounded-md {{ _block }}"></div>
+            <div class="h-10 w-full rounded-md {{ _block }}"></div>
+          </div>
+        </div>
+      </div>
+
+    {%- else -%}
+      <div class="{{ _wrapper_base }} {{ _card_shell }} overflow-hidden {{ _class }}" aria-hidden="true" data-skeleton data-skeleton-mode="product" data-skeleton-variant="{{ _variant }}">
+        <div class="aspect-square w-full {{ _block }}"></div>
+
+        <div class="space-y-4 p-4">
+          <div class="space-y-2">
+            <div class="h-5 w-4/5 rounded-md {{ _block }}"></div>
+            <div class="h-4 w-2/3 rounded-md {{ _block_soft }}"></div>
+          </div>
+
+          <div class="space-y-3">
+            <div class="h-5 w-20 rounded-md {{ _block }}"></div>
+            <div class="h-10 w-full rounded-md {{ _block }}"></div>
+          </div>
+        </div>
+      </div>
+  {%- endcase -%}
+
+{%- else -%}
+  <div class="{{ _wrapper_base }} w-full space-y-3 {{ _class }}" aria-hidden="true" data-skeleton data-skeleton-mode="text" data-skeleton-variant="base">
+    <div class="h-4 w-full rounded-md {{ _block_soft }}"></div>
+    <div class="h-4 w-11/12 rounded-md {{ _block_soft }}"></div>
+    <div class="h-4 w-10/12 rounded-md {{ _block_soft }}"></div>
+    <div class="h-4 w-3/4 rounded-md {{ _block_soft }}"></div>
+  </div>
+{%- endif -%}

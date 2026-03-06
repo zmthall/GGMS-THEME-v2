@@ -1,0 +1,54 @@
+{% comment %}
+  ui-loading-inline
+
+  Lightweight animated inline loading indicator.
+
+  Args:
+    - size: xs | sm | md | lg
+      Default: md
+
+    - class: optional extra wrapper classes
+    - spinner_class: optional extra classes for spinner color/styling
+    - centered: boolean
+      Default: false
+
+  Notes:
+    - Visual only; no loading text.
+    - Uses Tailwind animation utilities only.
+    - Intended for inline loading states, buttons-adjacent UI, cards, drawers, and small async areas.
+
+  Usage:
+    {% render 'ui-loading-inline' %}
+    {% render 'ui-loading-inline', size: 'sm' %}
+    {% render 'ui-loading-inline', centered: true %}
+    {% render 'ui-loading-inline', spinner_class: 'text-brand-burgundy' %}
+{% endcomment %}
+
+{%- liquid
+  assign _size = size | default: 'md'
+  assign _class = class | default: ''
+  assign _spinner_class = spinner_class | default: 'text-brand-blue'
+  assign _centered = centered
+  if _centered == blank
+    assign _centered = false
+  endif
+
+  assign _wrapper_class = 'inline-flex items-center'
+  if _centered
+    assign _wrapper_class = 'flex items-center justify-center w-full'
+  endif
+
+  assign _spinner_size = 'h-5 w-5 border-2'
+  case _size
+    when 'xs'
+      assign _spinner_size = 'h-3 w-3 border'
+    when 'sm'
+      assign _spinner_size = 'h-4 w-4 border-2'
+    when 'lg'
+      assign _spinner_size = 'h-7 w-7 border-[3px]'
+  endcase
+-%}
+
+<span class="{{ _wrapper_class }} {{ _class }}" aria-hidden="true">
+  <span class="inline-block animate-spin rounded-full border-solid border-current border-r-transparent {{ _spinner_size }} {{ _spinner_class }}"></span>
+</span>
