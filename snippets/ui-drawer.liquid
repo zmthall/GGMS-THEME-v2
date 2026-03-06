@@ -1,0 +1,169 @@
+{% comment %}
+  ui-drawer
+
+  Reusable drawer shell for overlay-based side panels.
+
+  Args:
+    - id: required unique drawer id
+    - side: left | right
+      Default: right
+
+    - title: optional visible heading text
+    - aria_label: optional dialog label fallback when title not used
+    - show_close: boolean
+      Default: true
+
+    - width_class: optional width classes for panel
+      Default:
+        - right drawer: w-full sm:w-[min(26rem,calc(100vw-2rem))]
+        - left drawer: w-[min(22rem,calc(100vw-2rem))]
+
+    - root_class: optional extra classes for drawer root
+    - layer_class: optional extra classes for fixed layer
+    - panel_class: optional extra classes for panel
+    - overlay_class: optional extra classes for overlay
+    - header_class: optional extra classes for header
+    - body_class: optional extra classes for body
+    - footer_class: optional extra classes for footer
+
+    - open_attr: optional raw attrs added to open button elsewhere if needed by consumer
+    - close_label: optional close button aria-label
+      Default: Close drawer
+
+    - body_lock: boolean
+      Default: true
+
+    - close_on_overlay: boolean
+      Default: true
+
+    - close_on_escape: boolean
+      Default: true
+
+    - initial_open: boolean
+      Default: false
+
+    - header_content: optional captured html
+    - body_content: optional captured html
+    - footer_content: optional captured html
+
+  Notes:
+    - This snippet renders only the shell/markup.
+    - Shared behavior lives in assets/overlay-drawer.js.
+    - Open triggers should use:
+        data-drawer-open="{{ id }}"
+    - Close buttons inside the drawer can use:
+        data-drawer-close
+    - The overlay can close via data-drawer-overlay.
+{% endcomment %}
+
+{%- liquid
+  assign _id = id | default: ''
+  assign _side = side | default: 'right'
+  assign _title = title | default: ''
+  assign _aria_label = aria_label | default: ''
+  assign _show_close = show_close
+  if _show_close == blank
+    assign _show_close = true
+  endif
+
+  assign _body_lock = body_lock
+  if _body_lock == blank
+    assign _body_lock = true
+  endif
+
+  assign _close_on_overlay = close_on_overlay
+  if _close_on_overlay == blank
+    assign _close_on_overlay = true
+  endif
+
+  assign _close_on_escape = close_on_escape
+  if _close_on_escape == blank
+    assign _close_on_escape = true
+  endif
+
+  assign _initial_open = initial_open
+  if _initial_open == blank
+    assign _initial_open = false
+  endif
+
+  assign _close_label = close_label | default: 'Close drawer'
+
+  assign _root_class = root_class | default: ''
+  assign _layer_class = layer_class | default: ''
+  assign _panel_class = panel_class | default: ''
+  assign _overlay_class = overlay_class | default: ''
+  assign _header_class = header_class | default: ''
+  assign _body_class = body_class | default: ''
+  assign _footer_class = footer_class | default: ''
+
+  assign _width_class = width_class | default: ''
+  if _width_class == blank
+    if _side == 'left'
+      assign _width_class = 'w-[min(22rem,calc(100vw-2rem))]'
+    else
+      assign _width_class = 'w-full sm:w-[min(26rem,calc(100vw-2rem))]'
+    endif
+  endif
+
+  assign _panel_position = 'absolute inset-y-0 right-0 translate-x-full border-l border-border'
+  if _side == 'left'
+    assign _panel_position = 'absolute inset-y-0 left-0 -translate-x-full border-r border-border'
+  endif
+
+  assign _dialog_label = _aria_label
+  if _dialog_label == blank and _title != blank
+    assign _dialog_label = _title
+  endif
+
+  assign _header_id = _id | append: '-title'
+
+  assign _layer_hidden_class = 'hidden'
+  if _initial_open
+    assign _layer_hidden_class = ''
+  endif
+
+  assign _panel_open_class = ''
+  if _initial_open
+    assign _panel_open_class = ' translate-x-0'
+  endif
+-%}
+
+{%- if _id != blank -%}
+  <div class="{{ _root_class }}" data-drawer-root data-drawer-id="{{ _id }}" data-drawer-side="{{ _side }}" data-drawer-body-lock="{% if _body_lock %}true{% else %}false{% endif %}" data-drawer-close-on-overlay="{% if _close_on_overlay %}true{% else %}false{% endif %}" data-drawer-close-on-escape="{% if _close_on_escape %}true{% else %}false{% endif %}">
+    <div class="fixed inset-0 z-drawer {{ _layer_hidden_class }} {{ _layer_class }}" data-drawer-layer id="{{ _id }}">
+      <div class="absolute inset-0 bg-overlay/60 {{ _overlay_class }}" data-drawer-overlay></div>
+
+      <div class="{{ _panel_position }} {{ _width_class }}{{ _panel_open_class }} flex h-full flex-col overflow-hidden bg-surface shadow-md transition-transform duration-normal ease-standard {{ _panel_class }}" data-drawer-panel tabindex="-1" role="dialog" aria-modal="true"{% if _title != blank %} aria-labelledby="{{ _header_id }}"{% elsif _dialog_label != blank %} aria-label="{{ _dialog_label | escape }}"{% endif %}>
+        {%- if _title != blank or _show_close or header_content != blank -%}
+          <div class="shrink-0 border-b border-border px-gutter py-2 {{ _header_class }}" data-drawer-header>
+            <div class="flex items-center justify-between gap-3">
+              <div class="min-w-0 flex-1">
+                {%- if header_content != blank -%}
+                  {{ header_content }}
+                {%- elsif _title != blank -%}
+                  <div id="{{ _header_id }}" class="text-base font-bold text-text">{{ _title }}</div>
+                {%- endif -%}
+              </div>
+
+              {%- if _show_close -%}
+                <button type="button" class="cursor-pointer inline-flex items-center justify-center rounded-md p-2 text-text hover:bg-button-hover hover:text-link focus:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-surface" data-drawer-close aria-label="{{ _close_label | escape }}">
+                  {% render 'ui-icon', name: 'cancel', size: '1.5rem', class: 'text-base-icon', decorative: true %}
+                </button>
+              {%- endif -%}
+            </div>
+          </div>
+        {%- endif -%}
+
+        <div class="min-h-0 flex-1 {{ _body_class }}" data-drawer-body>
+          {{ body_content }}
+        </div>
+
+        {%- if footer_content != blank -%}
+          <div class="shrink-0 {{ _footer_class }}" data-drawer-footer>
+            {{ footer_content }}
+          </div>
+        {%- endif -%}
+      </div>
+    </div>
+  </div>
+{%- endif -%}

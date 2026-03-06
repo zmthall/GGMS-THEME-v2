@@ -6,8 +6,11 @@
       {% render 'ui-cart-drawer' %}
 
   Notes:
-  - No inline JS in this snippet.
-  - AJAX + open/close handled in assets/ggms-cart-drawer.js
+  - Shared drawer shell/behavior comes from:
+      - snippets/ui-drawer.liquid
+      - assets/overlay-drawer.js
+  - Cart-specific AJAX + refresh handled in:
+      - assets/ggms-cart-drawer.js
 {% endcomment %}
 
 {% liquid
@@ -17,7 +20,7 @@
 %}
 
 <div class="{{ _class }}" data-cart-drawer-root id="{{ _drawer_id }}">
-  <button type="button" class="cursor-pointer inline-flex items-center justify-center rounded-md p-2 text-text hover:bg-button-hover hover:text-link focus:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-surface" data-cart-drawer-open aria-controls="{{ _drawer_id }}Panel" aria-expanded="false" aria-label="Open cart">
+  <button type="button" class="cursor-pointer inline-flex items-center justify-center rounded-md p-2 text-text hover:bg-button-hover hover:text-link focus:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-surface" data-drawer-open="{{ _drawer_id }}" aria-controls="{{ _drawer_id }}" aria-expanded="false" aria-label="Open cart">
     <span class="relative inline-flex items-center justify-center">
       {% render 'ui-icon', name: 'cart', size: '1.5rem', class: 'text-base-icon', decorative: true %}
       <span data-cart-badge-wrap class="absolute -right-2 -top-2{% if count == 0 %} hidden{% endif %}">
@@ -26,123 +29,111 @@
     </span>
   </button>
 
-  <div class="fixed inset-0 z-drawer hidden" data-cart-drawer-layer>
-    <div class="absolute inset-0 bg-overlay/60" data-cart-drawer-overlay></div>
+  {% capture cart_drawer_body %}
+    <div class="flex flex-col flex-1 min-h-0 overflow-auto sm:overflow-hidden" data-cart-drawer-content data-cart-drawer-scroll>
+      <div class="px-gutter py-4 sm:flex-1 sm:overflow-auto sm:min-h-0">
+        {% if cart.item_count == 0 %}
+          <div class="rounded-lg border border-border bg-page p-4 text-sm text-muted">Your cart is currently empty.</div>
+          <div class="mt-4">
+            <a href="{{ routes.all_products_collection_url }}" class="inline-flex items-center justify-center rounded-md bg-brand-blue px-4 py-2 text-sm font-bold text-white no-underline hover:bg-brand-burgundy focus:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-surface">Shop products</a>
+          </div>
+        {% else %}
+          <ul role="list" class="flex flex-col gap-3">
+            {% for item in cart.items %}
+              <li class="group relative rounded-lg border border-border bg-page p-3 pb-10 xs:pb-3 cursor-pointer" data-cart-item href="{{ item.url }}">
+                <a href="{{ item.url }}" class="absolute right-2 top-2 z-20 inline-flex items-center rounded-md bg-surface px-2 py-1 text-xs font-bold text-brand-blue no-underline shadow-sm opacity-0 transition-opacity duration-fast ease-standard group-hover:opacity-100 focus:opacity-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-surface xs:hidden">View item</a>
 
-    <div class="absolute inset-y-0 right-0 w-full sm:w-[min(26rem,calc(100vw-2rem))] border-l border-border bg-surface shadow-md translate-x-full transition-transform duration-normal ease-standard flex flex-col overflow-hidden" data-cart-drawer-panel id="{{ _drawer_id }}Panel" tabindex="-1" role="dialog" aria-modal="true" aria-label="Cart drawer">
-
-      <div class="shrink-0 flex items-center justify-between border-b border-border px-gutter py-2">
-        <div class="text-base font-bold text-text">Cart</div>
-        <button type="button" class="cursor-pointer inline-flex items-center justify-center rounded-md p-2 text-text hover:bg-button-hover hover:text-link focus:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-surface" data-cart-drawer-close aria-label="Close cart">
-          {% render 'ui-icon', name: 'cancel', size: '1.5rem', class: 'text-base-icon', decorative: true %}
-        </button>
-      </div>
-
-      <div class="flex flex-col flex-1 min-h-0 overflow-auto sm:overflow-hidden" data-cart-drawer-content data-cart-drawer-scroll>
-
-        <div class="px-gutter py-4 sm:flex-1 sm:overflow-auto sm:min-h-0">
-          {% if cart.item_count == 0 %}
-            <div class="rounded-lg border border-border bg-page p-4 text-sm text-muted">Your cart is currently empty.</div>
-            <div class="mt-4">
-              <a href="{{ routes.all_products_collection_url }}" class="inline-flex items-center justify-center rounded-md bg-brand-blue px-4 py-2 text-sm font-bold text-white no-underline hover:bg-brand-burgundy focus:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-surface">Shop products</a>
-            </div>
-          {% else %}
-            <ul role="list" class="flex flex-col gap-3">
-              {% for item in cart.items %}
-
-                {{- '<!-- Below xs: extra bottom padding so the absolutely positioned delete button has room -->' -}}
-                {{- '<!-- At xs+: back to normal padding, delete button is inline in the flow -->' -}}
-                <li class="group relative rounded-lg border border-border bg-page p-3 pb-10 xs:pb-3 cursor-pointer" data-cart-item href="{{ item.url }}">
-
-                  <a href="{{ item.url }}" class="absolute right-2 top-2 z-20 inline-flex items-center rounded-md bg-surface px-2 py-1 text-xs font-bold text-brand-blue no-underline shadow-sm opacity-0 transition-opacity duration-fast ease-standard group-hover:opacity-100 focus:opacity-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-surface xs:hidden">View item</a>
-
-                  <div class="relative z-10 flex gap-3">
-                    <div class="h-16 w-16 shrink-0 overflow-hidden rounded-md border border-border bg-surface">
-                      {% if item.image %}
-                        <img src="{{ item.image | image_url: width: 160 }}" alt="{{ item.image.alt | default: item.product.title | escape }}" class="h-full w-full object-cover" loading="lazy">
-                      {% endif %}
-                    </div>
-
-                    <div class="min-w-0 flex-1">
-                      <div class="flex items-start justify-between gap-3">
-                        <div class="min-w-0">
-                          <div class="text-sm font-bold text-text truncate">{{ item.product.title | escape }}</div>
-                          {% if item.variant.title != blank and item.variant.title != 'Default Title' %}
-                            <div class="mt-0.5 text-xs text-muted truncate">{{ item.variant.title | escape }}</div>
-                          {% endif %}
-                        </div>
-                        <div class="shrink-0 text-sm font-semibold text-text">{{ item.final_line_price | money }}</div>
-                      </div>
-
-                      <div class="z-30 mt-3 flex flex-wrap items-center gap-2">
-                        <form action="{{ routes.cart_change_url }}" method="post" data-cart-update-form class="flex flex-wrap items-center justify-center gap-2">
-                          <input type="hidden" name="line" value="{{ forloop.index }}">
-                          {% render 'form-stepper', id: 'CartQty-' | append: item.key, name: 'quantity', value: item.quantity, min: 1, max: 99, enable_js: false, button_class: 'size-9', input_class: 'w-12 text-sm' %}
-                          <button type="submit" class="shrink-0 min-w-17 whitespace-nowrap break-normal cursor-pointer h-control-sm rounded-md bg-brand-blue px-3 text-xs font-semibold text-white hover:bg-brand-burgundy focus:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-surface">Update</button>
-                        </form>
-
-                        {{- '<!-- xs+: inline relative in the flex row -->' -}}
-                        <a href="{{ routes.cart_change_url }}?line={{ forloop.index }}&quantity=0" data-cart-remove data-line="{{ forloop.index }}" class="hidden xs:inline-flex shrink-0 cursor-pointer h-control-sm items-center justify-center rounded-md px-2 text-brand-burgundy no-underline hover:bg-button-hover hover:text-link focus:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-surface" aria-label="Remove item" title="Remove item">
-                          {% render 'ui-icon', name: 'delete', size: '1.25rem', class: 'text-brand-burgundy', decorative: true %}
-                        </a>
-                      </div>
-                    </div>
+                <div class="relative z-10 flex gap-3">
+                  <div class="h-16 w-16 shrink-0 overflow-hidden rounded-md border border-border bg-surface">
+                    {% if item.image %}
+                      <img src="{{ item.image | image_url: width: 160 }}" alt="{{ item.image.alt | default: item.product.title | escape }}" class="h-full w-full object-cover" loading="lazy">
+                    {% endif %}
                   </div>
 
-                  {{- '<!-- Below xs: absolutely pinned to bottom-right of the card -->' -}}
-                  <a href="{{ routes.cart_change_url }}?line={{ forloop.index }}&quantity=0" data-cart-remove data-line="{{ forloop.index }}" class="xs:hidden absolute bottom-2 right-2 z-30 cursor-pointer inline-flex items-center justify-center rounded-md px-2 h-7 text-brand-burgundy no-underline hover:bg-button-hover hover:text-link focus:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-surface" aria-label="Remove item" title="Remove item">
-                    {% render 'ui-icon', name: 'delete', size: '1.25rem', class: 'text-brand-burgundy', decorative: true %}
-                  </a>
+                  <div class="min-w-0 flex-1">
+                    <div class="flex items-start justify-between gap-3">
+                      <div class="min-w-0">
+                        <div class="text-sm font-bold text-text truncate">{{ item.product.title | escape }}</div>
+                        {% if item.variant.title != blank and item.variant.title != 'Default Title' %}
+                          <div class="mt-0.5 text-xs text-muted truncate">{{ item.variant.title | escape }}</div>
+                        {% endif %}
+                      </div>
+                      <div class="shrink-0 text-sm font-semibold text-text">{{ item.final_line_price | money }}</div>
+                    </div>
 
-                </li>
-              {% endfor %}
-            </ul>
-          {% endif %}
-        </div>
+                    <div class="z-30 mt-3 flex flex-wrap items-center gap-2">
+                      <form action="{{ routes.cart_change_url }}" method="post" data-cart-update-form class="flex flex-wrap items-center justify-center gap-2">
+                        <input type="hidden" name="line" value="{{ forloop.index }}">
+                        {% render 'form-stepper', id: 'CartQty-' | append: item.key, name: 'quantity', value: item.quantity, min: 1, max: 99, enable_js: false, button_class: 'size-9', input_class: 'w-12 text-sm' %}
+                        <button type="submit" class="shrink-0 min-w-17 whitespace-nowrap break-normal cursor-pointer h-control-sm rounded-md bg-brand-blue px-3 text-xs font-semibold text-white hover:bg-brand-burgundy focus:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-surface">Update</button>
+                      </form>
 
-        {% liquid
-          assign subtotal_cents = cart.total_price | default: 0
-          assign shipping_cents = 0
-          if subtotal_cents > 0
-            if subtotal_cents < 15000
-              assign shipping_cents = 1295
-            elsif subtotal_cents < 30000
-              assign shipping_cents = 895
-            else
-              assign shipping_cents = 0
-            endif
-          endif
-          assign estimated_total_cents = subtotal_cents | plus: shipping_cents
-        %}
+                      <a href="{{ routes.cart_change_url }}?line={{ forloop.index }}&quantity=0" data-cart-remove data-line="{{ forloop.index }}" class="hidden xs:inline-flex shrink-0 cursor-pointer h-control-sm items-center justify-center rounded-md px-2 text-brand-burgundy no-underline hover:bg-button-hover hover:text-link focus:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-surface" aria-label="Remove item" title="Remove item">
+                        {% render 'ui-icon', name: 'delete', size: '1.25rem', class: 'text-brand-burgundy', decorative: true %}
+                      </a>
+                    </div>
+                  </div>
+                </div>
 
-        {% if cart.item_count > 0 %}
-          <div class="shrink-0 border-t border-border px-gutter pt-2 pb-4">
-            <div class="mt-2 flex items-center justify-between">
-              <div class="text-sm font-bold text-text">Estimated shipping</div>
-              <div class="text-sm font-bold text-text">{{ shipping_cents | money }}</div>
-            </div>
-            <div class="mt-2 flex items-center justify-between">
-              <div class="text-sm font-bold text-text">Estimated total</div>
-              <div class="text-sm font-bold text-text">{{ estimated_total_cents | money }}</div>
-            </div>
-
-            <div class="mt-3 text-xs text-muted">
-              <span>Taxes are calculated at checkout.</span>
-              <a href="/pages/shipping-policy" class="ml-1 font-semibold text-link no-underline hover:text-link-hover">Shipping Policy</a>
-              <span class="mx-1">and</span>
-              <a href="/pages/return-policy" class="font-semibold text-link no-underline hover:text-link-hover">Return Policy</a>.
-            </div>
-
-            <div class="mt-3 grid grid-cols-2 gap-2">
-              <a href="{{ routes.cart_url }}" class="inline-flex items-center justify-center rounded-md border border-border bg-surface px-4 py-2 text-sm font-bold text-text no-underline hover:bg-button-hover hover:text-link focus:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-surface">View cart</a>
-              <a href="{{ routes.checkout_url }}" class="inline-flex items-center justify-center rounded-md bg-brand-blue px-4 py-2 text-sm font-bold text-white no-underline hover:bg-brand-burgundy focus:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-surface">Checkout</a>
-            </div>
-
-            {% render 'ui-payment-icons' %}
-          </div>
+                <a href="{{ routes.cart_change_url }}?line={{ forloop.index }}&quantity=0" data-cart-remove data-line="{{ forloop.index }}" class="xs:hidden absolute bottom-2 right-2 z-30 cursor-pointer inline-flex items-center justify-center rounded-md px-2 h-7 text-brand-burgundy no-underline hover:bg-button-hover hover:text-link focus:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-surface" aria-label="Remove item" title="Remove item">
+                  {% render 'ui-icon', name: 'delete', size: '1.25rem', class: 'text-brand-burgundy', decorative: true %}
+                </a>
+              </li>
+            {% endfor %}
+          </ul>
         {% endif %}
-
       </div>
+
+      {% liquid
+        assign subtotal_cents = cart.total_price | default: 0
+        assign shipping_cents = 0
+        if subtotal_cents > 0
+          if subtotal_cents < 15000
+            assign shipping_cents = 1295
+          elsif subtotal_cents < 30000
+            assign shipping_cents = 895
+          else
+            assign shipping_cents = 0
+          endif
+        endif
+        assign estimated_total_cents = subtotal_cents | plus: shipping_cents
+      %}
+
+      {% if cart.item_count > 0 %}
+        <div class="shrink-0 border-t border-border px-gutter pt-2 pb-4">
+          <div class="mt-2 flex items-center justify-between">
+            <div class="text-sm font-bold text-text">Estimated shipping</div>
+            <div class="text-sm font-bold text-text">{{ shipping_cents | money }}</div>
+          </div>
+          <div class="mt-2 flex items-center justify-between">
+            <div class="text-sm font-bold text-text">Estimated total</div>
+            <div class="text-sm font-bold text-text">{{ estimated_total_cents | money }}</div>
+          </div>
+
+          <div class="mt-3 text-xs text-muted">
+            <span>Taxes are calculated at checkout.</span>
+            <a href="/pages/shipping-policy" class="ml-1 font-semibold text-link no-underline hover:text-link-hover">Shipping Policy</a>
+            <span class="mx-1">and</span>
+            <a href="/pages/return-policy" class="font-semibold text-link no-underline hover:text-link-hover">Return Policy</a>.
+          </div>
+
+          <div class="mt-3 grid grid-cols-2 gap-2">
+            <a href="{{ routes.cart_url }}" class="inline-flex items-center justify-center rounded-md border border-border bg-surface px-4 py-2 text-sm font-bold text-text no-underline hover:bg-button-hover hover:text-link focus:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-surface">View cart</a>
+            <a href="{{ routes.checkout_url }}" class="inline-flex items-center justify-center rounded-md bg-brand-blue px-4 py-2 text-sm font-bold text-white no-underline hover:bg-brand-burgundy focus:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-surface">Checkout</a>
+          </div>
+
+          {% render 'ui-payment-icons' %}
+        </div>
+      {% endif %}
     </div>
-  </div>
+  {% endcapture %}
+
+  {% render 'ui-drawer',
+    id: _drawer_id,
+    side: 'right',
+    title: 'Cart',
+    width_class: 'w-full sm:w-[min(26rem,calc(100vw-2rem))]',
+    body_class: 'min-h-0 flex flex-col',
+    body_content: cart_drawer_body
+  %}
 </div>

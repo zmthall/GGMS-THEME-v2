@@ -729,6 +729,73 @@
             </div>
         </div>
 
+        <div class="space-y-6">
+            <h2>Drawer Components</h2>
+            <div class="flex flex-wrap gap-3">
+                <button type="button" class="inline-flex items-center justify-center rounded-md bg-brand-blue px-4 py-2 text-sm font-bold text-white hover:bg-brand-burgundy focus:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-surface" data-drawer-open="DevRightDrawer" aria-controls="DevRightDrawer" aria-expanded="false">
+                Open Right Drawer
+                </button>
+
+                <button type="button" class="inline-flex items-center justify-center rounded-md border border-border bg-surface px-4 py-2 text-sm font-bold text-text hover:bg-button-hover hover:text-link focus:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-surface" data-drawer-open="DevLeftDrawer" aria-controls="DevLeftDrawer" aria-expanded="false">
+                Open Left Drawer
+                </button>
+            </div>
+
+            {% capture dev_right_body %}
+                <div class="flex h-full flex-col">
+                <div class="flex-1 overflow-auto px-gutter py-4">
+                    <div class="space-y-4">
+                    <p class="text-sm text-text">This is a reusable right-side drawer shell.</p>
+                    {% render 'ui-note-inline', content: 'This drawer is using the shared overlay foundation.' %}
+                    {% render 'ui-skeleton', mode: 'text', lines: 4 %}
+                    </div>
+                </div>
+                <div class="shrink-0 border-t border-border px-gutter py-4">
+                    <div class="grid grid-cols-2 gap-2">
+                    <button type="button" class="inline-flex items-center justify-center rounded-md border border-border bg-surface px-4 py-2 text-sm font-bold text-text hover:bg-button-hover hover:text-link focus:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-surface" data-drawer-close>
+                        Cancel
+                    </button>
+                    <button type="button" class="inline-flex items-center justify-center rounded-md bg-brand-blue px-4 py-2 text-sm font-bold text-white hover:bg-brand-burgundy focus:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-surface">
+                        Confirm
+                    </button>
+                    </div>
+                </div>
+                </div>
+            {% endcapture %}
+
+            {% render 'ui-drawer',
+                id: 'DevRightDrawer',
+                side: 'right',
+                title: 'Right Drawer',
+                body_content: dev_right_body
+            %}
+
+            {% capture dev_left_header %}
+                <div class="flex items-center">
+                {% render 'ui-logo-lockup', animated: false, class: 'w-32', flat_only: true %}
+                </div>
+            {% endcapture %}
+
+            {% capture dev_left_body %}
+                <div class="flex-1 overflow-auto px-gutter py-4">
+                <div class="space-y-3">
+                    <a href="#" class="block rounded-lg px-3 py-3 text-sm font-bold text-text no-underline hover:bg-button-hover hover:text-link">Home</a>
+                    <a href="#" class="block rounded-lg px-3 py-3 text-sm font-bold text-text no-underline hover:bg-button-hover hover:text-link">Products</a>
+                    <a href="#" class="block rounded-lg px-3 py-3 text-sm font-bold text-text no-underline hover:bg-button-hover hover:text-link">About</a>
+                    <a href="#" class="block rounded-lg px-3 py-3 text-sm font-bold text-text no-underline hover:bg-button-hover hover:text-link">Contact</a>
+                </div>
+                </div>
+            {% endcapture %}
+
+            {% render 'ui-drawer',
+                id: 'DevLeftDrawer',
+                side: 'left',
+                width_class: 'w-[min(22rem,calc(100vw-2rem))]',
+                header_content: dev_left_header,
+                body_content: dev_left_body
+            %}
+        </div>
+
         {% comment %} <div class="space-y-12">
         <h2>Overlays & Disclosures</h2>
         <div class="space-y-4">

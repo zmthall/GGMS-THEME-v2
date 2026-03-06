@@ -1,88 +1,176 @@
-{% doc %}
-  Renders a responsive image that might be wrapped in a link.
+{% comment %}
+  image
 
-  When `width`, `height` and `crop` are provided, the image will be rendered
-  with a fixed aspect ratio (only applies when using an `image` object).
+  Responsive image component with:
+  - optional link wrapper
+  - fixed aspect-ratio reservation when dimensions are known
+  - integrated image skeleton loading state
+  - smooth fade-in for loaded images
+  - smooth fade-out for skeleton overlay
 
-  Serves as an example of how to use the `image_url` filter and `image_tag` filter
-  as well as how you can use LiquidDoc to document your code.
+  Args:
+    - image: Shopify image object
+    - src: raw image URL fallback when no image object exists
+    - alt: alt text for src mode or fallback for image mode
+    - url: optional destination URL
+    - class: optional wrapper classes
+    - image_class: optional classes applied to the actual image element
+    - width: target width
+    - height: target height
+    - crop: crop position
+    - loading: lazy | eager (default: lazy)
+    - fetchpriority: auto | high | low (optional)
+    - show_skeleton: boolean (default: true)
 
-  @param {image} [image] - The image object to be rendered
-  @param {string} [src] - A raw image URL (asset_url/external) to render when no image object is provided
-  @param {string} [alt] - Alt text used when rendering via `src` (and as a fallback for `image`)
-  @param {string} [url] - An optional destination URL for the image
-  @param {string} [class] - Optional class to be added to the image wrapper
-  @param {number} [width] - The highest resolution width of the image to be rendered
-  @param {number} [height] - The highest resolution height of the image to be rendered
-  @param {string} [crop] - The crop position of the image
+  Notes:
+    - When width + height are known, wrapper space is reserved up front using aspect-ratio.
+    - For Shopify image objects with no explicit width/height args, the natural image aspect ratio is used.
+    - If no dimensions are available, the image still renders, but layout reservation is limited.
+{% endcomment %}
 
-  @example
-  {% render 'image', image: product.featured_image %}
-  {% render 'image', image: product.featured_image, url: product.url %}
-  {% render 'image', src: 'medical-supplies-logo.png' | asset_url, alt: 'Logo' %}
-  {% render 'image',
-    class: 'product__image',
-    image: product.featured_image,
-    url: product.url,
-    width: 1200,
-    height: 800,
-    crop: 'center',
-  %}
-{% enddoc %}
-
-{% liquid
-  assign wrapper_class = 'image'
+{%- liquid
+  assign _wrapper_class = 'relative block w-full overflow-hidden'
   if class != blank
-    assign wrapper_class = wrapper_class | append: ' ' | append: class
+    assign _wrapper_class = _wrapper_class | append: ' ' | append: class
+  endif
+
+  assign _image_class = image_class | default: ''
+  assign _loading = loading | default: 'lazy'
+  assign _fetchpriority = fetchpriority | default: ''
+  assign _show_skeleton = show_skeleton
+  if _show_skeleton == blank
+    assign _show_skeleton = true
   endif
 
   if url != blank
-    assign wrapper = 'a'
+    assign _wrapper_tag = 'a'
   else
-    assign wrapper = 'div'
+    assign _wrapper_tag = 'div'
   endif
 
-  assign has_image = false
+  assign _has_image = false
   if image != blank
-    assign has_image = true
+    assign _has_image = true
   endif
 
-  assign has_src = false
+  assign _has_src = false
   if src != blank
-    assign has_src = true
+    assign _has_src = true
   endif
 
-  if has_image
-    unless height
-      assign width = width | default: image.width
-    endunless
+  assign _alt_text = alt | default: ''
+  if _has_image and _alt_text == blank
+    assign _alt_text = image.alt | default: ''
   endif
 
-  assign alt_text = alt | default: ''
-  if has_image and alt_text == ''
-    assign alt_text = image.alt | default: ''
+  assign _render_width = width
+  assign _render_height = height
+
+  if _has_image and _render_width == blank and _render_height == blank
+    assign _render_width = image.width
   endif
-%}
 
-<{{ wrapper }} class="{{ wrapper_class }}"{% if url != blank %} href="{{ url }}"{% endif %}>
-  {% if has_image %}
-    {{ image | image_url: width: width, height: height, crop: crop | image_tag: alt: alt_text }}
-  {% elsif has_src %}
-    <img src="{{ src }}" alt="{{ alt_text | escape }}"{% if width %} width="{{ width }}"{% endif %}{% if height %} height="{{ height }}"{% endif %}>
-  {% endif %}
-</{{ wrapper }}>
+  assign _ratio_style = ''
+  assign _fixed_ratio = false
 
-{% stylesheet %}
-  .image {
-    display: block;
-    position: relative;
-    overflow: hidden;
-    width: 100%;
-    height: auto;
-  }
+  if width != blank and height != blank
+    assign _ratio_style = 'aspect-ratio: ' | append: width | append: ' / ' | append: height | append: ';'
+    assign _fixed_ratio = true
+  elsif _has_image and image.aspect_ratio != blank
+    assign _ratio_style = 'aspect-ratio: ' | append: image.aspect_ratio | append: ';'
+    assign _fixed_ratio = true
+  endif
 
-  .image > img {
-    width: 100%;
-    height: auto;
-  }
-{% endstylesheet %}
+  assign _media_shell_class = 'relative block w-full overflow-hidden bg-surface'
+  if _fixed_ratio
+    assign _media_shell_class = _media_shell_class | append: ' h-full'
+  endif
+
+  assign _img_classes = 'block w-full transition-opacity duration-normal ease-standard'
+  if _fixed_ratio
+    assign _img_classes = _img_classes | append: ' absolute inset-0 h-full object-cover'
+  else
+    assign _img_classes = _img_classes | append: ' h-auto'
+  endif
+  assign _img_classes = _img_classes | append: ' opacity-0'
+  if _image_class != blank
+    assign _img_classes = _img_classes | append: ' ' | append: _image_class
+  endif
+-%}
+
+<{{ _wrapper_tag }} class="{{ _wrapper_class }}" {% if url != blank %}href="{{ url }}"{% endif %} data-ui-image>
+  <div class="{{ _media_shell_class }}" {% if _ratio_style != blank %}style="{{ _ratio_style }}"{% endif %}>
+    {%- if _show_skeleton -%}
+      <div class="absolute inset-0 z-1 transition-opacity duration-normal ease-standard" data-ui-image-skeleton>
+        {% render 'ui-skeleton', mode: 'image', variant: 'base', class: 'h-full w-full' %}
+      </div>
+    {%- endif -%}
+
+    {%- if _has_image -%}
+      {{
+        image
+        | image_url: width: _render_width, height: _render_height, crop: crop
+        | image_tag:
+          alt: _alt_text,
+          loading: _loading,
+          class: _img_classes,
+          widths: '320, 480, 640, 768, 960, 1200, 1600, 2000',
+          fetchpriority: _fetchpriority
+      }}
+    {%- elsif _has_src -%}
+      <img
+        src="{{ src }}"
+        alt="{{ _alt_text | escape }}"
+        class="{{ _img_classes }}"
+        loading="{{ _loading }}"
+        {% if _fetchpriority != blank %}fetchpriority="{{ _fetchpriority }}"{% endif %}
+        {% if width %}width="{{ width }}"{% endif %}
+        {% if height %}height="{{ height }}"{% endif %}
+      >
+    {%- endif -%}
+  </div>
+</{{ _wrapper_tag }}>
+
+<script>
+  (() => {
+    if (window.__GGMS_IMAGE_SKELETON_LOADER__) return
+    window.__GGMS_IMAGE_SKELETON_LOADER__ = true
+
+    function markImageLoaded(img) {
+      const wrapper = img.closest('[data-ui-image]')
+      if (!wrapper) return
+
+      const skeleton = wrapper.querySelector('[data-ui-image-skeleton]')
+      img.classList.remove('opacity-0')
+      img.classList.add('opacity-100')
+
+      if (skeleton) {
+        skeleton.classList.add('opacity-0', 'pointer-events-none')
+        window.setTimeout(() => {
+          skeleton.remove()
+        }, 250)
+      }
+    }
+
+    document.addEventListener('load', (event) => {
+      const target = event.target
+      if (!(target instanceof HTMLImageElement)) return
+      if (!target.closest('[data-ui-image]')) return
+      markImageLoaded(target)
+    }, true)
+
+    function initLoadedImages() {
+      document.querySelectorAll('[data-ui-image] img').forEach((img) => {
+        if (img.complete && img.naturalWidth > 0) {
+          markImageLoaded(img)
+        }
+      })
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initLoadedImages, { once: true })
+    } else {
+      initLoadedImages()
+    }
+  })()
+</script>
