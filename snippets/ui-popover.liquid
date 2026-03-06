@@ -1,0 +1,71 @@
+{% comment %}
+  ui-popover
+
+  Reusable anchored popover shell.
+
+  Args:
+    - id: required unique popover id
+    - trigger: optional captured trigger html
+    - placement: bottom-left | bottom-right | top-left | top-right
+    - width_class: optional width classes for panel
+    - root_class: optional extra classes for popover root
+    - panel_class: optional extra classes for popover panel
+    - close_on_outside: boolean (default: true)
+    - close_on_escape: boolean (default: true)
+    - close_on_inside_click: boolean (default: false)
+    - initial_open: boolean (default: false)
+    - content: captured HTML content for the panel
+{% endcomment %}
+
+{%- liquid
+  assign _id = id | default: ''
+  assign _placement = placement | default: 'bottom-left'
+  assign _width_class = width_class | default: 'w-72'
+  assign _root_class = root_class | default: ''
+  assign _panel_class = panel_class | default: ''
+
+  assign _close_on_outside = close_on_outside
+  if _close_on_outside == blank
+    assign _close_on_outside = true
+  endif
+
+  assign _close_on_escape = close_on_escape
+  if _close_on_escape == blank
+    assign _close_on_escape = true
+  endif
+
+  assign _close_on_inside_click = close_on_inside_click
+  if _close_on_inside_click == blank
+    assign _close_on_inside_click = false
+  endif
+
+  assign _initial_open = initial_open
+  if _initial_open == blank
+    assign _initial_open = false
+  endif
+
+  assign _placement_classes = 'left-0 top-full mt-2 origin-top-left'
+  case _placement
+    when 'bottom-right'
+      assign _placement_classes = 'right-0 top-full mt-2 origin-top-right'
+    when 'top-left'
+      assign _placement_classes = 'left-0 bottom-full mb-2 origin-bottom-left'
+    when 'top-right'
+      assign _placement_classes = 'right-0 bottom-full mb-2 origin-bottom-right'
+  endcase
+
+  assign _hidden_class = 'hidden opacity-0 scale-95'
+  if _initial_open
+    assign _hidden_class = 'opacity-100 scale-100'
+  endif
+-%}
+
+{%- if _id != blank -%}
+  <div class="relative inline-block {{ _root_class }}" data-popover-root data-popover-id="{{ _id }}" data-popover-close-on-outside="{% if _close_on_outside %}true{% else %}false{% endif %}" data-popover-close-on-escape="{% if _close_on_escape %}true{% else %}false{% endif %}" data-popover-close-on-inside-click="{% if _close_on_inside_click %}true{% else %}false{% endif %}">
+    {{ trigger }}
+
+    <div class="absolute z-dropdown {{ _placement_classes }} {{ _width_class }} rounded-popover border border-border bg-surface shadow-md transition-all duration-normal ease-standard {{ _hidden_class }} {{ _panel_class }}" data-popover-panel id="{{ _id }}" role="dialog" aria-modal="false">
+      {{ content }}
+    </div>
+  </div>
+{%- endif -%}

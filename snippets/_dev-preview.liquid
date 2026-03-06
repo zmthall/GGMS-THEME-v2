@@ -732,13 +732,21 @@
         <div class="space-y-6">
             <h2>Drawer Components</h2>
             <div class="flex flex-wrap gap-3">
-                <button type="button" class="inline-flex items-center justify-center rounded-md bg-brand-blue px-4 py-2 text-sm font-bold text-white hover:bg-brand-burgundy focus:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-surface" data-drawer-open="DevRightDrawer" aria-controls="DevRightDrawer" aria-expanded="false">
-                Open Right Drawer
-                </button>
+                {% render 'ui-button',
+                    label: 'Open Right Drawer',
+                    variant: 'primary',
+                    type: 'button',
+                    class: 'text-sm font-bold',
+                    attrs: 'data-drawer-open="DevRightDrawer" aria-controls="DevRightDrawer" aria-expanded="false"'
+                %}
 
-                <button type="button" class="inline-flex items-center justify-center rounded-md border border-border bg-surface px-4 py-2 text-sm font-bold text-text hover:bg-button-hover hover:text-link focus:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-surface" data-drawer-open="DevLeftDrawer" aria-controls="DevLeftDrawer" aria-expanded="false">
-                Open Left Drawer
-                </button>
+                {% render 'ui-button',
+                    label: 'Open Left Drawer',
+                    variant: 'secondary',
+                    type: 'button',
+                    class: 'text-sm font-bold',
+                    attrs: 'data-drawer-open="DevLeftDrawer" aria-controls="DevLeftDrawer" aria-expanded="false"'
+                %}
             </div>
 
             {% capture dev_right_body %}
@@ -751,15 +759,24 @@
                     </div>
                 </div>
                 <div class="shrink-0 border-t border-border px-gutter py-4">
-                    <div class="grid grid-cols-2 gap-2">
-                    <button type="button" class="inline-flex items-center justify-center rounded-md border border-border bg-surface px-4 py-2 text-sm font-bold text-text hover:bg-button-hover hover:text-link focus:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-surface" data-drawer-close>
-                        Cancel
-                    </button>
-                    <button type="button" class="inline-flex items-center justify-center rounded-md bg-brand-blue px-4 py-2 text-sm font-bold text-white hover:bg-brand-burgundy focus:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-surface">
-                        Confirm
-                    </button>
+                    <div class="flex gap-2 justify-end">
+                        {% render 'ui-button',
+                            label: 'Cancel',
+                            variant: 'secondary',
+                            type: 'button',
+                            class: 'text-sm !px-16 font-bold',
+                            attrs: 'data-drawer-close'
+                        %}
+
+                        {% render 'ui-button',
+                            label: 'Confirm',
+                            variant: 'primary',
+                            type: 'button',
+                            class: 'text-sm !px-16 font-bold',
+                            attrs: 'data-drawer-close'
+                        %}
                     </div>
-                </div>
+                  </div>
                 </div>
             {% endcapture %}
 
@@ -857,6 +874,7 @@
                     variant: 'primary',
                     type: 'button',
                     class: 'w-full text-sm font-bold'
+                    attrs: 'data-modal-close'
                 %}
                 </div>
             {% endcapture %}
@@ -868,6 +886,99 @@
                 body_content: modal_body_confirm,
                 footer_content: modal_footer_confirm
             %}
+        </div>
+
+        <div class="space-y-6">
+            <h2>Popover Components</h2>
+
+            <div class="flex flex-wrap gap-6">
+                <div class="flex">
+                {% render 'ui-button',
+                    label: 'Open Account Popover',
+                    variant: 'secondary',
+                    type: 'button',
+                    class: 'text-sm font-bold',
+                    attrs: 'data-popover-toggle="DevPopoverAccount" aria-controls="DevPopoverAccount" aria-expanded="false"'
+                %}
+
+                {% capture popover_account_content %}
+                    <div class="p-3">
+                    <div class="mb-2 text-sm font-bold text-text">Account Menu</div>
+                    <div class="flex flex-col gap-1">
+                        <a href="#" class="block rounded-md px-3 py-2 text-sm text-text no-underline hover:bg-button-hover hover:text-link">Profile</a>
+                        <a href="#" class="block rounded-md px-3 py-2 text-sm text-text no-underline hover:bg-button-hover hover:text-link">Orders</a>
+                        <a href="#" class="block rounded-md px-3 py-2 text-sm text-text no-underline hover:bg-button-hover hover:text-link">Settings</a>
+                    </div>
+                    </div>
+                {% endcapture %}
+
+                {% render 'ui-popover',
+                    id: 'DevPopoverAccount',
+                    placement: 'bottom-left',
+                    width_class: 'w-64',
+                    content: popover_account_content
+                %}
+                </div>
+
+                <div class="flex">
+                {% render 'ui-button',
+                    label: 'Open Info Popover',
+                    variant: 'secondary',
+                    type: 'button',
+                    class: 'text-sm font-bold',
+                    attrs: 'data-popover-toggle="DevPopoverInfo" aria-controls="DevPopoverInfo" aria-expanded="false"'
+                %}
+
+                {% capture popover_info_content %}
+                    <div class="space-y-3 p-3">
+                    <div class="text-sm font-bold text-text">Popover Title</div>
+                    <p class="text-sm text-muted">Use popovers for small interactive panels, action menus, or quick supporting content.</p>
+                    <div class="flex justify-end">
+                        {% render 'ui-button',
+                        label: 'Close',
+                        variant: 'secondary',
+                        type: 'button',
+                        class: 'text-sm font-bold',
+                        attrs: 'data-popover-close="true"'
+                        %}
+                    </div>
+                    </div>
+                {% endcapture %}
+
+                {% render 'ui-popover',
+                    id: 'DevPopoverInfo',
+                    placement: 'bottom-right',
+                    width_class: 'w-72',
+                    content: popover_info_content
+                %}
+                </div>
+
+                <div class="flex">
+                {% capture popover_top_left_trigger %}
+                    {% render 'ui-button',
+                        label: 'Top Left Popover',
+                        variant: 'secondary',
+                        type: 'button',
+                        class: 'text-sm font-bold',
+                        attrs: 'data-popover-toggle="DevPopoverTopLeft" aria-controls="DevPopoverTopLeft" aria-expanded="false"'
+                    %}
+                    {% endcapture %}
+
+                    {% capture popover_top_left_content %}
+                    <div class="p-3 text-sm text-text">
+                        This one is placed above the trigger.
+                    </div>
+                    {% endcapture %}
+
+                    {% render 'ui-popover',
+                    id: 'DevPopoverTopLeft',
+                    placement: 'top-left',
+                    width_class: 'w-56',
+                    trigger: popover_top_left_trigger,
+                    content: popover_top_left_content
+                    %}
+                </div>
+            </div>
         </div>
 
         {% comment %} <div class="space-y-12">
