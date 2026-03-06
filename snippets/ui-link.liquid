@@ -10,7 +10,7 @@
     - intent: (auto | reference | functional | external | ugc | sponsored) optional (default: auto)
     - behavior: (auto | new_tab | same_tab) optional (default: auto)
 
-    - variant: (default | muted | icon-only) optional (default: default)
+    - variant: (default | muted | footer | icon-only) optional (default: default)
     - underline: boolean optional (default: true)
 
     - show_external_icon: boolean optional (default: true)
@@ -165,6 +165,8 @@
   case _variant
     when 'muted'
       assign variant_classes = 'text-muted hover:text-link-hover '
+    when 'footer'
+      assign variant_classes = 'text-muted hover:text-text '
     else
       assign variant_classes = 'text-link hover:text-link-hover '
   endcase

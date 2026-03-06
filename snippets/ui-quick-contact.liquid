@@ -2,13 +2,16 @@
   ui-quick-contact
 
   Args:
+  - mode: 'header' | 'footer' (default: header)
   - location_url: URL to your Location page (default: /pages/location)
   - class: optional wrapper classes
   - heading: optional (default: Quick contact)
   - show_heading: boolean (default true)
+  - menu: linklist handle for footer action links (default: 'contact-us')
 {%- endcomment -%}
 
 {%- liquid
+  assign _mode = mode | default: 'header'
   assign _location_url = location_url | default: '/pages/location'
   assign _class = class | default: ''
   assign _heading = heading | default: 'Quick contact'
@@ -16,6 +19,7 @@
   if _show_heading == blank
     assign _show_heading = true
   endif
+  assign _menu_handle = menu | default: 'contact-us'
 
   assign has_phone_1 = false
   if settings.company_phone_tel != blank and settings.company_phone_display != blank
@@ -33,31 +37,49 @@
   endif
 
   assign address_short = settings.company_address_line1 | append: ' | ' | append: settings.company_city | append: ' ' | append: settings.company_state
+
+  assign _link_menu = linklists[_menu_handle]
+
+  if _mode == 'footer'
+    assign _row_class = 'flex items-center gap-2 rounded-md py-1 pl-1 text-sm font-semibold text-text no-underline hover:bg-button-hover hover:text-link'
+    assign _heading_class = 'pt-1 pb-0.5 text-xs font-semibold uppercase tracking-wide text-muted'
+  else
+    assign _row_class = 'flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold text-text no-underline hover:bg-button-hover hover:text-link'
+    assign _heading_class = 'px-3 pt-2 pb-1 text-xs font-semibold uppercase tracking-wide text-muted'
+  endif
 -%}
 
 <div class="{{ _class | strip }}">
   {%- if _show_heading -%}
-    <div class="px-3 pt-2 pb-1 text-xs font-semibold uppercase tracking-wide text-muted">{{ _heading }}</div>
+    <div class="{{ _heading_class }}">{{ _heading }}</div>
   {%- endif -%}
 
   {%- if has_phone_1 -%}
-    <a href="tel:{{ settings.company_phone_tel }}" class="flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold text-text no-underline hover:bg-button-hover hover:text-link">
+    <a href="tel:{{ settings.company_phone_tel }}" class="{{ _row_class }}">
       {% render 'ui-icon', name: 'phone', size: '1.125rem', class: 'text-base-icon', decorative: true %}
       <span>{{ settings.company_phone_display }}</span>
     </a>
   {%- endif -%}
 
   {%- if has_phone_2 -%}
-    <a href="tel:{{ settings.company_phone2_tel }}" class="flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold text-text no-underline hover:bg-button-hover hover:text-link">
+    <a href="tel:{{ settings.company_phone2_tel }}" class="{{ _row_class }}">
       {% render 'ui-icon', name: 'phone', size: '1.125rem', class: 'text-base-icon', decorative: true %}
       <span>Toll Free: {{ settings.company_phone2_display }}</span>
     </a>
   {%- endif -%}
 
   {%- if has_address -%}
-    <a href="{{ _location_url }}" class="flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold text-text no-underline hover:bg-button-hover hover:text-link">
+    <a href="{{ _location_url }}" class="{{ _row_class }}">
       {% render 'ui-icon', name: 'location', size: '1.125rem', class: 'text-base-icon', decorative: true %}
       <span>{{ address_short }}</span>
     </a>
+  {%- endif -%}
+
+  {%- if _mode == 'footer' and _link_menu != blank and _link_menu.links.size > 0 -%}
+    <div class="mt-2 border-t border-border pt-2 space-y-0">
+      {%- for link in _link_menu.links -%}
+        <a href="{{ link.url }}" class="{{ _row_class }}">{{ link.title }}</a>
+      {%- endfor -%}
+    </div>
   {%- endif -%}
 </div>

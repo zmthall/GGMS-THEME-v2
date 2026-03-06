@@ -176,6 +176,52 @@
     ]
   },
   {
+    "name": "Social handles",
+    "settings": [
+      { "type": "header", "content": "Social media profiles" },
+      {
+        "type": "url",
+        "id": "social_facebook_url",
+        "label": "Facebook"
+      },
+      {
+        "type": "url",
+        "id": "social_instagram_url",
+        "label": "Instagram"
+      },
+      {
+        "type": "url",
+        "id": "social_youtube_url",
+        "label": "YouTube"
+      },
+      {
+        "type": "url",
+        "id": "social_google_url",
+        "label": "Google Business Profile"
+      },
+      {
+        "type": "url",
+        "id": "social_pinterest_url",
+        "label": "Pinterest"
+      },
+      {
+        "type": "url",
+        "id": "social_x_url",
+        "label": "X (Twitter)"
+      },
+      {
+        "type": "url",
+        "id": "social_linkedin_url",
+        "label": "LinkedIn"
+      },
+      {
+        "type": "url",
+        "id": "social_tiktok_url",
+        "label": "TikTok"
+      }
+    ]
+  },
+  {
     "name": "Company logos",
     "settings": [
       { "type": "header", "content": "Logos" },

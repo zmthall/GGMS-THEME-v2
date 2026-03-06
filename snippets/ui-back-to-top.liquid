@@ -1,0 +1,68 @@
+{% comment %}
+  ui-back-to-top
+
+  In-footer Back to top control using ui-button + ui-icon.
+  Place inside a relatively-positioned container (ex: footer with class="relative").
+
+  Args:
+    - position: 'right' | 'left' (default: 'right')
+    - offset_y: tailwind class (default: 'bottom-6')
+    - offset_x: tailwind class (default: '-right-3' or '-left-3' depending on position)
+    - class: extra wrapper classes (optional)
+    - aria_label: (default: 'Back to top')
+    - icon: iconify name (default: 'material-symbols:expand-circle-up')
+{% endcomment %}
+
+{%- liquid
+  assign _position = position | default: 'right'
+  assign _offset_y = offset_y | default: 'bottom-20'
+  assign _class = class | default: ''
+  assign _aria_label = aria_label | default: 'Back to top'
+  assign _icon = icon | default: 'material-symbols:expand-circle-up'
+
+  assign _offset_x = offset_x | default: ''
+  if _offset_x == blank
+    if _position == 'left'
+      assign _offset_x = '-left-3'
+    else
+      assign _offset_x = '-right-3'
+    endif
+  endif
+
+  assign wrap_classes = 'absolute z-10 ' | append: _offset_y | append: ' ' | append: _offset_x | append: ' ' | append: _class
+
+  assign btn_class = 'rounded-full bg-surface/90 text-muted border border-border shadow-sm backdrop-blur hover:bg-surface hover:text-text hover:border-border focus-visible:ring-border '
+-%}
+
+<div class="{{ wrap_classes | strip }}" data-ui-back-to-top>
+  {% render 'ui-button',
+    variant: 'icon-only',
+    type: 'button',
+    aria_label: 'Back to top',
+    icon_name: 'material-symbols:expand-circle-up',
+    button_icon_size: '2.0rem',
+    button_icon_color: 'text-white',
+    button_icon_hover_color: 'group-hover/button:text-brand-blue',
+    icon_bg: true,
+    icon_bg_size_class: 'h-6 w-6',
+    icon_bg_class: 'bg-brand-blue',
+    icon_bg_hover_class: 'group-hover/button:bg-white',
+    button_icon_wrap_class: 'h-6 w-6',
+    class: 'rounded-md bg-brand-blue border border-border shadow-sm p-4 pl-6 hover:bg-muted/40 backdrop-blur hover:border-border focus-visible:ring-border focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-offset-page'
+  %}
+</div>
+
+<script>
+  (() => {
+    const root = document.currentScript?.previousElementSibling;
+    if (!root || !root.matches('[data-ui-back-to-top]')) return;
+
+    const btn = root.querySelector('button,[role="button"],a');
+    if (!btn) return;
+
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }, { passive: false });
+  })();
+</script>

@@ -15,7 +15,19 @@
                     {% render 'ui-button', variant: 'ghost', content: 'Ghost Button' %}
                     {% render 'ui-button', variant: 'danger', content: 'Danger Button' %}
                     {% render 'ui-button', variant: 'link', href: '#', content: 'Link Button' %}
-                    {% render 'ui-button', variant: 'icon-only', content: 'icon-only Button' %}
+                    {% render 'ui-button',
+                        variant: 'icon-only',
+                        type: 'button',
+                        icon_name: 'material-symbols:expand-circle-up',
+                        button_icon_size: '2.0rem',
+                        button_icon_color: 'text-white',
+                        button_icon_hover_color: 'group-hover/button:text-brand-blue',
+                        icon_bg: true,
+                        icon_bg_size_class: 'h-7 w-7',
+                        icon_bg_class: 'bg-brand-blue translate-y-[-0.35px] translate-x-[-0.35px]',
+                        icon_bg_hover_class: 'group-hover/button:bg-white',
+                        button_icon_wrap_class: 'h-7 w-7',
+                    %}
                 </div>
             </div>
             <div class="space-y-4">

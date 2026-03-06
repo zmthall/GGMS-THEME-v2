@@ -1,15 +1,35 @@
-{%- comment -%}
+{% comment %}
   ui-payment-icons
 
   Shows accepted payment icons using Shopify's enabled payment types.
-{%- endcomment -%}
+
+  Params (optional):
+  - tight: boolean (default: false) -> removes extra top margins for tight strips
+  - outer_class: string -> appended to the wrapper div class
+  - ul_class: string -> appended to the ul class
+  - li_class: string -> overrides the li class (default provided)
+  - svg_class: string -> overrides the svg class (default provided)
+{% endcomment %}
 
 {%- if shop.enabled_payment_types.size > 0 -%}
-  <div class="mt-3">
-    <ul role="list" class="mt-2 flex flex-wrap items-center justify-center gap-1">
+  {%- assign _tight = tight | default: false -%}
+  {%- assign _outer_class = outer_class | default: '' -%}
+  {%- assign _ul_class = ul_class | default: '' -%}
+  {%- assign _li_class = li_class | default: 'rounded-md border border-border bg-surface p-1 leading-none' -%}
+  {%- assign _svg_class = svg_class | default: 'block w-6 h-auto' -%}
+
+  {%- assign _wrapper_mt = 'mt-3' -%}
+  {%- assign _ul_mt = 'mt-2' -%}
+  {%- if _tight -%}
+    {%- assign _wrapper_mt = '' -%}
+    {%- assign _ul_mt = '' -%}
+  {%- endif -%}
+
+  <div class="{{ _wrapper_mt }} {{ _outer_class }}">
+    <ul role="list" class="{{ _ul_mt }} flex flex-wrap items-center justify-center gap-1 {{ _ul_class }}">
       {%- for type in shop.enabled_payment_types -%}
-        <li class="rounded-md border border-border bg-surface p-1 leading-none">
-          {{ type | payment_type_svg_tag: class: 'block w-6 h-auto' }}
+        <li class="{{ _li_class }}">
+          {{ type | payment_type_svg_tag: class: _svg_class }}
         </li>
       {%- endfor -%}
     </ul>
