@@ -20,14 +20,26 @@
 %}
 
 <div class="{{ _class }}" data-cart-drawer-root id="{{ _drawer_id }}">
-  <button type="button" class="cursor-pointer inline-flex items-center justify-center rounded-md p-2 text-text hover:bg-button-hover hover:text-link focus:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-surface" data-drawer-open="{{ _drawer_id }}" aria-controls="{{ _drawer_id }}" aria-expanded="false" aria-label="Open cart">
+  {% capture cart_trigger %}
     <span class="relative inline-flex items-center justify-center">
       {% render 'ui-icon', name: 'cart', size: '1.5rem', class: 'text-base-icon', decorative: true %}
       <span data-cart-badge-wrap class="absolute -right-2 -top-2{% if count == 0 %} hidden{% endif %}">
         {% render 'ui-badge', label: count, variant: 'info', size: 'sm' %}
       </span>
     </span>
-  </button>
+  {% endcapture %}
+
+  {% capture cart_trigger_attrs %}data-drawer-open="{{ _drawer_id }}" aria-controls="{{ _drawer_id }}" aria-expanded="false"{% endcapture %}
+
+  {% render 'ui-button',
+    variant: 'icon-only-complex',
+    type: 'button',
+    setPadding: false,
+    aria_label: 'Open cart',
+    class: 'text-text hover:bg-button-hover hover:text-link focus-visible:ring-focus focus-visible:ring-offset-surface p-2',
+    attrs: cart_trigger_attrs,
+    content: cart_trigger
+  %}
 
   {% capture cart_drawer_body %}
     <div class="flex flex-col flex-1 min-h-0 overflow-auto sm:overflow-hidden" data-cart-drawer-content data-cart-drawer-scroll>
@@ -35,7 +47,12 @@
         {% if cart.item_count == 0 %}
           <div class="rounded-lg border border-border bg-page p-4 text-sm text-muted">Your cart is currently empty.</div>
           <div class="mt-4">
-            <a href="{{ routes.all_products_collection_url }}" class="inline-flex items-center justify-center rounded-md bg-brand-blue px-4 py-2 text-sm font-bold text-white no-underline hover:bg-brand-burgundy focus:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-surface">Shop products</a>
+            {% render 'ui-button',
+              href: routes.all_products_collection_url,
+              label: 'Shop products',
+              variant: 'primary',
+              class: 'text-sm font-bold no-underline'
+            %}
           </div>
         {% else %}
           <ul role="list" class="flex flex-col gap-3">
@@ -65,7 +82,12 @@
                       <form action="{{ routes.cart_change_url }}" method="post" data-cart-update-form class="flex flex-wrap items-center justify-center gap-2">
                         <input type="hidden" name="line" value="{{ forloop.index }}">
                         {% render 'form-stepper', id: 'CartQty-' | append: item.key, name: 'quantity', value: item.quantity, min: 1, max: 99, enable_js: false, button_class: 'size-9', input_class: 'w-12 text-sm' %}
-                        <button type="submit" class="shrink-0 min-w-17 whitespace-nowrap break-normal cursor-pointer h-control-sm rounded-md bg-brand-blue px-3 text-xs font-semibold text-white hover:bg-brand-burgundy focus:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-surface">Update</button>
+                        {% render 'ui-button',
+                          label: 'Update',
+                          variant: 'primary',
+                          type: 'submit',
+                          class: 'shrink-0 min-w-17 whitespace-nowrap break-normal h-control-sm px-3 text-xs font-semibold'
+                        %}
                       </form>
 
                       <a href="{{ routes.cart_change_url }}?line={{ forloop.index }}&quantity=0" data-cart-remove data-line="{{ forloop.index }}" class="hidden xs:inline-flex shrink-0 cursor-pointer h-control-sm items-center justify-center rounded-md px-2 text-brand-burgundy no-underline hover:bg-button-hover hover:text-link focus:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-surface" aria-label="Remove item" title="Remove item">
@@ -118,8 +140,18 @@
           </div>
 
           <div class="mt-3 grid grid-cols-2 gap-2">
-            <a href="{{ routes.cart_url }}" class="inline-flex items-center justify-center rounded-md border border-border bg-surface px-4 py-2 text-sm font-bold text-text no-underline hover:bg-button-hover hover:text-link focus:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-surface">View cart</a>
-            <a href="{{ routes.checkout_url }}" class="inline-flex items-center justify-center rounded-md bg-brand-blue px-4 py-2 text-sm font-bold text-white no-underline hover:bg-brand-burgundy focus:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-surface">Checkout</a>
+            {% render 'ui-button',
+              href: routes.cart_url,
+              label: 'View cart',
+              variant: 'secondary',
+              class: 'w-full text-sm font-bold no-underline'
+            %}
+            {% render 'ui-button',
+              href: routes.checkout_url,
+              label: 'Checkout',
+              variant: 'primary',
+              class: 'w-full text-sm font-bold no-underline'
+            %}
           </div>
 
           {% render 'ui-payment-icons' %}

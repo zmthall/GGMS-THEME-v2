@@ -796,6 +796,80 @@
             %}
         </div>
 
+        <div class="space-y-6">
+            <h2>Modal Components</h2>
+
+            <div class="flex flex-wrap gap-3">
+                {% render 'ui-button',
+                label: 'Open Basic Modal',
+                variant: 'primary',
+                type: 'button',
+                class: 'text-sm font-bold',
+                attrs: 'data-modal-open="DevModalBasic" aria-controls="DevModalBasic" aria-expanded="false"'
+                %}
+
+                {% render 'ui-button',
+                label: 'Open Confirm Modal',
+                variant: 'secondary',
+                type: 'button',
+                class: 'text-sm font-bold',
+                attrs: 'data-modal-open="DevModalConfirm" aria-controls="DevModalConfirm" aria-expanded="false"'
+                %}
+            </div>
+
+            {% capture modal_body_basic %}
+                <div class="space-y-4 px-gutter py-4">
+                <p class="text-sm text-text">This is a reusable modal shell using the shared overlay modal controller.</p>
+                {% render 'ui-note-inline', content: 'Use this for focused dialogs, confirmations, notices, or small forms.' %}
+                </div>
+            {% endcapture %}
+
+            {% render 'ui-modal',
+                id: 'DevModalBasic',
+                title: 'Basic Modal',
+                body_content: modal_body_basic
+            %}
+
+            {% capture modal_body_confirm %}
+                <div class="space-y-4 px-gutter py-4">
+                <p class="text-sm text-text">Are you sure you want to continue with this action?</p>
+                {% render 'ui-alert',
+                    variant: 'warning',
+                    mode: 'inline',
+                    title: 'Please review',
+                    message: 'This is a sample confirmation modal using your shared component system.',
+                    compact: true
+                %}
+                </div>
+            {% endcapture %}
+
+            {% capture modal_footer_confirm %}
+                <div class="grid grid-cols-2 gap-2 px-gutter py-4">
+                {% render 'ui-button',
+                    label: 'Cancel',
+                    variant: 'secondary',
+                    type: 'button',
+                    class: 'w-full text-sm font-bold',
+                    attrs: 'data-modal-close'
+                %}
+                {% render 'ui-button',
+                    label: 'Confirm',
+                    variant: 'primary',
+                    type: 'button',
+                    class: 'w-full text-sm font-bold'
+                %}
+                </div>
+            {% endcapture %}
+
+            {% render 'ui-modal',
+                id: 'DevModalConfirm',
+                title: 'Confirm Action',
+                size_class: 'max-w-xl',
+                body_content: modal_body_confirm,
+                footer_content: modal_footer_confirm
+            %}
+        </div>
+
         {% comment %} <div class="space-y-12">
         <h2>Overlays & Disclosures</h2>
         <div class="space-y-4">

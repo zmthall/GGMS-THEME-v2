@@ -1,0 +1,155 @@
+{% comment %}
+  ui-modal
+
+  Reusable centered modal shell.
+
+  Args:
+    - id: required unique modal id
+
+    - title: optional visible heading text
+    - aria_label: optional dialog label fallback when title not used
+    - show_close: boolean
+      Default: true
+
+    - size_class: optional max-width classes for panel
+      Default: max-w-lg
+
+    - root_class: optional extra classes for modal root
+    - layer_class: optional extra classes for fixed layer
+    - panel_class: optional extra classes for panel
+    - overlay_class: optional extra classes for overlay
+    - header_class: optional extra classes for header
+    - body_class: optional extra classes for body
+    - footer_class: optional extra classes for footer
+
+    - close_label: optional close button aria-label
+      Default: Close modal
+
+    - body_lock: boolean
+      Default: true
+
+    - close_on_overlay: boolean
+      Default: true
+
+    - close_on_escape: boolean
+      Default: true
+
+    - initial_open: boolean
+      Default: false
+
+    - header_content: optional captured html
+    - body_content: optional captured html
+    - footer_content: optional captured html
+
+  Notes:
+    - Shared behavior lives in assets/overlay-modal.js
+    - Open triggers should use:
+        data-modal-open="{{ id }}"
+    - Close buttons inside the modal can use:
+        data-modal-close
+{% endcomment %}
+
+{%- liquid
+  assign _id = id | default: ''
+  assign _title = title | default: ''
+  assign _aria_label = aria_label | default: ''
+  assign _show_close = show_close
+  if _show_close == blank
+    assign _show_close = true
+  endif
+
+  assign _body_lock = body_lock
+  if _body_lock == blank
+    assign _body_lock = true
+  endif
+
+  assign _close_on_overlay = close_on_overlay
+  if _close_on_overlay == blank
+    assign _close_on_overlay = true
+  endif
+
+  assign _close_on_escape = close_on_escape
+  if _close_on_escape == blank
+    assign _close_on_escape = true
+  endif
+
+  assign _initial_open = initial_open
+  if _initial_open == blank
+    assign _initial_open = false
+  endif
+
+  assign _close_label = close_label | default: 'Close modal'
+
+  assign _size_class = size_class | default: 'max-w-lg'
+  assign _root_class = root_class | default: ''
+  assign _layer_class = layer_class | default: ''
+  assign _panel_class = panel_class | default: ''
+  assign _overlay_class = overlay_class | default: ''
+  assign _header_class = header_class | default: ''
+  assign _body_class = body_class | default: ''
+  assign _footer_class = footer_class | default: ''
+
+  assign _dialog_label = _aria_label
+  if _dialog_label == blank and _title != blank
+    assign _dialog_label = _title
+  endif
+
+  assign _header_id = _id | append: '-title'
+
+  assign _layer_hidden_class = 'hidden'
+  assign _panel_hidden_class = 'opacity-0 translate-y-2 scale-[0.98]'
+  if _initial_open
+    assign _layer_hidden_class = ''
+    assign _panel_hidden_class = 'opacity-100 translate-y-0 scale-100'
+  endif
+-%}
+
+{%- if _id != blank -%}
+  <div class="{{ _root_class }}" data-modal-root data-modal-id="{{ _id }}" data-modal-body-lock="{% if _body_lock %}true{% else %}false{% endif %}" data-modal-close-on-overlay="{% if _close_on_overlay %}true{% else %}false{% endif %}" data-modal-close-on-escape="{% if _close_on_escape %}true{% else %}false{% endif %}">
+    <div class="fixed inset-0 z-modal {{ _layer_hidden_class }} {{ _layer_class }}" data-modal-layer id="{{ _id }}">
+      <div class="absolute inset-0 bg-overlay/60 {{ _overlay_class }}"></div>
+
+      <div class="absolute inset-0 flex items-center justify-center p-4 sm:p-6" data-modal-overlay>
+        <div class="w-full {{ _size_class }} rounded-card border border-border bg-surface shadow-md transition-all duration-normal ease-standard {{ _panel_hidden_class }} {{ _panel_class }}" data-modal-panel tabindex="-1" role="dialog" aria-modal="true"{% if _title != blank %} aria-labelledby="{{ _header_id }}"{% elsif _dialog_label != blank %} aria-label="{{ _dialog_label | escape }}"{% endif %}>
+          {%- if _title != blank or _show_close or header_content != blank -%}
+            <div class="shrink-0 border-b border-border px-gutter py-3 {{ _header_class }}" data-modal-header>
+              <div class="flex items-center justify-between gap-3">
+                <div class="min-w-0 flex-1">
+                  {%- if header_content != blank -%}
+                    {{ header_content }}
+                  {%- elsif _title != blank -%}
+                    <div id="{{ _header_id }}" class="text-base font-bold text-text">{{ _title }}</div>
+                  {%- endif -%}
+                </div>
+
+                {%- if _show_close -%}
+                  {% render 'ui-button',
+                    variant: 'icon-only-basic',
+                    type: 'button',
+                    aria_label: 'Close cart',
+                    icon_name: 'cancel',
+                    button_icon_size: '1.5rem',
+                    button_icon_color: 'text-base-icon',
+                    button_icon_hover_color: 'group-hover/button:text-link',
+                    class: 'text-text hover:bg-button-hover hover:text-link focus-visible:ring-focus focus-visible:ring-offset-surface p-2',
+                    attrs: 'data-modal-close'
+                  %}
+                {%- endif -%}
+              </div>
+            </div>
+          {%- endif -%}
+
+          <div class="min-h-0 {{ _body_class }}" data-modal-body>
+            {{ body_content }}
+          </div>
+
+          {%- if footer_content != blank -%}
+            <div class="shrink-0 border-t border-border {{ _footer_class }}" data-modal-footer>
+              {{ footer_content }}
+            </div>
+          {%- endif -%}
+        </div>
+      </div>
+    </div>
+  </div>
+{%- endif -%}

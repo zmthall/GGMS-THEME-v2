@@ -3,31 +3,35 @@
 
   Args:
     - content: HTML string (preferred "slot") OR label fallback
-    - variant: primary | secondary | secondary-on-blue | cta | cta-basic | ghost | danger | link | icon-only (default: primary)
+    - variant: primary | secondary | secondary-on-blue | cta | cta-basic | ghost | danger | link | icon-only | icon-only-basic | icon-only-complex (default: primary)
     - type: button | submit | reset (default: button; only if no href)
     - href: string (optional; renders <a>)
     - class: optional
     - attrs: optional raw attrs (data-*, aria-*)
     - disabled: boolean (default false)
     - loading: boolean (default false)
-    - aria_label: required if icon-only or no visible text
+    - aria_label: required if icon-only, icon-only-basic, icon-only-complex, or no visible text
     - cta_size: (sm | md | lg) optional used to change the sizing of a cta button
     - flex_position: start | end (default: start)
 
-    Icon-only:
+    Icon-only / icon-only-basic:
     - button_icon: icon name for icon-only (local OR iconify "mdi:home")
     - icon_name: optional explicit icon name for icon-only (local OR iconify). Overrides button_icon if present.
     - button_icon_size: any size string (rem/px/%) (default: 2rem)
     - button_icon_color: tailwind color classes (default: text-base-icon)
-    - button_icon_hover_color: tailwind hover classes (default set if blank)
+    - button_icon_hover_color: tailwind hover classes (optional)
     - button_icon_wrap_class: extra classes for the icon wrapper span (optional)
     - button_icon_class: extra classes applied to the icon itself (optional)
 
-    Icon-only background layer (NEW):
+    Icon-only special background layer:
     - icon_bg: boolean (default: true) -> renders an independent background circle behind the icon
     - icon_bg_size_class: tailwind size classes for bg circle (default: 'h-10 w-10')
     - icon_bg_class: classes for bg circle (default: 'bg-brand-blue')
     - icon_bg_hover_class: classes for bg circle hover via group (default: '')
+
+    Icon-only-complex:
+    - uses content directly inside a normal icon-button shell
+    - intended for composite controls like cart icon + badge
 {%- endcomment -%}
 
 {%- liquid
@@ -58,10 +62,6 @@
   assign _button_icon_size = button_icon_size | default: '2rem'
   assign _button_icon_color = button_icon_color | default: 'text-base-icon'
   assign _button_icon_hover_color = button_icon_hover_color | default: ''
-
-  if _button_icon_hover_color == blank
-    assign _button_icon_hover_color = 'group-hover/button:text-zinc-500'
-  endif
 
   assign _icon_bg = icon_bg
   if _icon_bg == blank
@@ -134,6 +134,17 @@
       assign variant_classes = 'text-text '
       assign sizing = 'h-control w-control p-0 '
       assign rounded = 'rounded-full '
+      if _button_icon_hover_color == blank
+        assign _button_icon_hover_color = 'group-hover/button:text-zinc-500'
+      endif
+    when 'icon-only-basic'
+      assign variant_classes = 'bg-transparent text-text hover:bg-button-hover hover:text-link '
+      assign sizing = 'h-control w-control p-0 '
+      assign rounded = 'rounded-md '
+    when 'icon-only-complex'
+      assign variant_classes = 'flex items-center justify-center'
+      assign sizing = ''
+      assign rounded = 'rounded-md '
     else
       assign variant_classes = 'bg-brand-burgundy text-white hover:bg-brand-blue '
   endcase
@@ -151,7 +162,7 @@
   endif
 
   assign needs_aria = false
-  if _variant == 'icon-only'
+  if _variant == 'icon-only' or _variant == 'icon-only-basic' or _variant == 'icon-only-complex'
     assign needs_aria = true
   endif
 
@@ -204,15 +215,35 @@
       </div>
     {%- endif -%}
 
-    <span class="inline-flex items-center gap-2">
-      {%- if _loading and _variant != 'icon-only' -%}
+    <span class="inline-flex items-center justify-center gap-2">
+      {%- if _loading and _variant != 'icon-only' and _variant != 'icon-only-basic' and _variant != 'icon-only-complex' -%}
         {{ spinner }}
         <span class="sr-only">Loading</span>
       {%- endif -%}
 
-      {%- if _variant != 'icon-only' -%}
-        <span class="{% if _loading %}opacity-70{% endif %}">{{ _content }}</span>
-      {%- else -%}
+      {%- if _variant == 'icon-only-complex' -%}
+        <span class="{% if _loading %}opacity-70{% endif %} flex">{{ _content }}</span>
+
+      {%- elsif _variant == 'icon-only-basic' -%}
+        {%- assign icon_name_final = _button_icon | default: '' -%}
+        {%- assign icon_classes = _button_icon_color | default: '' -%}
+        {%- if _button_icon_hover_color != blank -%}
+          {%- assign icon_classes = icon_classes | append: ' ' | append: _button_icon_hover_color -%}
+        {%- endif -%}
+        {%- if _button_icon_class != blank -%}
+          {%- assign icon_classes = icon_classes | append: ' ' | append: _button_icon_class -%}
+        {%- endif -%}
+        {%- if _loading -%}
+          {%- assign icon_classes = icon_classes | append: ' opacity-70' -%}
+        {%- endif -%}
+
+        {%- if icon_name_final != blank -%}
+          {% render 'ui-icon', name: icon_name_final, size: _button_icon_size, class: icon_classes %}
+        {%- else -%}
+          {% render 'ui-icon', name: 'material-symbols:expand-circle-up', size: _button_icon_size, class: icon_classes %}
+        {%- endif -%}
+
+      {%- elsif _variant == 'icon-only' -%}
         {%- assign icon_name_final = _button_icon | default: '' -%}
         {%- assign icon_classes = _button_icon_color | default: '' -%}
         {%- if _button_icon_hover_color != blank -%}
@@ -247,6 +278,9 @@
             {%- endif -%}
           </span>
         </span>
+
+      {%- else -%}
+        <span class="{% if _loading %}opacity-70{% endif %}">{{ _content }}</span>
       {%- endif -%}
     </span>
   </button>

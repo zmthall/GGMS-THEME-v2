@@ -146,9 +146,23 @@
               </div>
 
               {%- if _show_close -%}
-                <button type="button" class="cursor-pointer inline-flex items-center justify-center rounded-md p-2 text-text hover:bg-button-hover hover:text-link focus:outline-none focus-visible:ring-2 focus-visible:ring-focus focus-visible:ring-offset-2 focus-visible:ring-offset-surface" data-drawer-close aria-label="{{ _close_label | escape }}">
-                  {% render 'ui-icon', name: 'cancel', size: '1.5rem', class: 'text-base-icon', decorative: true %}
-                </button>
+                {% capture drawer_close_button %}
+                    <span class="relative inline-flex items-center justify-center">
+                        {% render 'ui-icon', name: 'cancel', size: '1.5rem', class: 'text-base-icon', decorative: true %}
+                    </span>
+                {% endcapture %}
+                
+
+                {%  capture drawer_close_button_attr %}data-drawer-close aria-label="{{ _close_label | escape }}"{% endcapture %}
+
+                {% render 'ui-button',
+                    variant: 'icon-only-complex',
+                    type: 'button',
+                    setPadding: false,
+                    class: 'text-text hover:bg-button-hover hover:text-link focus-visible:ring-focus focus-visible:ring-offset-surface p-2',
+                    attrs: drawer_close_button_attr,
+                    content: drawer_close_button
+                %}
               {%- endif -%}
             </div>
           </div>
