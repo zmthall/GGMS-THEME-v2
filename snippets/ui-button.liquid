@@ -177,14 +177,18 @@
 {%- endcapture -%}
 
 {%- if _href != blank -%}
-  <a
-    href="{{ _href }}"
-    class="{{ classes | strip }} no-underline"
+  <a href="{{ _href }}" class="{{ classes | strip }} relative no-underline{% if _variant == 'cta' %} shadow-sm {{ cta_button_class }}{% endif %}"
     {%- if needs_aria and _aria_label != blank -%} aria-label="{{ _aria_label | escape }}"{%- endif -%}
     {%- if _disabled -%} aria-disabled="true" tabindex="-1"{%- endif -%}
     {%- if _loading -%} aria-busy="true"{%- endif -%}
     {{ _attrs }}
   >
+    {%- if _variant == 'cta' -%}
+      <div class="absolute bg-white top-1/2 rounded-full border border-black -translate-y-1/2 flex items-center justify-center group-hover/button:bg-zinc-100 p-3 {{ cta_icon_class }}">
+          {% render 'ui-icon', name: _cta_icon, size: cta_icon_sizing, class: 'text-black' %}
+      </div>
+    {%- endif -%}
+
     <span class="inline-flex items-center gap-2">
       {%- if _loading -%}
         {{ spinner }}

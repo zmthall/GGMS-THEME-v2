@@ -13,7 +13,9 @@
     - content: optional captured HTML content
 
     Placement:
-    - position: top | bottom | left | right (default: top)
+    - placement: top | bottom | left | right (preferred)
+    - position: top | bottom | left | right (legacy alias)
+      Default: top
 
     Trigger options:
     - trigger: optional captured custom trigger markup
@@ -35,7 +37,7 @@
   assign _id = id | default: ''
   assign _text = text | default: ''
   assign _content = content | default: ''
-  assign _pos = position | default: 'top'
+  assign _pos = placement | default: position | default: 'top'
   assign _icon = icon | default: 'mdi:help-circle-outline'
   assign _label = label | default: 'More info'
   assign _class = class | default: ''

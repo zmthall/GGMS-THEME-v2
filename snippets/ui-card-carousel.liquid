@@ -1,0 +1,250 @@
+{% comment %}
+  ui-card-carousel
+
+  Purpose:
+  - Renders a layered card carousel with one active center card
+  - Previous and next cards sit behind the active card and can be clicked to rotate in
+  - Includes arrow controls, dot controls, keyboard support, and touch swipe
+  - Sized to stay visually contained inside hero/layout columns
+
+  Args:
+    - blocks: collection of blocks to render
+    - block_type: block type to include, defaults to 'category_card'
+    - carousel_id: unique DOM id for this instance
+    - empty_text: fallback text when no eligible cards exist
+{% endcomment %}
+
+{% liquid
+  assign block_type = block_type | default: 'category_card'
+  assign carousel_id = carousel_id | default: 'ui-card-carousel'
+  assign empty_text = empty_text | default: 'Add collection blocks to populate this carousel.'
+  assign card_count = 0
+
+  for block in blocks
+    if block.type == block_type and block.settings.collection != blank
+      assign card_count = card_count | plus: 1
+    endif
+  endfor
+%}
+
+{% if card_count > 0 %}
+  <div id="{{ carousel_id }}" class="relative mx-auto w-full max-w-[36rem] lg:mx-0 lg:ml-auto" data-ui-card-carousel data-start-index="0" tabindex="0">
+    <style>
+      #{{ carousel_id }} [data-carousel-stage] { isolation: isolate; }
+      #{{ carousel_id }} [data-carousel-card] { left: 50%; top: 50%; transform: translate3d(-50%, calc(-50% + 24px), 0) scale(.82); opacity: 0; filter: blur(2px); z-index: 1; pointer-events: none; transition: transform .55s cubic-bezier(.22,1,.36,1), opacity .4s ease, filter .4s ease, box-shadow .4s ease; }
+      #{{ carousel_id }} [data-carousel-card][data-position="active"] { transform: translate3d(-50%, -50%, 0) scale(1); opacity: 1; filter: blur(0); z-index: 30; pointer-events: auto; box-shadow: 0 28px 60px rgba(15,23,42,.18); }
+      #{{ carousel_id }} [data-carousel-card][data-position="prev"] { transform: translate3d(calc(-50% - 24%), calc(-50% + 18px), 0) scale(.9); opacity: .52; filter: blur(.2px); z-index: 20; pointer-events: auto; box-shadow: 0 16px 32px rgba(15,23,42,.10); }
+      #{{ carousel_id }} [data-carousel-card][data-position="next"] { transform: translate3d(calc(-50% + 24%), calc(-50% + 18px), 0) scale(.9); opacity: .52; filter: blur(.2px); z-index: 20; pointer-events: auto; box-shadow: 0 16px 32px rgba(15,23,42,.10); }
+      #{{ carousel_id }} [data-carousel-card][data-position="hidden-left"] { transform: translate3d(calc(-50% - 42%), calc(-50% + 34px), 0) scale(.78); opacity: 0; filter: blur(2px); z-index: 5; }
+      #{{ carousel_id }} [data-carousel-card][data-position="hidden-right"] { transform: translate3d(calc(-50% + 42%), calc(-50% + 34px), 0) scale(.78); opacity: 0; filter: blur(2px); z-index: 5; }
+      #{{ carousel_id }} [data-carousel-dot][aria-current="true"] { width: 2.25rem; background: linear-gradient(90deg, #9f1d20 0%, #1f4ed8 100%); }
+
+      @media (min-width: 640px) {
+        #{{ carousel_id }} [data-carousel-card][data-position="prev"] { transform: translate3d(calc(-50% - 28%), calc(-50% + 20px), 0) scale(.91); }
+        #{{ carousel_id }} [data-carousel-card][data-position="next"] { transform: translate3d(calc(-50% + 28%), calc(-50% + 20px), 0) scale(.91); }
+        #{{ carousel_id }} [data-carousel-card][data-position="hidden-left"] { transform: translate3d(calc(-50% - 50%), calc(-50% + 36px), 0) scale(.8); }
+        #{{ carousel_id }} [data-carousel-card][data-position="hidden-right"] { transform: translate3d(calc(-50% + 50%), calc(-50% + 36px), 0) scale(.8); }
+      }
+
+      @media (min-width: 1024px) {
+        #{{ carousel_id }} [data-carousel-card][data-position="prev"] { transform: translate3d(calc(-50% - 33%), calc(-50% + 22px), 0) scale(.92); }
+        #{{ carousel_id }} [data-carousel-card][data-position="next"] { transform: translate3d(calc(-50% + 33%), calc(-50% + 22px), 0) scale(.92); }
+        #{{ carousel_id }} [data-carousel-card][data-position="hidden-left"] { transform: translate3d(calc(-50% - 56%), calc(-50% + 38px), 0) scale(.82); }
+        #{{ carousel_id }} [data-carousel-card][data-position="hidden-right"] { transform: translate3d(calc(-50% + 56%), calc(-50% + 38px), 0) scale(.82); }
+      }
+    </style>
+
+    <div class="relative w-full overflow-visible px-4 sm:px-6 lg:px-8">
+      {% if card_count > 1 %}
+        <button type="button" class="absolute left-1 top-1/2 z-40 hidden h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-border bg-white/95 text-brand-blue shadow-[0_10px_24px_rgba(15,23,42,0.12)] transition hover:scale-105 md:inline-flex" data-carousel-prev aria-label="Show previous card">
+          <span aria-hidden="true">←</span>
+        </button>
+      {% endif %}
+
+      <div class="relative h-[20rem] w-full overflow-visible sm:h-[24rem] lg:h-[26rem]" data-carousel-stage>
+        {% assign rendered_index = 0 %}
+        {% for block in blocks %}
+          {% if block.type == block_type %}
+            {% assign card_collection = block.settings.collection %}
+            {% if card_collection != blank %}
+              <a href="{{ card_collection.url }}" class="group absolute block w-[min(76vw,20rem)] overflow-hidden rounded-[2rem] border border-[#eceef3] bg-white p-4 sm:w-[17.5rem] lg:w-[17.5rem]" data-carousel-card data-card-index="{{ rendered_index }}" data-position="hidden-right" aria-hidden="true" tabindex="-1" {{ block.shopify_attributes }}>
+                <div class="space-y-3">
+                  <div class="space-y-2">
+                    <h3 class="font-heading text-xl leading-tight text-brand-burgundy sm:text-2xl">
+                      {% if block.settings.custom_title != blank %}
+                        {{ block.settings.custom_title }}
+                      {% else %}
+                        {{ card_collection.title }}
+                      {% endif %}
+                    </h3>
+
+                    <div class="flex items-center gap-2 text-sm font-bold text-brand-blue sm:text-base">
+                      <span>{{ block.settings.link_label | default: 'Explore products' }}</span>
+                      <span aria-hidden="true" class="transition-transform duration-200 group-hover:translate-x-1">→</span>
+                    </div>
+                  </div>
+
+                  <div class="overflow-hidden rounded-[1.5rem] border border-[#eef1f6] bg-white shadow-[inset_0_1px_0_rgba(255,255,255,0.9),inset_0_0_0_1px_rgba(15,23,42,0.02),inset_0_-16px_32px_rgba(37,99,235,0.025)]">
+                    {% if card_collection.image %}
+                      <div class="flex aspect-[4/3.75] items-end justify-center overflow-hidden rounded-[1.125rem] bg-white">
+                        {{ card_collection.image | image_url: width: 900 | image_tag: class: 'block h-full w-full object-contain object-center transition duration-300 group-hover:scale-[1.03]', loading: 'lazy', alt: card_collection.title }}
+                      </div>
+                    {% else %}
+                      <div class="aspect-[4/3.75] rounded-[1.125rem] bg-white"></div>
+                    {% endif %}
+                  </div>
+
+                  <div class="flex items-center justify-between text-xs text-muted sm:text-sm">
+                    <span>{{ card_collection.products_count }} products</span>
+                    <span class="font-semibold text-brand-blue">View collection</span>
+                  </div>
+
+                  <div class="h-[3px] w-full overflow-hidden rounded-full bg-[#e7ebf3]">
+                    <div class="flex h-full w-full">
+                      <div class="h-full w-1/2 bg-brand-burgundy"></div>
+                      <div class="h-full w-1/2 bg-brand-blue"></div>
+                    </div>
+                  </div>
+                </div>
+              </a>
+              {% assign rendered_index = rendered_index | plus: 1 %}
+            {% endif %}
+          {% endif %}
+        {% endfor %}
+      </div>
+
+      {% if card_count > 1 %}
+        <button type="button" class="absolute right-1 top-1/2 z-40 hidden h-11 w-11 -translate-y-1/2 items-center justify-center rounded-full border border-border bg-white/95 text-brand-blue shadow-[0_10px_24px_rgba(15,23,42,0.12)] transition hover:scale-105 md:inline-flex" data-carousel-next aria-label="Show next card">
+          <span aria-hidden="true">→</span>
+        </button>
+      {% endif %}
+    </div>
+
+    {% if card_count > 1 %}
+      <div class="mt-4 flex items-center justify-center gap-2">
+        {% for i in (1..card_count) %}
+          <button type="button" class="h-2.5 w-2.5 rounded-full bg-[#d9dfeb] transition-all duration-300" data-carousel-dot data-card-target="{{ forloop.index0 }}" aria-label="Show card {{ forloop.index }}"></button>
+        {% endfor %}
+      </div>
+    {% endif %}
+  </div>
+
+  <script>
+    (() => {
+      if (!window.GGMSInitCardCarousels) {
+        window.GGMSInitCardCarousels = (root = document) => {
+          const carousels = root.querySelectorAll('[data-ui-card-carousel]:not([data-carousel-ready="true"])');
+
+          carousels.forEach((carousel) => {
+            carousel.setAttribute('data-carousel-ready', 'true');
+
+            const cards = Array.from(carousel.querySelectorAll('[data-carousel-card]'));
+            const prevButton = carousel.querySelector('[data-carousel-prev]');
+            const nextButton = carousel.querySelector('[data-carousel-next]');
+            const dots = Array.from(carousel.querySelectorAll('[data-carousel-dot]'));
+
+            if (!cards.length) return;
+
+            let activeIndex = Number(carousel.getAttribute('data-start-index') || 0);
+
+            const getPosition = (index, active, total) => {
+              if (index === active) return 'active';
+              if (total === 2) return index > active ? 'next' : 'prev';
+
+              const forward = (index - active + total) % total;
+              const backward = (active - index + total) % total;
+
+              if (forward === 1) return 'next';
+              if (backward === 1) return 'prev';
+
+              return forward < backward ? 'hidden-right' : 'hidden-left';
+            };
+
+            const render = () => {
+              cards.forEach((card, index) => {
+                const position = getPosition(index, activeIndex, cards.length);
+                const isActive = position === 'active';
+                const isNeighbor = position === 'prev' || position === 'next';
+
+                card.setAttribute('data-position', position);
+                card.setAttribute('aria-hidden', isActive ? 'false' : 'true');
+                card.tabIndex = isActive || isNeighbor ? 0 : -1;
+              });
+
+              dots.forEach((dot, index) => {
+                dot.setAttribute('aria-current', index === activeIndex ? 'true' : 'false');
+              });
+            };
+
+            const goTo = (index) => {
+              activeIndex = (index + cards.length) % cards.length;
+              render();
+            };
+
+            const next = () => goTo(activeIndex + 1);
+            const prev = () => goTo(activeIndex - 1);
+
+            if (prevButton) prevButton.addEventListener('click', prev);
+            if (nextButton) nextButton.addEventListener('click', next);
+
+            dots.forEach((dot) => {
+              dot.addEventListener('click', () => {
+                goTo(Number(dot.getAttribute('data-card-target') || 0));
+              });
+            });
+
+            cards.forEach((card) => {
+              card.addEventListener('click', (event) => {
+                const clickedIndex = Number(card.getAttribute('data-card-index') || 0);
+                if (clickedIndex !== activeIndex) {
+                  event.preventDefault();
+                  goTo(clickedIndex);
+                }
+              });
+            });
+
+            carousel.addEventListener('keydown', (event) => {
+              if (event.key === 'ArrowRight') {
+                event.preventDefault();
+                next();
+              }
+
+              if (event.key === 'ArrowLeft') {
+                event.preventDefault();
+                prev();
+              }
+            });
+
+            let touchStartX = 0;
+            let touchEndX = 0;
+
+            carousel.addEventListener('touchstart', (event) => {
+              touchStartX = event.changedTouches[0].clientX;
+            }, { passive: true });
+
+            carousel.addEventListener('touchend', (event) => {
+              touchEndX = event.changedTouches[0].clientX;
+              const delta = touchEndX - touchStartX;
+
+              if (Math.abs(delta) < 40) return;
+              if (delta < 0) next();
+              if (delta > 0) prev();
+            }, { passive: true });
+
+            render();
+          });
+        };
+
+        document.addEventListener('shopify:section:load', (event) => {
+          window.GGMSInitCardCarousels(event.target);
+        });
+      }
+
+      window.GGMSInitCardCarousels(document);
+    })();
+  </script>
+{% else %}
+  <div class="rounded-[2rem] border border-[#eceef3] bg-white p-5 shadow-[0_10px_24px_rgba(15,23,42,0.08)]">
+    <p class="text-sm text-muted">{{ empty_text }}</p>
+  </div>
+{% endif %}

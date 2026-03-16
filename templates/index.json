@@ -1,8 +1,67 @@
 {
   "sections": {
     "main": {
-      "type": "home-page",
-      "settings": {}
+      "type": "ggms-dev-preview-home",
+      "blocks": {
+        "category_card_tzKACF": {
+          "type": "category_card",
+          "settings": {
+            "collection": "sterile-supplies",
+            "custom_title": "",
+            "link_label": "Explore products"
+          }
+        },
+        "category_card_UWcdWh": {
+          "type": "category_card",
+          "settings": {
+            "collection": "underwear-briefs",
+            "custom_title": "Incontinence",
+            "link_label": "Explore products"
+          }
+        },
+        "category_card_BWgWry": {
+          "type": "category_card",
+          "settings": {
+            "collection": "incontinence-supplies",
+            "custom_title": "Urology & Ostomy",
+            "link_label": "Explore products"
+          }
+        },
+        "category_card_nKEPhp": {
+          "type": "category_card",
+          "settings": {
+            "collection": "diabetic-supplies",
+            "custom_title": "",
+            "link_label": "Explore products"
+          }
+        }
+      },
+      "block_order": [
+        "category_card_tzKACF",
+        "category_card_UWcdWh",
+        "category_card_BWgWry",
+        "category_card_nKEPhp"
+      ],
+      "settings": {
+        "eyebrow": "Trusted medical supply partner",
+        "heading": "Medical supplies, delivered with care.",
+        "body": "<p>From diagnostics and diabetic supplies to mobility aids and compression apparel, Golden Gate Medical Supply provides dependable products backed by responsive service across Southern Colorado.</p>",
+        "primary_cta_label": "Shop All Products",
+        "primary_cta_link": "shopify://collections/all-products",
+        "secondary_cta_label": "Request a Quote",
+        "secondary_cta_link": "shopify://pages/contact-us",
+        "note_label": "Free shipping",
+        "note_text": "on orders over $150 within our service area.",
+        "featured_collection": "mobility-aids",
+        "featured_heading": "Mobility Aids",
+        "featured_link_label": "Explore products",
+        "trust_title": "Spring restock sale is live",
+        "trust_message": "Save up to 25% on diagnostics, apparel, and mobility aids through April 30.",
+        "trust_action_label": "Shop the sale",
+        "trust_action_url": "",
+        "categories_heading": "Shop by Category",
+        "categories_body": "Pick the collections you want to feature and the images, titles, and links will populate automatically."
+      }
     }
   },
   "order": [

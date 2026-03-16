@@ -1,0 +1,459 @@
+{%- comment -%}
+  ══════════════════════════════════════════════════════════════
+  GGMS Home Page — Component Showcase
+  Uses real UI primitives in a storefront context.
+  ══════════════════════════════════════════════════════════════
+{%- endcomment -%}
+
+{%- comment -%} ── HERO ──────────────────────────────────────────────────── {%- endcomment -%}
+{% capture hero_content %}
+<div class="relative isolate overflow-hidden">
+
+  {%- comment -%} Background texture layer {%- endcomment -%}
+  <div class="absolute inset-0 -z-10 bg-gradient-to-br from-brand-blue/5 via-transparent to-brand-burgundy/5"></div>
+
+  <div class="mx-auto max-w-7xl px-gutter py-20 sm:py-28 lg:py-36">
+    <div class="grid items-center gap-12 lg:grid-cols-2">
+
+      {%- comment -%} ── Left column: copy + CTAs ── {%- endcomment -%}
+      <div class="space-y-8">
+
+        {% render 'ui-badge', variant: 'info', size: 'md', label: 'Trusted by 200+ facilities' %}
+
+        <h1 class="text-4xl font-extrabold tracking-tight text-text sm:text-5xl lg:text-6xl">
+          Medical supplies,<br>
+          <span class="text-brand-blue">delivered with care.</span>
+        </h1>
+
+        <p class="max-w-lg text-lg leading-relaxed text-muted">
+          From diagnostics and diabetic supplies to mobility aids and compression apparel —
+          Golden Gate Medical Supplies provides the products your facility depends on,
+          backed by responsive service and fast fulfillment across Southern Colorado.
+        </p>
+
+        <div class="flex flex-wrap items-center gap-4">
+          {% render 'ui-button', variant: 'cta', cta_size: 'sm', content: 'Shop All Products', href: '/collections/all' %}
+          {% render 'ui-button', variant: 'ghost', content: 'Request a Quote', href: '/pages/contact' %}
+        </div>
+
+        {% render 'ui-note-inline',
+          label: 'Free shipping',
+          content: 'on orders over $150 within our service area.'
+        %}
+      </div>
+
+      {%- comment -%} ── Right column: featured product card ── {%- endcomment -%}
+      <div class="flex justify-center lg:justify-end">
+        {% render 'ui-card',
+          size: 'lg',
+          variant: 'shadowed',
+          title: 'Featured: Sterile Supplies',
+          subtitle: 'Facility-grade sterile products in stock.',
+          content: "
+            <div class='space-y-4'>
+              <div class='aspect-[4/3] rounded-lg bg-surface-alt overflow-hidden'>
+                {{ collections['sterile-supplies'].image | image_url: width: 800 | image_tag: class: 'w-full h-full object-cover', loading: 'lazy' }}
+              </div>
+              <div class='flex items-center justify-between'>
+                <span class='text-sm font-bold text-brand-blue'>16 products →</span>
+              </div>
+            </div>
+          "
+        %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endcapture %}
+{% render 'layout-section', bg: 'page', content: hero_content %}
+
+
+{%- comment -%} ── TRUST BAR / INLINE ALERT ─────────────────────────────── {%- endcomment -%}
+{% capture trust_bar %}
+<div class="mx-auto max-w-7xl px-gutter py-6">
+  {% render 'ui-alert',
+    variant: 'cart',
+    mode: 'inline',
+    title: 'Spring restock sale is live',
+    message: 'Save up to 25% on diagnostics, apparel, and mobility aids through April 30.',
+    action_label: 'Shop the sale',
+    action_url: '/collections/sale',
+    compact: true
+  %}
+</div>
+{% endcapture %}
+{% render 'layout-section', bg: 'surface', content: trust_bar %}
+
+
+{%- comment -%} ── CATEGORY CARDS ────────────────────────────────────────── {%- endcomment -%}
+{% capture categories_content %}
+<div class="mx-auto max-w-7xl px-gutter py-16 space-y-10">
+
+  <div class="text-center space-y-3">
+    <h2 class="text-3xl font-extrabold tracking-tight text-text">Shop by Category</h2>
+    <p class="mx-auto max-w-2xl text-muted">
+      Browse our most popular departments — each stocked with facility-grade products
+      and ready to ship.
+    </p>
+  </div>
+
+  {% render 'ui-divider', variant: 'label', size: 'md', label: 'Top Departments' %}
+
+  <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+
+    {% render 'ui-card',
+      size: 'md',
+      variant: 'outlined',
+      title: 'Diagnostics',
+      subtitle: '84 products',
+      content: "
+        <div class='space-y-3'>
+          <div class='aspect-square rounded-lg bg-surface-alt overflow-hidden'>
+            {{ collections['diagnostics'].image | image_url: width: 600 | image_tag: class: 'w-full h-full object-cover', loading: 'lazy' }}
+          </div>
+          <div class='pt-1'></div>
+        </div>
+      "
+    %}
+
+    {% render 'ui-card',
+      size: 'md',
+      variant: 'outlined',
+      title: 'Mobility Aids',
+      subtitle: '70 products',
+      content: "
+        <div class='space-y-3'>
+          <div class='aspect-square rounded-lg bg-surface-alt overflow-hidden'>
+            {{ collections['mobility-aids'].image | image_url: width: 600 | image_tag: class: 'w-full h-full object-cover', loading: 'lazy' }}
+          </div>
+          <div class='pt-1'></div>
+        </div>
+      "
+    %}
+
+    {% render 'ui-card',
+      size: 'md',
+      variant: 'outlined',
+      title: 'Apparel',
+      subtitle: '69 products',
+      content: "
+        <div class='space-y-3'>
+          <div class='aspect-square rounded-lg bg-surface-alt overflow-hidden'>
+            {{ collections['apparel'].image | image_url: width: 600 | image_tag: class: 'w-full h-full object-cover', loading: 'lazy' }}
+          </div>
+          <div class='pt-1'></div>
+        </div>
+      "
+    %}
+
+    {% render 'ui-card',
+      size: 'md',
+      variant: 'outlined',
+      title: 'Diabetic Supplies',
+      subtitle: '27 products',
+      content: "
+        <div class='space-y-3'>
+          <div class='aspect-square rounded-lg bg-surface-alt overflow-hidden'>
+            {{ collections['diabetic-supplies'].image | image_url: width: 600 | image_tag: class: 'w-full h-full object-cover', loading: 'lazy' }}
+          </div>
+          <div class='pt-1'></div>
+        </div>
+      "
+    %}
+  </div>
+
+  <div class="flex justify-center">
+    {% render 'ui-button', variant: 'secondary', content: 'View All Categories', href: '/collections' %}
+  </div>
+</div>
+{% endcapture %}
+{% render 'layout-section', bg: 'page', content: categories_content %}
+
+
+{%- comment -%} ── PRODUCT SKELETONS (loading state demo) ────────────────── {%- endcomment -%}
+{% capture skeleton_demo %}
+<div class="mx-auto max-w-7xl px-gutter py-16 space-y-8">
+  <div class="flex items-end justify-between">
+    <div class="space-y-2">
+      <h2 class="text-3xl font-extrabold tracking-tight text-text">New Arrivals</h2>
+      <p class="text-muted">Fresh inventory added this week.</p>
+    </div>
+    {% render 'ui-button', variant: 'link', href: '/collections/new', content: 'See all new →' %}
+  </div>
+
+  {%- comment -%}
+    In production this grid is populated by a collection loop.
+    Showing skeletons here as the loading-state preview.
+  {%- endcomment -%}
+  <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+    {% render 'ui-skeleton', mode: 'product', variant: 'base' %}
+    {% render 'ui-skeleton', mode: 'product', variant: 'base' %}
+    {% render 'ui-skeleton', mode: 'product', variant: 'base' %}
+    {% render 'ui-skeleton', mode: 'product', variant: 'base' %}
+  </div>
+</div>
+{% endcapture %}
+{% render 'layout-section', bg: 'surface', content: skeleton_demo %}
+
+
+{%- comment -%} ── VALUE PROPS ROW ───────────────────────────────────────── {%- endcomment -%}
+{% capture value_props %}
+<div class="mx-auto max-w-7xl px-gutter py-16">
+  <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+
+    {% render 'ui-card',
+      size: 'md',
+      variant: 'soft',
+      title: 'Fast Regional Fulfillment',
+      content: "<p class='text-sm text-muted'>Orders placed before 2 PM ship same day within our Southern Colorado service area. Most deliveries arrive next business day.</p>"
+    %}
+
+    {% render 'ui-card',
+      size: 'md',
+      variant: 'soft',
+      title: 'Facility-Grade Quality',
+      content: "<p class='text-sm text-muted'>Every product meets or exceeds healthcare compliance standards. We source from vetted manufacturers with full traceability.</p>"
+    %}
+
+    {% render 'ui-card',
+      size: 'md',
+      variant: 'soft',
+      title: 'Dedicated Support',
+      content: "<p class='text-sm text-muted'>Real people, real answers. Our team knows the products inside and out and can help with ordering, insurance questions, and bulk pricing.</p>"
+    %}
+  </div>
+</div>
+{% endcapture %}
+{% render 'layout-section', bg: 'page', content: value_props %}
+
+
+{%- comment -%} ── SEARCH + QUICK CONTACT BAND ──────────────────────────── {%- endcomment -%}
+{% capture search_band %}
+<div class="mx-auto max-w-7xl px-gutter py-16 space-y-10">
+
+  <div class="text-center space-y-3">
+    <h2 class="text-3xl font-extrabold tracking-tight text-text">Find What You Need</h2>
+    <p class="text-muted">Search our full catalog or reach out for help.</p>
+  </div>
+
+  <div class="mx-auto max-w-2xl">
+    {% render 'form-search', placeholder: 'Search products, brands, categories…' %}
+  </div>
+
+  {% render 'ui-divider', variant: 'soft', size: 'md' %}
+
+  <div class="flex flex-wrap justify-center gap-3">
+    {% render 'ui-tag', label: 'Syringes & Needles', param: 'q' %}
+    {% render 'ui-tag', label: 'Compression Apparel', param: 'q' %}
+    {% render 'ui-tag', label: 'Rollators', param: 'q' %}
+    {% render 'ui-tag', label: 'Sterile Supplies', param: 'q' %}
+    {% render 'ui-tag', label: 'Instruments', param: 'q' %}
+    {% render 'ui-tag', label: 'Socks & Stockings', param: 'q' %}
+  </div>
+</div>
+{% endcapture %}
+{% render 'layout-section', bg: 'surface', content: search_band %}
+
+
+{%- comment -%} ── CONTACT / QUOTE REQUEST FORM ─────────────────────────── {%- endcomment -%}
+{% capture contact_section %}
+<div class="mx-auto max-w-7xl px-gutter py-16">
+  <div class="grid gap-12 lg:grid-cols-2">
+
+    {%- comment -%} ── Left: copy + alerts ── {%- endcomment -%}
+    <div class="space-y-8">
+      <div class="space-y-3">
+        <h2 class="text-3xl font-extrabold tracking-tight text-text">Request a Quote</h2>
+        <p class="text-muted leading-relaxed">
+          Need bulk pricing or have questions about a specific product?
+          Fill out the form and our team will get back to you within one business day.
+        </p>
+      </div>
+
+      {% render 'ui-alert',
+        variant: 'info',
+        mode: 'inline',
+        title: 'Insurance & billing',
+        message: 'We work with most major payers. Include your insurance details in the message for a faster response.',
+        compact: true
+      %}
+
+      {% render 'ui-note-inline',
+        label: 'Hours:',
+        content: 'Monday – Friday, 8 AM – 5 PM MST'
+      %}
+
+      {% render 'ui-note-inline',
+        content: 'Walk-ins welcome at our Pueblo location.'
+      %}
+
+      <div>
+        {% render 'ui-quick-contact', mode: 'footer' %}
+      </div>
+    </div>
+
+    {%- comment -%} ── Right: form ── {%- endcomment -%}
+    <div>
+      {% form 'contact' %}
+        {% capture quote_fields %}
+          {% render 'form-input',
+            type: 'text',
+            name: 'contact[name]',
+            label: 'Full Name',
+            placeholder: 'Jane Doe',
+            required: true,
+            autocomplete: 'name'
+          %}
+
+          {% render 'form-input',
+            type: 'text',
+            name: 'contact[facility]',
+            label: 'Facility / Organization',
+            placeholder: 'Sunrise Assisted Living'
+          %}
+
+          {% render 'form-input',
+            type: 'email',
+            name: 'contact[email]',
+            label: 'Email',
+            placeholder: 'jane@facility.com',
+            required: true,
+            autocomplete: 'email'
+          %}
+
+          {% render 'form-input',
+            type: 'phone',
+            name: 'contact[phone]',
+            label: 'Phone',
+            placeholder: '(719) 555-0100',
+            autocomplete: 'tel'
+          %}
+
+          {%- comment -%} Reason radio group {%- endcomment -%}
+          {% capture reason_radios %}
+            {% render 'form-radio', name: 'contact[reason]', value: 'quote', label: 'Bulk / custom quote', checked: true %}
+            {% render 'form-radio', name: 'contact[reason]', value: 'product', label: 'Product question' %}
+            {% render 'form-radio', name: 'contact[reason]', value: 'order', label: 'Existing order' %}
+            {% render 'form-radio', name: 'contact[reason]', value: 'other', label: 'Other' %}
+          {% endcapture %}
+
+          {% render 'form-radio-group',
+            name: 'contact[reason]',
+            label: 'Reason for contact',
+            help: 'Pick the option that best fits your request.',
+            required: true,
+            layout: 'stack',
+            content: reason_radios
+          %}
+
+          {% render 'form-textarea',
+            label: 'Message',
+            name: 'contact[body]',
+            placeholder: 'Tell us what you need — product names, quantities, or any other details.',
+            required: true,
+            help: 'Include part numbers if you have them.'
+          %}
+
+          {% render 'form-checkbox',
+            name: 'contact[subscribe]',
+            label: 'Send me updates on new products and promotions'
+          %}
+
+          <div class="pt-2">
+            {% render 'ui-button', variant: 'cta', cta_size: 'sm', content: 'Submit Request', type: 'submit' %}
+          </div>
+        {% endcapture %}
+
+        {% render 'form-container',
+          enable_live_validation: true,
+          layout: 'stack',
+          content: quote_fields
+        %}
+      {% endform %}
+    </div>
+  </div>
+</div>
+{% endcapture %}
+{% render 'layout-section', bg: 'page', content: contact_section %}
+
+
+{%- comment -%} ── SOCIAL PROOF / BADGES ROW ─────────────────────────────── {%- endcomment -%}
+{% capture badges_row %}
+<div class="mx-auto max-w-7xl px-gutter py-12">
+  <div class="text-center space-y-6">
+    <p class="text-xs font-bold uppercase tracking-widest text-muted">By the numbers</p>
+
+    <div class="flex flex-wrap items-center justify-center gap-8">
+      <div class="text-center space-y-1">
+        {% render 'ui-badge', size: 'lg', variant: 'success', label: '600+' %}
+        <p class="text-xs text-muted mt-2">Products in stock</p>
+      </div>
+      <div class="text-center space-y-1">
+        {% render 'ui-badge', size: 'lg', variant: 'info', label: '200+' %}
+        <p class="text-xs text-muted mt-2">Facilities served</p>
+      </div>
+      <div class="text-center space-y-1">
+        {% render 'ui-badge', size: 'lg', label: '98%' %}
+        <p class="text-xs text-muted mt-2">On-time delivery</p>
+      </div>
+      <div class="text-center space-y-1">
+        {% render 'ui-badge', size: 'lg', variant: 'warning', label: '24 hr' %}
+        <p class="text-xs text-muted mt-2">Avg. quote turnaround</p>
+      </div>
+    </div>
+
+    {% render 'ui-divider', variant: 'dash', size: 'md' %}
+  </div>
+</div>
+{% endcapture %}
+{% render 'layout-section', bg: 'surface', content: badges_row %}
+
+
+{%- comment -%} ── NEWSLETTER SIGNUP ──────────────────────────────────────── {%- endcomment -%}
+{% capture newsletter_section %}
+<div class="mx-auto max-w-3xl px-gutter py-16 text-center space-y-8">
+
+  <div class="space-y-3">
+    <h2 class="text-3xl font-extrabold tracking-tight text-text">Stay in the Loop</h2>
+    <p class="text-muted">
+      Get notified about restocks, new product drops, and exclusive facility pricing.
+    </p>
+  </div>
+
+  {% form 'contact' %}
+    {% capture newsletter_fields %}
+      <div class="flex-1">
+        {% render 'form-input',
+          type: 'email',
+          name: 'contact[email]',
+          placeholder: 'you@facility.com',
+          label: 'Email address',
+          required: true,
+          autocomplete: 'email'
+        %}
+      </div>
+      <div class="shrink-0 self-end">
+        {% render 'ui-button', variant: 'primary', content: 'Subscribe', type: 'submit' %}
+      </div>
+    {% endcapture %}
+
+    {% render 'form-container',
+      enable_live_validation: true,
+      layout: 'inline',
+      content: newsletter_fields
+    %}
+  {% endform %}
+
+  {% render 'form-helper', text: 'No spam, ever. Unsubscribe anytime.' %}
+
+  {% render 'ui-alert',
+    variant: 'success',
+    mode: 'inline',
+    title: 'Thanks for subscribing!',
+    message: 'You'll receive a confirmation email shortly.',
+    compact: true
+  %}
+
+</div>
+{% endcapture %}
+{% render 'layout-section', bg: 'page', content: newsletter_section %}
